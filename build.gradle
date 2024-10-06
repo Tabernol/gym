@@ -10,9 +10,23 @@ repositories {
 }
 
 dependencies {
-    // https://mvnrepository.com/artifact/org.springframework/spring-core
-    implementation 'org.springframework:spring-core:5.3.38'
     implementation 'org.springframework:spring-context:5.3.38'
+
+    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1' // I need this dependency for @PostConstruct
+
+
+    compileOnly 'org.projectlombok:lombok:1.18.28'
+    annotationProcessor 'org.projectlombok:lombok:1.18.28'
+    implementation 'org.slf4j:slf4j-api:2.0.7'
+    implementation 'org.slf4j:slf4j-simple:2.0.7' // implementation of logger
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0' // work with JSON
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.0' // for working with LocalData and other
+
+    implementation 'cn.hutool:hutool-all:5.8.32' // for generating unique id;
+
+
+
 
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
