@@ -26,8 +26,4 @@ public class TrainerRepository {
     public Optional<Trainer> findById(Long id) {
         return Optional.ofNullable(storage.getTrainers().getOrDefault(id, null));
     }
-
-//    public boolean delete(Trainer trainer) {
-//        return storage.getTrainers().remove(trainer.getId(), trainer);
-//    }
 }

@@ -35,7 +35,7 @@ public class StorageUtils {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error("Can't save to file " + fileName , e);
         }
     }
 

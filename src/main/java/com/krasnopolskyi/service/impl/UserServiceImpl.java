@@ -8,10 +8,12 @@ import com.krasnopolskyi.service.UserService;
 import com.krasnopolskyi.utils.IdGenerator;
 import com.krasnopolskyi.utils.PasswordGenerator;
 import com.krasnopolskyi.utils.UsernameGenerator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
     // initialized via autowired because task condition 4
     // I prefer initialized via constructor
@@ -27,7 +29,7 @@ public class UserServiceImpl implements UserService {
         String login = usernameGenerator.generateUsername(userDto.getFirstName(), userDto.getLastName());
         String password = PasswordGenerator.generatePassword();
         User user = new User(id, userDto.getFirstName(), userDto.getLastName(), login, password, true);
-        System.out.println("user in userservice " + user);
+        log.info("userService: " + user);
         return userRepository.save(user);
     }
 

@@ -48,6 +48,7 @@ public class FileOperationAspect {
         // Get the class name where the method was invoked
         String className = joinPoint.getTarget().getClass().getSimpleName();
 
+        log.info("---AOP---");
         // Determine which repository was called and act accordingly
         switch (className) {
             case "TraineeRepository":
