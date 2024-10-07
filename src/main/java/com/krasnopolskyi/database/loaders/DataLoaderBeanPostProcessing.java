@@ -7,6 +7,11 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 
+/**
+ * this class provides possibility to configure beans during application context starts
+ * Reads data from resource/data/load/
+ * and provides two ways for inserting data into maps
+ */
 @Component
 @Slf4j
 public class DataLoaderBeanPostProcessing implements BeanPostProcessor {

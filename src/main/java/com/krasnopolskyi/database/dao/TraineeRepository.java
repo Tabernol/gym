@@ -1,20 +1,15 @@
 package com.krasnopolskyi.database.dao;
 
 
-import com.krasnopolskyi.database.StorageUtils;
 import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.database.Storage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
 public class TraineeRepository {
-
-    @Value("${data.save.trainees}")
-    private String trainees;
     private Storage storage;
     // initialized via setter because task condition 4
     // I prefer initialized via constructor

@@ -1,14 +1,14 @@
 [
   {
-    "id": 201,
+    "id": 101,
     "firstName": "Michael",
     "lastName": "Johnson",
     "login": "michael.johnson",
     "password": "mikepass789",
-    "isActive": false
+    "isActive": true
   },
   {
-    "id": 202,
+    "id": 102,
     "firstName": "Emily",
     "lastName": "Davis",
     "login": "emily.davis",

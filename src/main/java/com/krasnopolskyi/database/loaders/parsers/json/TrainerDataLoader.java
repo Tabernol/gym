@@ -3,7 +3,6 @@ package com.krasnopolskyi.database.loaders.parsers.json;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.krasnopolskyi.database.Storage;
-import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.Trainer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +16,7 @@ import java.util.List;
 @Component
 @Slf4j
 public class TrainerDataLoader implements DataLoaderJson<Trainer> {
-    @Value("${data.save.trainers}")
+    @Value("${data.load.trainers}")
     private String trainersPath;
 
     private final Storage storage;

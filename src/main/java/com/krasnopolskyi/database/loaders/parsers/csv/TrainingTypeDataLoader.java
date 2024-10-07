@@ -13,7 +13,7 @@ import java.util.List;
 @Component
 @Slf4j
 public class TrainingTypeDataLoader implements DataLoaderCsv<TrainingType> {
-    @Value("${data.path.training-type}")
+    @Value("${data.load.training-types}")
     private String path;
     private final Storage storage;
 

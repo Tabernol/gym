@@ -1,6 +1,8 @@
-data.path.training-type: data/load/csv/training-type.csv
-data.path.user: data/load/csv/user.csv
-data.path.trainee: data/load/json/trainee.json
+data.load.training-types: data/load/csv/training-types.csv
+
+data.load.users: data/load/json/users.json
+data.load.trainees: data/load/json/trainees.json
+data.load.trainers: data/load/json/trainers.json
 #data.path.trainer: data/trainer.csv
 #data.path.training: data/training.csv
 

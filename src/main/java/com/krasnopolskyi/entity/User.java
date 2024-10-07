@@ -1,10 +1,10 @@
 package com.krasnopolskyi.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
+@Builder
+@NoArgsConstructor
 @AllArgsConstructor
 @ToString
 public class User {
@@ -13,5 +13,5 @@ public class User {
     private String lastName;
     private String login;
     private String password;
-    private boolean isActive;
+    private Boolean isActive;
 }

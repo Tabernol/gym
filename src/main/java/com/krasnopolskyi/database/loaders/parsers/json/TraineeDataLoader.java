@@ -16,7 +16,7 @@ import java.util.List;
 @Component
 @Slf4j
 public class TraineeDataLoader implements DataLoaderJson<Trainee> {
-    @Value("${data.path.trainee}")
+    @Value("${data.load.trainees}")
     private String traineesPath;
     private final Storage storage;
     private final ObjectMapper objectMapper;

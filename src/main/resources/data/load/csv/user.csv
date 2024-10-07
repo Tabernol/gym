@@ -1,3 +1,0 @@
-id,firstName,lastName,login,password,isActive
-101,John,Coach,john.coach,password123,true
-102,Jane,Trainee,jane.trainee,password456,true
