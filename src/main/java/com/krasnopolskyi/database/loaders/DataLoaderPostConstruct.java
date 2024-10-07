@@ -37,7 +37,7 @@ public class DataLoaderPostConstruct {
     }
 
     @PostConstruct
-    public void loadDataFromJson() {
+    public void loadDataFromJson() { // todo refactor to read all files even one failed
         log.info("loading data using PostConstruct start");
         try {
             storage.getUsers().putAll(storageUtils.loadFromJsonFile(usersPath, Long.class, User.class));
