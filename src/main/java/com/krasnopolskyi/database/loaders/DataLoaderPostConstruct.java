@@ -41,10 +41,10 @@ public class DataLoaderPostConstruct {
         log.info("loading data using PostConstruct start");
         try {
             storage.getUsers().putAll(storageUtils.loadFromJsonFile(usersPath, Long.class, User.class));
-            storage.getTrainingTypes().putAll(storageUtils.loadFromJsonFile(trainingTypesPath, Integer.class, TrainingType.class));
             storage.getTrainees().putAll(storageUtils.loadFromJsonFile(traineesPath, Long.class, Trainee.class));
             storage.getTrainers().putAll(storageUtils.loadFromJsonFile(trainersPath, Long.class, Trainer.class));
             storage.getTrainings().putAll(storageUtils.loadFromJsonFile(trainingsPath, Long.class, Training.class));
+            storage.getTrainingTypes().putAll(storageUtils.loadFromJsonFile(trainingTypesPath, Integer.class, TrainingType.class));
             log.info("Data upload successfully");
         } catch (IOException e) {
             log.error("Can't upload data from JSON file " + e.getMessage());
