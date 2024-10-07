@@ -4,8 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
 @Component
@@ -17,13 +21,27 @@ public class StorageUtils {
         this.objectMapper = objectMapper;
     }
 
-    // Serialize map data to a JSON file using Jackson
-    public <K, V> void saveToJsonFile(Map<K, V> map, String fileName) throws IOException {
-        objectMapper.writeValue(new File(fileName), map);
+
+    public <K,V> void saveToFile(String fileName, Map<K,V> data) {
+        Path filePath = Path.of(fileName);
+
+        try {
+            if (!Files.exists(filePath.getParent())) {
+                Files.createDirectories(filePath.getParent());
+            }
+
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, false))) {
+                objectMapper.writeValue(writer, data);
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // Deserialize JSON file to a map using Jackson
     public <K, V> Map<K, V> loadFromJsonFile(String fileName, Class<K> keyClass, Class<V> valueClass) throws IOException {
+        System.out.println("load works");
         return objectMapper.readValue(new File(fileName),
                 objectMapper.getTypeFactory().constructMapType(Map.class, keyClass, valueClass));
     }

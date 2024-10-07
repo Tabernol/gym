@@ -2,17 +2,19 @@ package com.krasnopolskyi.config;
 
 import com.krasnopolskyi.entity.*;
 import com.krasnopolskyi.database.Storage;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.*;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
 @PropertySource("classpath:application.yaml")
 @ComponentScan("com.krasnopolskyi")
+@Slf4j
+@EnableAspectJAutoProxy
 public class AppConfiguration {
 
     @Bean

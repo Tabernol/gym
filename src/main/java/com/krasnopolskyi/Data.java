@@ -1,6 +1,7 @@
 package com.krasnopolskyi;
 
 import com.krasnopolskyi.dto.request.TraineeDto;
+import com.krasnopolskyi.dto.request.TrainerDto;
 
 import java.time.LocalDate;
 
@@ -11,5 +12,7 @@ public class Data {
             .dateOfBirth(LocalDate.of(1999, 11, 23))
             .address("new address")
             .build();
+
+    public static final TrainerDto ARNI_TRAINER = new TrainerDto("Arni", "Schwarz", 1);
 
 }

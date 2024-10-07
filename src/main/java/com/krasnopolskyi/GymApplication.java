@@ -22,38 +22,29 @@ public class GymApplication {
         ApplicationContext context = new AnnotationConfigApplicationContext(AppConfiguration.class);
 
         Storage storage = (Storage) context.getBean("storage");
-        Map<Integer, TrainingType> trainingTypes = storage.getTrainingTypes();
-        Map<Long, User> users = storage.getUsers();
-        Map<Long, Trainee> trainees = storage.getTrainees();
-        Map<Long, Trainer> trainers = storage.getTrainers();
-        Map<Long, Training> trainings = storage.getTrainings();
 
-        log.info("trainingTypes size " + trainingTypes.size());
-        log.info("users size " + users.size());
-        log.info("trainees size " + trainees.size());
-        log.info("trainers size " + trainers.size());
-        log.info("trainings size " + trainings.size());
-
-        TraineeDto traineeDto = TraineeDto.builder()
-                .firstName("John")
-                .lastName("Black")
-                .dateOfBirth(LocalDate.of(1999, 11, 23))
-                .address("new address")
-                .build();
+        log.info("BEFORE trainingTypes size " + storage.getTrainingTypes().size());
+        log.info("BEFORE users size " + storage.getUsers().size());
+        log.info("BEFORE trainees size " + storage.getTrainees().size());
+        log.info("BEFORE trainers size " + storage.getTrainers().size());
+        log.info("BEFORE trainings size " + storage.getTrainings().size());
 
         MainFacade facade = context.getBean(MainFacade.class);
 
         UserCredentials john = facade.createTrainee(Data.JOHN_TRAINEE);
         UserCredentials john1 = facade.createTrainee(Data.JOHN_TRAINEE);
-        facade.createTrainee(Data.JOHN_TRAINEE);
-        facade.createTrainee(Data.JOHN_TRAINEE);
-        facade.createTrainee(Data.JOHN_TRAINEE);
-        facade.createTrainee(Data.JOHN_TRAINEE);
-        UserCredentials john7 = facade.createTrainee(Data.JOHN_TRAINEE);
+        UserCredentials john2 = facade.createTrainee(Data.JOHN_TRAINEE);
 
         log.info(john.toString());
         log.info(john1.toString());
-        log.info(john7.toString());
+        log.info(john2.toString());
+
+
+        log.info("AFTER trainingTypes size " + storage.getTrainingTypes().size());
+        log.info("AFTER users size " + storage.getUsers().size());
+        log.info("AFTER trainees size " + storage.getTrainees().size());
+        log.info("AFTER trainers size " + storage.getTrainers().size());
+        log.info("AFTER trainings size " + storage.getTrainings().size());
 
 
     }
