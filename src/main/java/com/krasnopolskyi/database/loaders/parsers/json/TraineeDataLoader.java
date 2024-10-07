@@ -17,9 +17,8 @@ import java.util.List;
 @Slf4j
 public class TraineeDataLoader implements DataLoaderJson<Trainee> {
     @Value("${data.path.trainee}")
-    private String path;
+    private String traineesPath;
     private final Storage storage;
-
     private final ObjectMapper objectMapper;
 
     public TraineeDataLoader(Storage storage, ObjectMapper objectMapper) {
@@ -31,21 +30,21 @@ public class TraineeDataLoader implements DataLoaderJson<Trainee> {
     public void loadData() {
         List<Trainee> trainees;
 
-        try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(path)) {
+        try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(traineesPath)) {
             if (inputStream == null) {
-                throw new FileNotFoundException("File not found at path: " + path);
+                throw new FileNotFoundException("File not found at path: " + traineesPath);
             }
 
             trainees = objectMapper.readValue(inputStream, new TypeReference<>() {});
 
             insertData(trainees);
-            log.info("From file: " + path);
+            log.info("From file: " + traineesPath);
             log.info("Inserted rows: " + trainees.size());
 
         } catch (FileNotFoundException e) {
-            log.error("The specified file was not found: " + path, e);
+            log.error("The specified file was not found: " + traineesPath, e);
         } catch (IOException e) {
-            log.warn("Could not read from file: " + path, e);
+            log.warn("Could not read from file: " + traineesPath, e);
         }
     }
 

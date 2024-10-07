@@ -7,12 +7,15 @@ import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.Training;
 import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TraineeService;
 import com.krasnopolskyi.service.TrainerService;
 import com.krasnopolskyi.service.TrainingService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class MainFacade {
     private final TraineeService traineeService;
     private final TrainerService trainerService;
@@ -42,7 +45,13 @@ public class MainFacade {
     //////////////////////////////////////////////////////////
 
     public UserCredentials createTrainer(TrainerDto trainerDto){
-        return trainerService.save(trainerDto);
+        try {
+            return trainerService.save(trainerDto);
+        } catch (ValidateException e) {
+            // here should be ExceptionHandler
+            log.warn("Registration failed wrong type of specialization");
+            return new UserCredentials("","");
+        }
     }
 
     public Trainer findTrainerById(Long id) throws EntityNotFoundException {

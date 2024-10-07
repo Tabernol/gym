@@ -22,7 +22,7 @@ public class StorageUtils {
     }
 
 
-    public <K,V> void saveToFile(String fileName, Map<K,V> data) {
+    public <K, V> void saveToFile(String fileName, Map<K, V> data) {
         Path filePath = Path.of(fileName);
 
         try {
@@ -41,8 +41,11 @@ public class StorageUtils {
 
     // Deserialize JSON file to a map using Jackson
     public <K, V> Map<K, V> loadFromJsonFile(String fileName, Class<K> keyClass, Class<V> valueClass) throws IOException {
-        System.out.println("load works");
-        return objectMapper.readValue(new File(fileName),
-                objectMapper.getTypeFactory().constructMapType(Map.class, keyClass, valueClass));
+        try {
+            return objectMapper.readValue(new File(fileName),
+                    objectMapper.getTypeFactory().constructMapType(Map.class, keyClass, valueClass));
+        } catch (IOException e) {
+            throw new IOException("problem with file: " + fileName);
+        }
     }
 }

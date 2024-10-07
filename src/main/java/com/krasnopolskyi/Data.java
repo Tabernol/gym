@@ -14,5 +14,6 @@ public class Data {
             .build();
 
     public static final TrainerDto ARNI_TRAINER = new TrainerDto("Arni", "Schwarz", 1);
+    public static final TrainerDto TRAINER_NOT_VALID = new TrainerDto("Arni", "Schwarz", 10);
 
 }

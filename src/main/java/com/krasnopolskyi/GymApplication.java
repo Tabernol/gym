@@ -31,6 +31,7 @@ public class GymApplication {
 
         MainFacade facade = context.getBean(MainFacade.class);
 
+        log.info("=========================Creating trainee================================");
         UserCredentials john = facade.createTrainee(Data.JOHN_TRAINEE);
         UserCredentials john1 = facade.createTrainee(Data.JOHN_TRAINEE);
         UserCredentials john2 = facade.createTrainee(Data.JOHN_TRAINEE);
@@ -38,6 +39,13 @@ public class GymApplication {
         log.info(john.toString());
         log.info(john1.toString());
         log.info(john2.toString());
+        log.info("=========================Creating trainer================================");
+        UserCredentials trainer = facade.createTrainer(Data.ARNI_TRAINER);
+        UserCredentials failed = facade.createTrainer(Data.TRAINER_NOT_VALID);
+        UserCredentials trainer2 = facade.createTrainer(Data.ARNI_TRAINER);
+        log.info(trainer.toString());
+        log.info(failed.toString());
+        log.info(trainer2.toString());
 
 
         log.info("AFTER trainingTypes size " + storage.getTrainingTypes().size());

@@ -7,6 +7,7 @@ import com.krasnopolskyi.dto.response.UserCredentials;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.User;
 import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TrainerService;
 import com.krasnopolskyi.service.TrainingTypeService;
 import com.krasnopolskyi.service.UserService;
@@ -26,12 +27,12 @@ public class TrainerServiceImpl implements TrainerService {
     private TrainingTypeService trainingTypeService;
 
     @Override
-    public UserCredentials save(TrainerDto trainerDto) {
+    public UserCredentials save(TrainerDto trainerDto) throws ValidateException {
         int specialization;
         try {
             specialization = trainingTypeService.findById(trainerDto.getSpecialization()).getId();
         } catch (EntityNotFoundException e) {
-            throw new IllegalArgumentException("Specialisation with id " + trainerDto.getSpecialization() + " does not exist");
+            throw new ValidateException("Specialisation with id " + trainerDto.getSpecialization() + " does not exist");
         }
 
         User user = userService.save(new UserDto(trainerDto.getFirstName(), trainerDto.getLastName()));

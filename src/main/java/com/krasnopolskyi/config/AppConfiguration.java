@@ -14,7 +14,7 @@ import java.util.Map;
 @PropertySource("classpath:application.yaml")
 @ComponentScan("com.krasnopolskyi")
 @Slf4j
-@EnableAspectJAutoProxy
+@EnableAspectJAutoProxy // enable AOP
 public class AppConfiguration {
 
     @Bean

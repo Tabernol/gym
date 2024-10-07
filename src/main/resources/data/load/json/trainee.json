@@ -1,14 +1,1 @@
-[
-  {
-    "id": 1,
-    "userId": 101,
-    "dateOfBirth": "1995-07-15",
-    "address": "123 Main St, Springfield"
-  },
-  {
-    "id": 2,
-    "userId": 102,
-    "dateOfBirth": "1990-03-25",
-    "address": "456 Oak St, Shelbyville"
-  }
-]
+

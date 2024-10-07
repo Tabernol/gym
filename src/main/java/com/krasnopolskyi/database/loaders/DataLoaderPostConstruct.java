@@ -34,16 +34,17 @@ public class DataLoaderPostConstruct {
 
     @PostConstruct
     public void loadDataFromJson() {
-        log.info("load data using PostConstruct");
-        log.info("---------------------------------------------------------------------");
+        log.info("loading data using PostConstruct start");
         try {
-//            storage.getUsers().putAll(storageUtils.loadFromJsonFile(users, Long.class, User.class));
-//            storage.getTrainingTypes().putAll(storageUtils.loadFromJsonFile(trainingTypes, Integer.class, TrainingType.class));
+            storage.getUsers().putAll(storageUtils.loadFromJsonFile(users, Long.class, User.class));
+            storage.getTrainingTypes().putAll(storageUtils.loadFromJsonFile(trainingTypes, Integer.class, TrainingType.class));
             storage.getTrainees().putAll(storageUtils.loadFromJsonFile(trainees, Long.class, Trainee.class));
-//            storage.getTrainers().putAll(storageUtils.loadFromJsonFile(trainers, Long.class, Trainer.class));
-//            storage.getTrainings().putAll(storageUtils.loadFromJsonFile(trainings, Long.class, Training.class));
+            storage.getTrainers().putAll(storageUtils.loadFromJsonFile(trainers, Long.class, Trainer.class));
+            storage.getTrainings().putAll(storageUtils.loadFromJsonFile(trainings, Long.class, Training.class));
+            log.info("Data upload successfully");
         } catch (IOException e) {
-            log.error("Can't upload data from JSON file", e);
+            log.error("Can't upload data from JSON file " + e.getMessage());
         }
+        log.info("loading data using PostConstruct finish");
     }
 }

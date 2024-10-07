@@ -1,6 +1,0 @@
-id,traineeId,trainerId,trainingName,trainingType,date,duration
-1,1,1,"Yoga Basics",1,2023-10-01,60
-2,2,2,"Weight Training",2,2023-10-02,90
-3,3,3,"Cross Fit Training",3,2023-10-03,120
-4,4,4,"Advanced Pilates",1,2023-10-04,45
-5,5,5,"Cardio Session",2,2023-10-05,30
