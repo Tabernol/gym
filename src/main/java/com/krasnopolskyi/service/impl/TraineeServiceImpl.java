@@ -10,10 +10,12 @@ import com.krasnopolskyi.exception.EntityNotFoundException;
 import com.krasnopolskyi.service.TraineeService;
 import com.krasnopolskyi.service.UserService;
 import com.krasnopolskyi.utils.IdGenerator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class TraineeServiceImpl implements TraineeService {
     // initialized via autowired because task condition 4
     // I prefer initialized via constructor
@@ -33,6 +35,7 @@ public class TraineeServiceImpl implements TraineeService {
                 .dateOfBirth(traineeDto.getDateOfBirth())
                 .build();
         traineeRepository.save(trainee);
+        log.info("trainee has been saved " + trainee.getId());
         return new UserCredentials(user.getLogin(), user.getPassword());
     }
 
@@ -50,6 +53,7 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public boolean delete(Trainee trainee) {
+        log.info("attempt to delete trainee " + trainee.getId());
         return traineeRepository.delete(trainee);
     }
 

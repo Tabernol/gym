@@ -2,6 +2,7 @@ package com.krasnopolskyi.facade;
 
 import com.krasnopolskyi.dto.request.TraineeDto;
 import com.krasnopolskyi.dto.request.TrainerDto;
+import com.krasnopolskyi.dto.request.TrainingDto;
 import com.krasnopolskyi.dto.response.UserCredentials;
 import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.Trainer;
@@ -63,8 +64,14 @@ public class MainFacade {
     }
     //////////////////////////////////////////////////////////////
 
-    public Training addTraining(Training training){
-        return trainingService.save(training);
+    public Training addTraining(TrainingDto trainingDto){
+        try {
+            return trainingService.save(trainingDto);
+        } catch (ValidateException e) {
+            // here should be ExceptionHandler
+            log.info("adding training session failed " + e.getMessage());
+            return null;
+        }
     }
 
     public Training findTrainingById(Long id) throws EntityNotFoundException {

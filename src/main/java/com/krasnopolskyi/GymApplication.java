@@ -1,22 +1,15 @@
 package com.krasnopolskyi;
 
 import com.krasnopolskyi.config.AppConfiguration;
-import com.krasnopolskyi.dto.request.TraineeDto;
 import com.krasnopolskyi.dto.response.UserCredentials;
 import com.krasnopolskyi.entity.*;
 import com.krasnopolskyi.facade.MainFacade;
-import com.krasnopolskyi.service.TraineeService;
 import com.krasnopolskyi.database.Storage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.scheduling.annotation.EnableScheduling;
-
-import java.time.LocalDate;
-import java.util.Map;
 
 @Slf4j
-@EnableScheduling
 public class GymApplication {
     public static void main(String[] args) {
         ApplicationContext context = new AnnotationConfigApplicationContext(AppConfiguration.class);
@@ -42,11 +35,17 @@ public class GymApplication {
         log.info("=========================Creating trainer================================");
         UserCredentials trainer = facade.createTrainer(Data.ARNI_TRAINER);
         UserCredentials failed = facade.createTrainer(Data.TRAINER_NOT_VALID);
-        UserCredentials trainer2 = facade.createTrainer(Data.ARNI_TRAINER);
         log.info(trainer.toString());
         log.info(failed.toString());
-        log.info(trainer2.toString());
-
+        log.info("==================== Creating training ========================");
+        Training training = facade.addTraining(Data.trainingValid);
+        Training training1 = facade.addTraining(Data.trainingInvalidTrainee);
+        Training training2 = facade.addTraining(Data.trainingInvalidTrainer);
+        Training training3 = facade.addTraining(Data.trainingInvalidSpecialization);
+        log.info(training.toString());
+        log.info("training1 " + training1);
+        log.info("training2 " + training2);
+        log.info("training3 " + training3);
 
         log.info("AFTER trainingTypes size " + storage.getTrainingTypes().size());
         log.info("AFTER users size " + storage.getUsers().size());

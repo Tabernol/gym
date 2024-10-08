@@ -12,10 +12,12 @@ import com.krasnopolskyi.service.TrainerService;
 import com.krasnopolskyi.service.TrainingTypeService;
 import com.krasnopolskyi.service.UserService;
 import com.krasnopolskyi.utils.IdGenerator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class TrainerServiceImpl implements TrainerService {
     // initialized via autowired because task condition 4
     // I prefer initialized via constructor
@@ -32,6 +34,7 @@ public class TrainerServiceImpl implements TrainerService {
         try {
             specialization = trainingTypeService.findById(trainerDto.getSpecialization()).getId();
         } catch (EntityNotFoundException e) {
+            log.warn("Attempt to save trainer with wrong specialization " + trainerDto.getSpecialization());
             throw new ValidateException("Specialisation with id " + trainerDto.getSpecialization() + " does not exist");
         }
 
@@ -43,7 +46,7 @@ public class TrainerServiceImpl implements TrainerService {
                 .specialization(specialization)
                 .build();
         trainerRepository.save(trainer); // save entity
-
+        log.info("trainer has been saved " + trainer.getId());
         return new UserCredentials(user.getLogin(), user.getPassword());
     }
 

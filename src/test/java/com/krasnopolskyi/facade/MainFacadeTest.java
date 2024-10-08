@@ -2,6 +2,7 @@ package com.krasnopolskyi.facade;
 
 import com.krasnopolskyi.dto.request.TraineeDto;
 import com.krasnopolskyi.dto.request.TrainerDto;
+import com.krasnopolskyi.dto.request.TrainingDto;
 import com.krasnopolskyi.dto.response.UserCredentials;
 import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.Trainer;
@@ -199,9 +200,17 @@ class MainFacadeTest {
     }
 
     @Test
-    void testAddTraining() {
+    void testAddTraining() throws ValidateException {
+        TrainingDto trainingDto = TrainingDto.builder()
+                .trainingName("Cardio2")
+                .trainingType(1)
+                .date(LocalDate.of(2024, 9,3))
+                .duration(1000)
+                .traineeId(1L)
+                .trainerId(1L)
+                .build();
+
         Training training = Training.builder()
-                .id(1L)
                 .trainingName("Cardio2")
                 .trainingType(1)
                 .date(LocalDate.of(2024, 9,3))
@@ -211,16 +220,39 @@ class MainFacadeTest {
                 .build();
 
         // Mock the behavior of trainingService.save
-        when(trainingService.save(training)).thenReturn(training);
+        when(trainingService.save(trainingDto)).thenReturn(training);
 
         // Call the method
-        Training result = mainFacade.addTraining(training);
+        Training result = mainFacade.addTraining(trainingDto);
 
         // Verify that the service method was called
-        verify(trainingService).save(training);
+        verify(trainingService).save(trainingDto);
 
         // Assert the expected result
         assertEquals(training, result);
+    }
+
+    @Test
+    void testAddTraining_ValidateException() throws ValidateException {
+        TrainingDto trainingDto = TrainingDto.builder()
+                .trainingName("Cardio2")
+                .trainingType(1)
+                .date(LocalDate.of(2024, 9,3))
+                .duration(1000)
+                .traineeId(1L)
+                .trainerId(1L)
+                .build();
+
+        // Mock the behavior of trainingService.save
+        when(trainingService.save(trainingDto)).thenThrow(new ValidateException("test"));
+
+        // Call the method
+        Training result = mainFacade.addTraining(trainingDto);
+
+        // Verify that the service method was called
+        verify(trainingService).save(trainingDto);
+
+        assertThrows(ValidateException.class, () -> trainingService.save(trainingDto));
     }
 
     @Test

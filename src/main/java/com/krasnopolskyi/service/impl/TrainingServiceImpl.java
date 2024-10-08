@@ -4,17 +4,21 @@ import com.krasnopolskyi.database.dao.TraineeRepository;
 import com.krasnopolskyi.database.dao.TrainerRepository;
 import com.krasnopolskyi.database.dao.TrainingRepository;
 import com.krasnopolskyi.database.dao.TrainingTypeRepository;
+import com.krasnopolskyi.dto.request.TrainingDto;
 import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.Training;
 import com.krasnopolskyi.entity.TrainingType;
 import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TrainingService;
 import com.krasnopolskyi.utils.IdGenerator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class TrainingServiceImpl implements TrainingService {
 
     // initialized via autowired because task condition 4
@@ -29,26 +33,33 @@ public class TrainingServiceImpl implements TrainingService {
     private TrainingTypeRepository trainingTypeRepository;
 
     @Override
-    public Training save(Training training) {
-        Trainee trainee = traineeRepository.findById(training.getTraineeId())
-                .orElseThrow(() -> new IllegalArgumentException("Could not find trainee with id " + training.getTraineeId()));
+    public Training save(TrainingDto trainingDto) throws ValidateException {
+        Trainee trainee = traineeRepository.findById(trainingDto.getTraineeId())
+                .orElseThrow(() -> new ValidateException("Could not find trainee with id " + trainingDto.getTraineeId()));
 
-        Trainer trainer = trainerRepository.findById(training.getTrainerId())
-                .orElseThrow(() -> new IllegalArgumentException("Could not find trainer with id " + training.getTrainerId()));
+        Trainer trainer = trainerRepository.findById(trainingDto.getTrainerId())
+                .orElseThrow(() -> new ValidateException("Could not find trainer with id " + trainingDto.getTrainerId()));
 
-        TrainingType trainingType = trainingTypeRepository.findById(training.getTrainingType())
-                .orElseThrow(() -> new IllegalArgumentException("Could not find training type with id " + training.getTrainingType()));
+        TrainingType trainingType = trainingTypeRepository.findById(trainingDto.getTrainingType())
+                .orElseThrow(() -> new ValidateException("Could not find training type with id " + trainingDto.getTrainingType()));
+
+        if(trainer.getSpecialization() != trainingType.getId()){
+            log.warn("Attempt to save training session with wrong specialization for trainer");
+            throw new ValidateException("This trainer is not assigned to this training type");
+        }
 
         long id = IdGenerator.generateId();
-        Training.builder()
+        Training training = Training.builder()
                 .id(id)
                 .traineeId(trainee.getId())
                 .trainerId(trainer.getId())
                 .trainingName(trainingType.getType())
-                .date(training.getDate())
-                .duration(training.getDuration())
+                .date(trainingDto.getDate())
+                .duration(trainingDto.getDuration())
                 .build();
-        return trainingRepository.save(training);
+        Training save = trainingRepository.save(training);
+        log.info("training has been saved " + save);
+        return save;
     }
 
     @Override

@@ -29,8 +29,10 @@ public class UserServiceImpl implements UserService {
         String login = usernameGenerator.generateUsername(userDto.getFirstName(), userDto.getLastName());
         String password = PasswordGenerator.generatePassword();
         User user = new User(id, userDto.getFirstName(), userDto.getLastName(), login, password, true);
-        log.info("userService: " + user);
-        return userRepository.save(user);
+        log.info("Try save user");
+        User save = userRepository.save(user);
+        log.info("User has been saved " + save.getId());
+        return save;
     }
 
     @Override
@@ -46,6 +48,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean delete(User user) {
+        log.info("attempt to delete user " + user.getId());
         return userRepository.delete(user);
     }
 }

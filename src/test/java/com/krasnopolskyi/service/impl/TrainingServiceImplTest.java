@@ -4,12 +4,13 @@ import com.krasnopolskyi.database.dao.TraineeRepository;
 import com.krasnopolskyi.database.dao.TrainerRepository;
 import com.krasnopolskyi.database.dao.TrainingRepository;
 import com.krasnopolskyi.database.dao.TrainingTypeRepository;
+import com.krasnopolskyi.dto.request.TrainingDto;
 import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.Training;
 import com.krasnopolskyi.entity.TrainingType;
 import com.krasnopolskyi.exception.EntityNotFoundException;
-import com.krasnopolskyi.utils.IdGenerator;
+import com.krasnopolskyi.exception.ValidateException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -39,7 +40,7 @@ public class TrainingServiceImplTest {
     @InjectMocks
     private TrainingServiceImpl trainingService;
 
-    private Training training;
+    private TrainingDto trainingDto;
     private Trainee trainee;
     private Trainer trainer;
     private TrainingType trainingType;
@@ -49,8 +50,7 @@ public class TrainingServiceImplTest {
         MockitoAnnotations.openMocks(this);
 
         // Set up a sample Training object
-        training = Training.builder()
-                .id(1L)
+        trainingDto = TrainingDto.builder()
                 .trainingName("Cardio")
                 .trainingType(1)
                 .date(LocalDate.of(2024, 9,3))
@@ -68,7 +68,7 @@ public class TrainingServiceImplTest {
     }
 
     @Test
-    public void testSave_Success() {
+    public void testSave_Success() throws ValidateException {
         // Mock repositories to return the corresponding entities
         when(traineeRepository.findById(1L)).thenReturn(Optional.of(trainee));
         when(trainerRepository.findById(1L)).thenReturn(Optional.of(trainer));
@@ -82,15 +82,14 @@ public class TrainingServiceImplTest {
             return savedTraining;
         });
 
-        Training savedTraining = trainingService.save(training);
+        Training savedTraining = trainingService.save(trainingDto);
 
         // Assert that the saved training object is not null and has an ID
         assertNotNull(savedTraining);
         assertNotNull(savedTraining.getId());
-        assertEquals(trainingType.getId(), savedTraining.getTrainingType());
-        assertEquals(training.getDate(), savedTraining.getDate());
-        assertEquals(training.getDuration(), savedTraining.getDuration());
-        assertEquals(training.getTrainingName(), savedTraining.getTrainingName());
+        assertEquals(trainingDto.getDate(), savedTraining.getDate());
+        assertEquals(trainingDto.getDuration(), savedTraining.getDuration());
+        assertEquals(trainingDto.getTrainingName(), savedTraining.getTrainingName());
 
         // Verify that the necessary repository methods were called
         verify(traineeRepository, times(1)).findById(1L);
@@ -105,8 +104,8 @@ public class TrainingServiceImplTest {
         when(traineeRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Assert that an IllegalArgumentException is thrown
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            trainingService.save(training);
+        ValidateException thrown = assertThrows(ValidateException.class, () -> {
+            trainingService.save(trainingDto);
         });
 
         assertEquals("Could not find trainee with id 1", thrown.getMessage());
@@ -125,8 +124,8 @@ public class TrainingServiceImplTest {
         when(trainerRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Assert that an IllegalArgumentException is thrown
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            trainingService.save(training);
+        ValidateException thrown = assertThrows(ValidateException.class, () -> {
+            trainingService.save(trainingDto);
         });
 
         assertEquals("Could not find trainer with id 1", thrown.getMessage());
@@ -146,8 +145,8 @@ public class TrainingServiceImplTest {
         when(trainingTypeRepository.findById(1)).thenReturn(Optional.empty());
 
         // Assert that an IllegalArgumentException is thrown
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            trainingService.save(training);
+        ValidateException thrown = assertThrows(ValidateException.class, () -> {
+            trainingService.save(trainingDto);
         });
 
         assertEquals("Could not find training type with id 1", thrown.getMessage());
@@ -158,6 +157,17 @@ public class TrainingServiceImplTest {
 
     @Test
     public void testFindById_Success() throws EntityNotFoundException {
+        Training training = Training.builder()
+                .id(1L)
+                .trainingName("Cardio")
+                .trainingType(1)
+                .date(LocalDate.of(2024, 9,3))
+                .duration(1000)
+                .traineeId(1L)
+                .trainerId(1L)
+                .build();
+
+
         // Mock the training repository to return the training object
         when(trainingRepository.findById(1L)).thenReturn(Optional.of(training));
 

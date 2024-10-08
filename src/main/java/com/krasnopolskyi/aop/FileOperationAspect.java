@@ -2,7 +2,6 @@ package com.krasnopolskyi.aop;
 
 import com.krasnopolskyi.database.Storage;
 import com.krasnopolskyi.database.StorageUtils;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
@@ -10,6 +9,10 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+/**
+ * Using AOP this class manage saving from maps into separate JSON files
+ * after each invocation save() or delete() method in repositories
+ */
 @Aspect
 @Component
 @Slf4j
@@ -32,15 +35,6 @@ public class FileOperationAspect {
         this.storageUtils = storageUtils;
         this.storage = storage;
     }
-
-//    // Pointcut for save/delete methods in TraineeRepository class
-//    @After("execution(* com.krasnopolskyi.database.dao.TraineeRepository.save(..)), " +
-//            "execution(* com.krasnopolskyi.database.dao.TraineeRepository.delete(..))")
-//    public void afterSave() {
-//        log.info("AOP works");
-//        // Invoke the saving method after the repository save method
-//        storageUtils.saveToFile(trainees, storage.getTrainees());
-//    }
 
     // Pointcut for save/delete methods in all repository classes
     @After("execution(* com.krasnopolskyi.database.dao.*.save(..)) || " +
