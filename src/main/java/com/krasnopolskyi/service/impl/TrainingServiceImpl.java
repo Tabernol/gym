@@ -56,15 +56,4 @@ public class TrainingServiceImpl implements TrainingService {
         return trainingRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Could not found training with id " + id));
     }
-
-    private void validate(Training training) {
-        traineeRepository.findById(training.getTraineeId())
-                .orElseThrow(() -> new IllegalArgumentException("Could not find trainee with id " + training.getTraineeId()));
-
-        trainerRepository.findById(training.getTrainerId())
-                .orElseThrow(() -> new IllegalArgumentException("Could not find trainer with id " + training.getTrainerId()));
-
-        trainingTypeRepository.findById(training.getTrainingType())
-                .orElseThrow(() -> new IllegalArgumentException("Could not find training type with id " + training.getTrainingType()));
-    }
 }
