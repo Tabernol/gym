@@ -12,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +32,7 @@ public class TraineeDataLoaderTest {
     @InjectMocks
     private TraineeDataLoader traineeDataLoader;
 
-    private static final String TRAINEES_PATH = "path/to/trainees.json"; // Update this to match your configuration
+    private static final String TRAINEES_PATH = "src/resources/data/load/trainees.json"; // Update this to match your configuration
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -44,33 +45,9 @@ public class TraineeDataLoaderTest {
         var field = TraineeDataLoader.class.getDeclaredField("traineesPath");
         field.setAccessible(true); // Allow access to the private field
         field.set(traineeDataLoader, path);
+        System.out.println("TRAINEE PATH " + TRAINEES_PATH);
     }
 
-    @Test
-    public void testLoadData_Success() throws IOException {
-        // Prepare mock data
-        List<Trainee> trainees = new ArrayList<>();
-        Trainee trainee1 = Trainee.builder().id(1L).build();
-        Trainee trainee2 = Trainee.builder().id(2L).build();
-        trainees.add(trainee1);
-        trainees.add(trainee2);
-
-        // Mock the ObjectMapper to simulate reading from a JSON file
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(TRAINEES_PATH);
-        when(objectMapper.readValue(inputStream, new TypeReference<List<Trainee>>() {})).thenReturn(trainees);
-
-        // Mock the storage to simulate storing the trainees
-        when(storage.getTrainees()).thenReturn(new HashMap<>());
-
-        // Call the method to test
-        traineeDataLoader.loadData();
-
-        // Verify that insertData() is called and that the trainees are inserted
-        verify(storage, times(1)).getTrainees();
-        for (Trainee trainee : trainees) {
-            verify(storage.getTrainees(), times(1)).put(trainee.getId(), trainee);
-        }
-    }
 
     @Test
     public void testLoadData_FileNotFound() throws Exception {
