@@ -18,12 +18,7 @@ import java.util.Map;
 public class AppConfiguration {
 
     @Bean
-    public Map<Integer, TrainingType> trainingTypesMap() {
-        Map<Integer, TrainingType> trainingTypeMap = new HashMap<>();
-        trainingTypeMap.put(1, new TrainingType(1, "Cardio"));
-        return trainingTypeMap;
-    }
-
+    public Map<Integer, TrainingType> trainingTypesMap() {return new HashMap<>();}
     @Bean
     public Map<Long, User> usersMap() {
         return new HashMap<>();

@@ -75,20 +75,4 @@ public class TrainerDataLoaderTest {
         verify(storage, never()).getTrainers(); // Should not interact with storage if there's an IOException
     }
 
-//    @Test
-//    void testInsertData() {
-//        // Given
-//        Trainer trainer1 = Trainer.builder().id(1L).build();
-//        Trainer trainer2 = Trainer.builder().id(2L).build();
-//        List<Trainer> trainers = List.of(trainer1, trainer2);
-//
-//        when(storage.getTrainers()).thenReturn(mock(Map.class)); // Mocking the trainer map
-//
-//        // Execute
-//        trainerDataLoader.insertData(trainers); // Call the method directly
-//
-//        // Then
-//        verify(storage.getTrainers()).put(trainer1.getId(), trainer1);
-//        verify(storage.getTrainers()).put(trainer2.getId(), trainer2);
-//    }
 }

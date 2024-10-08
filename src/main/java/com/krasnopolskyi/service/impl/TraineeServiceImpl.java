@@ -4,7 +4,6 @@ import com.krasnopolskyi.database.dao.TraineeRepository;
 import com.krasnopolskyi.dto.request.TraineeDto;
 import com.krasnopolskyi.dto.request.UserDto;
 import com.krasnopolskyi.dto.response.UserCredentials;
-import com.krasnopolskyi.dto.request.TraineeUpdateDto;
 import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.User;
 import com.krasnopolskyi.exception.EntityNotFoundException;

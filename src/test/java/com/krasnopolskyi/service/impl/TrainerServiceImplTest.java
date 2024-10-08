@@ -104,6 +104,9 @@ class TrainerServiceImplTest {
 
         // Assert that the trainer is retrieved correctly
         assertEquals(trainer, result);
+        assertEquals(trainer.getId(), result.getId());
+        assertEquals(trainer.getUserId(), result.getUserId());
+        assertEquals(trainer.getSpecialization(), result.getSpecialization());
 
         // Verify that findById() was called once with the correct ID
         verify(trainerRepository, times(1)).findById(1L);
@@ -127,12 +130,15 @@ class TrainerServiceImplTest {
 
     @Test
     public void testUpdate() {
+
         // Mock the trainer repository to return the saved trainer
         when(trainerRepository.save(any(Trainer.class))).thenReturn(trainer);
 
         Trainer result = trainerService.update(trainer);
 
         // Assert that the trainer is updated correctly
+        assertEquals(trainer.getId(), result.getId());
+        assertEquals(trainer.getSpecialization(), result.getSpecialization());
         assertEquals(trainer, result);
 
         // Verify that trainerRepository.save() was called once with the correct Trainer

@@ -2,6 +2,7 @@ package com.krasnopolskyi.aop;
 
 import com.krasnopolskyi.database.Storage;
 import com.krasnopolskyi.database.StorageUtils;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;

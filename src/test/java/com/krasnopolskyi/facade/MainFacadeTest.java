@@ -144,6 +144,25 @@ class MainFacadeTest {
     }
 
     @Test
+    void testUpdateTrainer_success() throws ValidateException {
+        Trainer trainer = new Trainer(1L, 101L, 1);
+
+        // Mock the behavior of trainerService.save
+        when(trainerService.update(any(Trainer.class))).thenReturn(trainer);
+
+        // Call the method
+        Trainer result = mainFacade.updateTrainer(trainer);
+
+        // Verify that the service method was called
+        verify(trainerService).update(trainer);
+
+        // Assert the expected result
+        assertEquals(trainer.getId(), result.getId());
+        assertEquals(trainer.getSpecialization(), result.getSpecialization());
+        assertEquals(trainer.getUserId(), result.getUserId());
+    }
+
+    @Test
     void testCreateTrainer_validateException() throws ValidateException {
         TrainerDto trainerDto = new TrainerDto("john", "black", 15);
 

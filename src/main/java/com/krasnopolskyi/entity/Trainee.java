@@ -13,5 +13,4 @@ public class Trainee {
     private Long userId;
     private LocalDate dateOfBirth;
     private String address;
-
 }

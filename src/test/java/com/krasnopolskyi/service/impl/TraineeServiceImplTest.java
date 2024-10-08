@@ -114,6 +114,9 @@ class TraineeServiceImplTest {
 
         // Assert that the trainee is updated correctly
         assertEquals(trainee, result);
+        assertEquals(trainee.getAddress(), result.getAddress());
+        assertEquals(trainee.getDateOfBirth(), result.getDateOfBirth());
+        assertEquals(trainee.getUserId(), result.getUserId());
 
         // Verify that traineeRepository.save() was called once with the correct Trainee
         verify(traineeRepository, times(1)).save(trainee);

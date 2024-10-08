@@ -51,7 +51,7 @@ public class TrainingServiceImplTest {
         // Set up a sample Training object
         training = Training.builder()
                 .id(1L)
-                .trainingName("Cardio2")
+                .trainingName("Cardio")
                 .trainingType(1)
                 .date(LocalDate.of(2024, 9,3))
                 .duration(1000)
@@ -90,6 +90,7 @@ public class TrainingServiceImplTest {
         assertEquals(trainingType.getId(), savedTraining.getTrainingType());
         assertEquals(training.getDate(), savedTraining.getDate());
         assertEquals(training.getDuration(), savedTraining.getDuration());
+        assertEquals(training.getTrainingName(), savedTraining.getTrainingName());
 
         // Verify that the necessary repository methods were called
         verify(traineeRepository, times(1)).findById(1L);
