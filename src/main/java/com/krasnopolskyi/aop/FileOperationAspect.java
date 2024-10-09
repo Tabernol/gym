@@ -1,41 +1,19 @@
 package com.krasnopolskyi.aop;
 
-import com.krasnopolskyi.database.Storage;
-import com.krasnopolskyi.database.StorageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * Using AOP this class manage saving from maps into separate JSON files
- * after each invocation save() or delete() method in repositories
+ * Using AOP this class makes logs after each invocation
+ * save() or delete() method in repositories
  */
 @Aspect
 @Component
 @Slf4j
 public class FileOperationAspect {
-    private final StorageUtils storageUtils;
-    private final Storage storage;
-
-    @Value("${data.save.users}")
-    private String users;
-    @Value("${data.save.trainees}")
-    private String trainees;
-    @Value("${data.save.trainers}")
-    private String trainers;
-    @Value("${data.save.trainings}")
-    private String trainings;
-    @Value("${data.save.training-types}")
-    private String trainingTypes;
-
-    public FileOperationAspect(StorageUtils storageUtils, Storage storage) {
-        this.storageUtils = storageUtils;
-        this.storage = storage;
-    }
-
     // Pointcut for save/delete methods in all repository classes
     @After("execution(* com.krasnopolskyi.database.dao.*.save(..)) || " +
             "execution(* com.krasnopolskyi.database.dao.*.delete(..))")
@@ -43,23 +21,22 @@ public class FileOperationAspect {
         // Get the class name where the method was invoked
         String className = joinPoint.getTarget().getClass().getSimpleName();
 
-        log.info("---AOP---");
         // Determine which repository was called and act accordingly
         switch (className) {
             case "TraineeRepository":
-                storageUtils.saveToFile(trainees, storage.getTrainees());
+                log.info("TraineeRepository has done save/delete method");
                 break;
             case "TrainerRepository":
-                storageUtils.saveToFile(trainers, storage.getTrainers());
+                log.info("TrainerRepository has done save/delete method");
                 break;
             case "UserRepository":
-                storageUtils.saveToFile(users, storage.getUsers());
+                log.info("UserRepository has done save/delete method");
                 break;
             case "TrainingRepository":
-                storageUtils.saveToFile(trainings, storage.getTrainings());
+                log.info("TrainingRepository has done save/delete method");
                 break;
             case "TrainingTypeRepository":
-                storageUtils.saveToFile(trainingTypes, storage.getTrainingTypes());
+                log.info("TrainingTypeRepository has done save/delete method");
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + className);

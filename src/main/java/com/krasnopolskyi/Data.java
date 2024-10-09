@@ -3,11 +3,12 @@ package com.krasnopolskyi;
 import com.krasnopolskyi.dto.request.TraineeDto;
 import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.request.TrainingDto;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-
+@Component
 public class Data {
-   public static final TraineeDto JOHN_TRAINEE = TraineeDto.builder()
+    public static final TraineeDto JOHN_TRAINEE = TraineeDto.builder()
             .firstName("John")
             .lastName("Black")
             .dateOfBirth(LocalDate.of(1999, 11, 23))
@@ -52,7 +53,4 @@ public class Data {
             .duration(3600)
             .trainingName("monday")
             .build();
-
-
-
 }
