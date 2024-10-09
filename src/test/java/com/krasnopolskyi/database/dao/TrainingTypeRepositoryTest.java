@@ -27,7 +27,7 @@ class TrainingTypeRepositoryTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        trainingType = new TrainingType(1, "Cardio");
+
     }
 
 //    @Test

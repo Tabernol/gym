@@ -23,7 +23,7 @@ class TrainerRepositoryTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        trainer = Trainer.builder().id(1L).build();
+
 
     }
 

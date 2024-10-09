@@ -1,8 +1,8 @@
-#spring:
-#  datasource:
-#    url: jdbc:postgresql://localhost:5432/postgres
-#    name: postgres
-#    password: postgres
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    name: postgres
+    password: postgres
 
 #  jpa:
 #    properties.hibernate:

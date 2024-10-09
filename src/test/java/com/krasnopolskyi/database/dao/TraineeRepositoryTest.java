@@ -26,7 +26,7 @@ class TraineeRepositoryTest {
         MockitoAnnotations.openMocks(this);
         // Mock storage behavior
         // Create a dummy Trainee object for testing
-        trainee = Trainee.builder().id(1L).build();
+
     }
 
 //    @Test

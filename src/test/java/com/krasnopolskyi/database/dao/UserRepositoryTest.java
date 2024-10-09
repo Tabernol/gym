@@ -24,7 +24,7 @@ class UserRepositoryTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        user = User.builder().id(1L).login("testUser").build();
+
 
     }
 
