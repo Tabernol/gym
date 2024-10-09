@@ -2,13 +2,23 @@ package com.krasnopolskyi.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import jakarta.annotation.PostConstruct;
+import liquibase.Contexts;
+import liquibase.LabelExpression;
+import liquibase.Liquibase;
+import liquibase.database.Database;
+import liquibase.database.DatabaseFactory;
+import liquibase.database.jvm.JdbcConnection;
 import liquibase.integration.spring.SpringLiquibase;
+import liquibase.resource.ClassLoaderResourceAccessor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+
 @PropertySource("classpath:application.yaml")
 @Configuration
 public class DataSourceConfig {
@@ -37,13 +47,23 @@ public class DataSourceConfig {
         return new HikariDataSource(config);
     }
 
-//    @Bean
-//    public SpringLiquibase liquibase() {
-//        System.out.println(changeLogMaster);
-//        SpringLiquibase liquibase = new SpringLiquibase();
-//        liquibase.setChangeLog(changeLogMaster);
-//        liquibase.setDataSource(dataSource());
-//        liquibase.setDefaultSchema("public");
-//        return liquibase;
-//    }
+    @PostConstruct
+    public void runLiquibase() {
+        try {
+            Connection connection = dataSource().getConnection();
+            Database database = DatabaseFactory.getInstance()
+                    .findCorrectDatabaseImplementation(new JdbcConnection(connection));
+
+            // Create a Liquibase instance with your changelog file
+            Liquibase liquibase = new Liquibase(changeLogMaster, new ClassLoaderResourceAccessor(), database);
+
+            // Run the update to apply migrations
+            liquibase.update(new Contexts(), new LabelExpression());
+
+            // Close the connection
+            connection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
