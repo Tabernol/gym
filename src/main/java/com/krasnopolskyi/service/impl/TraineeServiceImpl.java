@@ -2,13 +2,10 @@ package com.krasnopolskyi.service.impl;
 
 import com.krasnopolskyi.database.dao.TraineeRepository;
 import com.krasnopolskyi.dto.request.TraineeDto;
-import com.krasnopolskyi.dto.request.UserDto;
 import com.krasnopolskyi.dto.response.UserCredentials;
 import com.krasnopolskyi.entity.Trainee;
-import com.krasnopolskyi.entity.User;
 import com.krasnopolskyi.exception.EntityNotFoundException;
 import com.krasnopolskyi.service.TraineeService;
-import com.krasnopolskyi.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,12 +13,12 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class TraineeServiceImpl implements TraineeService {
-    // initialized via autowired because task condition 4
-    // I prefer initialized via constructor
-    @Autowired
-    private TraineeRepository traineeRepository;
-    @Autowired
-    private UserService userService;
+    private final TraineeRepository traineeRepository;
+
+    public TraineeServiceImpl(TraineeRepository traineeRepository) {
+        this.traineeRepository = traineeRepository;
+    }
+
 
     @Override
     public UserCredentials save(TraineeDto traineeDto) {
@@ -47,7 +44,7 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     public boolean delete(Trainee trainee) {
         log.info("attempt to delete trainee " + trainee.getId());
-        return traineeRepository.delete(trainee);
+        return false;
     }
 
 

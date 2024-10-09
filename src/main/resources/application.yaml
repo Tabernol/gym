@@ -1,8 +1,8 @@
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    name: postgres
-    password: postgres
+datasource.url: jdbc:postgresql://localhost:5432/gym
+datasource.username: postgres
+datasource.password: postgres
+datasource.pool-size: 10
+datasource.master-change-log: classpath:src/main/resources/db/changelog/db.changelog-master.yaml
 
 #  jpa:
 #    properties.hibernate:
