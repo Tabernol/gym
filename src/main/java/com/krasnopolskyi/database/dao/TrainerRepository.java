@@ -20,7 +20,7 @@ public class TrainerRepository {
     public Trainer save(Trainer trainer) {
         // need to save into map twice because when do it at first time Map returns null
         storage.getTrainers().put(trainer.getId(), trainer);
-        return storage.getTrainers().put(trainer.getId(), trainer);
+        return storage.getTrainers().put(trainer.getId(), trainer); // saving to a file is done implicitly using AOP
     }
 
     public Optional<Trainer> findById(Long id) {

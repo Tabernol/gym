@@ -21,7 +21,7 @@ public class UserRepository {
     public User save(User user) {
         // need to save into map twice because when do it at first time Map returns null
         storage.getUsers().put(user.getId(), user);
-        return storage.getUsers().put(user.getId(), user);
+        return storage.getUsers().put(user.getId(), user); // saving to a file is done implicitly using AOP
     }
 
     public Optional<User> findById(Long id) {
@@ -34,7 +34,7 @@ public class UserRepository {
 
     public boolean delete(User user) {
         return storage.getUsers().remove(user.getId(), user);
-    }
+    } // deleting to a file is done implicitly using AOP
 
     public boolean isUsernameExist(String username) {
         for (User user : storage.getUsers().values()) {
