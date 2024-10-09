@@ -11,7 +11,6 @@ import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TrainerService;
 import com.krasnopolskyi.service.TrainingTypeService;
 import com.krasnopolskyi.service.UserService;
-import com.krasnopolskyi.utils.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,15 +38,10 @@ public class TrainerServiceImpl implements TrainerService {
         }
 
         User user = userService.save(new UserDto(trainerDto.getFirstName(), trainerDto.getLastName()));
-        long id = IdGenerator.generateId();
-        Trainer trainer = Trainer.builder()
-                .id(id)
-                .userId(user.getId())
-                .specialization(specialization)
-                .build();
-        trainerRepository.save(trainer); // save entity
-        log.info("trainer has been saved " + trainer.getId());
-        return new UserCredentials(user.getLogin(), user.getPassword());
+
+//        trainerRepository.save(trainer); // save entity
+//        log.info("trainer has been saved " + trainer.getId());
+        return new UserCredentials("", "");
     }
 
     @Override

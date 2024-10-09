@@ -9,7 +9,6 @@ import com.krasnopolskyi.entity.User;
 import com.krasnopolskyi.exception.EntityNotFoundException;
 import com.krasnopolskyi.service.TraineeService;
 import com.krasnopolskyi.service.UserService;
-import com.krasnopolskyi.utils.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,17 +25,11 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public UserCredentials save(TraineeDto traineeDto) {
-        User user = userService.save(new UserDto(traineeDto.getFirstName(), traineeDto.getLastName()));
-        long id = IdGenerator.generateId();
-        Trainee trainee = Trainee.builder()
-                .id(id)
-                .userId(user.getId())
-                .address(traineeDto.getAddress())
-                .dateOfBirth(traineeDto.getDateOfBirth())
-                .build();
-        traineeRepository.save(trainee);
-        log.info("trainee has been saved " + trainee.getId());
-        return new UserCredentials(user.getLogin(), user.getPassword());
+//        User user = userService.save(new UserDto(traineeDto.getFirstName(), traineeDto.getLastName()));
+//
+//        traineeRepository.save(trainee);
+//        log.info("trainee has been saved " + trainee.getId());
+        return new UserCredentials("", "");
     }
 
     @Override

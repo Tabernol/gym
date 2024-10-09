@@ -12,7 +12,6 @@ import com.krasnopolskyi.entity.TrainingType;
 import com.krasnopolskyi.exception.EntityNotFoundException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TrainingService;
-import com.krasnopolskyi.utils.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,18 +47,9 @@ public class TrainingServiceImpl implements TrainingService {
             throw new ValidateException("This trainer is not assigned to this training type");
         }
 
-        long id = IdGenerator.generateId();
-        Training training = Training.builder()
-                .id(id)
-                .traineeId(trainee.getId())
-                .trainerId(trainer.getId())
-                .trainingName(trainingType.getType())
-                .date(trainingDto.getDate())
-                .duration(trainingDto.getDuration())
-                .build();
-        Training save = trainingRepository.save(training);
-        log.info("training has been saved " + save);
-        return save;
+
+        log.info("training has been saved ");
+        return new Training();
     }
 
     @Override

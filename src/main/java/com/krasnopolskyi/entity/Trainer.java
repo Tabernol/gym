@@ -1,14 +1,10 @@
 package com.krasnopolskyi.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 
 @Getter
-@Builder
-@AllArgsConstructor
+@Setter
 @NoArgsConstructor
 public class Trainer {
     private Long id;

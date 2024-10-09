@@ -5,7 +5,6 @@ import com.krasnopolskyi.dto.request.UserDto;
 import com.krasnopolskyi.entity.User;
 import com.krasnopolskyi.exception.EntityNotFoundException;
 import com.krasnopolskyi.service.UserService;
-import com.krasnopolskyi.utils.IdGenerator;
 import com.krasnopolskyi.utils.PasswordGenerator;
 import com.krasnopolskyi.utils.UsernameGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -25,14 +24,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User save(UserDto userDto) {
-        long id = IdGenerator.generateId();
-        String login = usernameGenerator.generateUsername(userDto.getFirstName(), userDto.getLastName());
-        String password = PasswordGenerator.generatePassword();
-        User user = new User(id, userDto.getFirstName(), userDto.getLastName(), login, password, true);
-        log.info("Try save user");
-        User save = userRepository.save(user);
-        log.info("User has been saved " + save.getId());
-        return save;
+
+//        String login = usernameGenerator.generateUsername(userDto.getFirstName(), userDto.getLastName());
+//        String password = PasswordGenerator.generatePassword();
+//        User user = new User(id, userDto.getFirstName(), userDto.getLastName(), login, password, true);
+//        log.info("Try save user");
+//        User save = userRepository.save(user);
+        log.info("User has been saved ");
+        return new User();
     }
 
     @Override

@@ -3,10 +3,8 @@ package com.krasnopolskyi.entity;
 import lombok.*;
 
 @Getter
-@Builder
-@AllArgsConstructor
+@Setter
 @NoArgsConstructor
-@ToString
 public class User {
     private Long id;
     private String firstName;
