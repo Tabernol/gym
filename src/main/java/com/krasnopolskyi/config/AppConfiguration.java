@@ -6,6 +6,7 @@ import org.springframework.context.annotation.*;
 
 @Configuration
 @ComponentScan("com.krasnopolskyi")
+@PropertySource("classpath:application.yaml")
 @Slf4j
 @EnableAspectJAutoProxy // enable AOP
 public class AppConfiguration {

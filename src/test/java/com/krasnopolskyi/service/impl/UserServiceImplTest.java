@@ -1,6 +1,6 @@
 //package com.krasnopolskyi.service.impl;
 //
-//import com.krasnopolskyi.database.dao.UserRepository;
+//import com.krasnopolskyi.database.dao.impl.UserRepository;
 //import com.krasnopolskyi.dto.request.UserDto;
 //import com.krasnopolskyi.entity.User;
 //import com.krasnopolskyi.exception.EntityNotFoundException;

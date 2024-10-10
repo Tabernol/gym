@@ -1,6 +1,6 @@
 //package com.krasnopolskyi.service.impl;
 //
-//import com.krasnopolskyi.database.dao.TraineeRepository;
+//import com.krasnopolskyi.database.dao.impl.TraineeRepository;
 //import com.krasnopolskyi.dto.request.TraineeDto;
 //import com.krasnopolskyi.dto.request.UserDto;
 //import com.krasnopolskyi.dto.response.UserCredentials;

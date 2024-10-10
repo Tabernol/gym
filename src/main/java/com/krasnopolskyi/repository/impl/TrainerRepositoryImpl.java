@@ -1,11 +1,11 @@
-package com.krasnopolskyi.database.dao;
+package com.krasnopolskyi.repository.impl;
 
 import com.krasnopolskyi.entity.Trainer;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 @Repository
-public class TrainerRepository {
+public class TrainerRepositoryImpl {
 
 
     public Trainer save(Trainer trainer) {

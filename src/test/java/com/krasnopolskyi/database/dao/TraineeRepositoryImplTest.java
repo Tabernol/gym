@@ -1,22 +1,15 @@
 package com.krasnopolskyi.database.dao;
 
+import com.krasnopolskyi.repository.impl.TraineeRepositoryImpl;
 import com.krasnopolskyi.entity.Trainee;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Map;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-class TraineeRepositoryTest {
+class TraineeRepositoryImplTest {
 
     @InjectMocks
-    private TraineeRepository traineeRepository;
+    private TraineeRepositoryImpl traineeRepositoryImpl;
 
     private Trainee trainee;
 

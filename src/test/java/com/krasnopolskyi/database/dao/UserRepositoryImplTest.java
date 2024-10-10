@@ -1,23 +1,15 @@
 package com.krasnopolskyi.database.dao;
 
+import com.krasnopolskyi.repository.impl.UserRepositoryImpl;
 import com.krasnopolskyi.entity.User;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-class UserRepositoryTest {
+class UserRepositoryImplTest {
 
     @InjectMocks
-    private UserRepository userRepository;
+    private UserRepositoryImpl userRepositoryImpl;
 
     private User user;
 

@@ -1,6 +1,6 @@
 package com.krasnopolskyi.service.impl;
 
-import com.krasnopolskyi.database.dao.TrainerRepository;
+import com.krasnopolskyi.repository.impl.TrainerRepositoryImpl;
 import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.request.UserDto;
 import com.krasnopolskyi.dto.response.UserCredentials;
@@ -21,7 +21,7 @@ public class TrainerServiceImpl implements TrainerService {
     // initialized via autowired because task condition 4
     // I prefer initialized via constructor
     @Autowired
-    private TrainerRepository trainerRepository;
+    private TrainerRepositoryImpl trainerRepository;
     @Autowired
     private UserService userService;
     @Autowired

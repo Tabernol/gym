@@ -1,24 +1,20 @@
 package com.krasnopolskyi.service.impl;
 
-import com.krasnopolskyi.database.dao.TraineeRepository;
+import com.krasnopolskyi.repository.TraineeRepository;
 import com.krasnopolskyi.dto.request.TraineeDto;
 import com.krasnopolskyi.dto.response.UserCredentials;
 import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.exception.EntityNotFoundException;
 import com.krasnopolskyi.service.TraineeService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class TraineeServiceImpl implements TraineeService {
     private final TraineeRepository traineeRepository;
-
-    public TraineeServiceImpl(TraineeRepository traineeRepository) {
-        this.traineeRepository = traineeRepository;
-    }
-
 
     @Override
     public UserCredentials save(TraineeDto traineeDto) {
@@ -38,7 +34,7 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public Trainee update(Trainee trainee) {
-        return traineeRepository.save(trainee);
+        return traineeRepository.save(trainee).get();
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.krasnopolskyi.utils;
 
-import com.krasnopolskyi.database.dao.UserRepository;
+import com.krasnopolskyi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

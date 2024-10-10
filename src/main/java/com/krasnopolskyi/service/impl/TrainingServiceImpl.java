@@ -1,9 +1,8 @@
 package com.krasnopolskyi.service.impl;
 
-import com.krasnopolskyi.database.dao.TraineeRepository;
-import com.krasnopolskyi.database.dao.TrainerRepository;
-import com.krasnopolskyi.database.dao.TrainingRepository;
-import com.krasnopolskyi.database.dao.TrainingTypeRepository;
+import com.krasnopolskyi.repository.TraineeRepository;
+import com.krasnopolskyi.repository.impl.TrainerRepositoryImpl;
+import com.krasnopolskyi.repository.impl.TrainingRepositoryImpl;
 import com.krasnopolskyi.dto.request.TrainingDto;
 import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.Trainer;
@@ -23,13 +22,13 @@ public class TrainingServiceImpl implements TrainingService {
     // initialized via autowired because task condition 4
     // I prefer initialized via constructor
     @Autowired
-    private TrainingRepository trainingRepository;
+    private TrainingRepositoryImpl trainingRepository;
     @Autowired
     private TraineeRepository traineeRepository;
     @Autowired
-    private TrainerRepository trainerRepository;
+    private TrainerRepositoryImpl trainerRepository;
     @Autowired
-    private TrainingTypeRepository trainingTypeRepository;
+    private TrainingTypeRepositoryImpl trainingTypeRepository;
 
     @Override
     public Training save(TrainingDto trainingDto) throws ValidateException {
