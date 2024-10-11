@@ -26,27 +26,18 @@ public class GymApplication {
         MainFacade facade = context.getBean(MainFacade.class);
 
         log.info("=========================Creating trainee================================");
-        TraineeResponseDto trainee = facade.createTrainee(Data.JOHN_TRAINEE);
-        TraineeResponseDto trainee1 = facade.createTrainee(Data.JOHN_TRAINEE);
-        TraineeResponseDto trainee2 = facade.createTrainee(Data.JOHN_TRAINEE);
-
-        log.info(trainee.toString());
-        log.info(trainee1.toString());
-        log.info(trainee2.toString());
+        facade.createTrainee(Data.JOHN_TRAINEE);
+        facade.createTrainee(Data.JOHN_TRAINEE);
+        facade.createTrainee(Data.JOHN_TRAINEE);
+        facade.createTrainee(Data.SHORT_NAME_TRAINEE);
         log.info("=========================Creating trainer================================");
-        TrainerResponseDto trainer = facade.createTrainer(Data.ARNI_TRAINER);
-        TrainerResponseDto failed = facade.createTrainer(Data.TRAINER_NOT_VALID);
-        log.info(trainer.toString());
-        log.info("is null " + (failed == null));
+        facade.createTrainer(Data.ARNI_TRAINER);
+        facade.createTrainer(Data.TRAINER_NOT_VALID);
         log.info("==================== Creating training ========================");
-        Training training = facade.addTraining(Data.TRAINING_VALID);
-        Training training1 = facade.addTraining(Data.TRAINING_INVALID_TRAINEE);
-        Training training2 = facade.addTraining(Data.TRAINING_INVALID_TRAINER);
-        Training training3 = facade.addTraining(Data.TRAINING_INVALID_SPECIALIZATION);
-        log.info(training.toString());
-        log.info("training1 " + training1);
-        log.info("training2 " + training2);
-        log.info("training3 " + training3);
+        facade.addTraining(Data.TRAINING_VALID);
+        facade.addTraining(Data.TRAINING_INVALID_TRAINEE);
+        facade.addTraining(Data.TRAINING_INVALID_TRAINER);
+        facade.addTraining(Data.TRAINING_INVALID_SPECIALIZATION);
 
         log.info("AFTER trainingTypes size " + storage.getTrainingTypes().size());
         log.info("AFTER users size " + storage.getUsers().size());

@@ -82,7 +82,7 @@ public class TrainerServiceImpl implements TrainerService {
         try {
             trainingTypeService.findById(trainerDto.getSpecialization());
         } catch (EntityNotFoundException e) {
-            log.warn("Attempt to save trainer with wrong specialization " + trainerDto.getSpecialization());
+            log.debug("Attempt to save trainer with wrong specialization " + trainerDto.getSpecialization());
             throw new ValidateException("Specialisation with id " + trainerDto.getSpecialization() + " does not exist");
         }
     }

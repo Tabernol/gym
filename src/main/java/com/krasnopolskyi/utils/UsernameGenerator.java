@@ -15,7 +15,7 @@ public class UsernameGenerator {
     }
 
     public String generateUsername(String firstName, String lastName) throws ValidateException {
-        if(firstName.length() < 1 || lastName.length() < 1){
+        if(firstName.length() < 2 || lastName.length() < 2){
             throw new ValidateException("First name or Last name must consist of at least two letters");
         }
         int count = 1;
