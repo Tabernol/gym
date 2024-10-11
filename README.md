@@ -5,13 +5,10 @@ This project is a Spring-based module designed to handle a gym CRM (Customer Rel
 ## Table of Contents
 
 - [Project Overview](#project-overview)
+- [Storage Initialization](#storage-initialization)
 - [Features](#features)
 - [Technologies Used](#technologies-used)
 - [Setup Instructions](#setup-instructions)
-- [Usage](#usage)
-- [Unit Testing](#unit-testing)
-- [Logging](#logging)
-- [Future Improvements](#future-improvements)
 
 ## Project Overview
 
@@ -30,12 +27,11 @@ The gym CRM system provides the ability to manage profiles for trainees and trai
 
 The system initializes storage with predefined data from files at startup using a combination of techniques:
 
-1. **Data Loading via BeanPostProcessor**: The application employs a BeanPostProcessor to load data from CSV and JSON files located in the resources folder. The system checks if the bean is an instance of a specific data loader and invokes the respective method to handle the data loading process automatically during the bean initialization phase.
+1. **Loading Data with @PostConstruct**: The application loads data from specific files located in the `data/save` directory of the project (e.g., `trainees.json`). This is accomplished using the `@PostConstruct` annotation, ensuring that the loading process is executed after the bean's construction and dependency injection are complete.
 
-2. **Loading Data with @PostConstruct**: In addition to the above, data is also loaded from specific files located in the `data/save` directory of the project (e.g., `trainees.json`). This is done using the `@PostConstruct` annotation, ensuring that the loading process is executed after the bean's construction and dependency injection are complete.
+2. **Data Loading via BeanPostProcessor**: In addition to the above, the application employs a BeanPostProcessor to load data from CSV and JSON files located in the resources folder. The system checks if the bean is an instance of a specific data loader and invokes the respective method to handle the data loading process automatically during the bean initialization phase.
 
 3. **Data Persistence**: The saving of data to files is managed using Aspect-Oriented Programming (AOP). After invoking any method related to saving or deleting a repository entry, the system automatically persists the relevant data back to the corresponding files in the `data/save` directory.
-
 
 ## Features
 
