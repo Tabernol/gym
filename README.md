@@ -24,19 +24,28 @@ The gym CRM system provides the ability to manage profiles for trainees and trai
 
 2. **Data Access Objects (DAOs)**: Each domain model entity (Trainer, Trainee, Training) is handled by a separate DAO that interacts with an in-memory storage (Java Map).
 
-3. **Storage Initialization**: The system initializes storage with predefined data from a file at startup, using Spring's bean post-processing features.
+3. **Dependency Injection**: The application utilizes various strategies for Dependency Injection (DI)
 
-4. **Dependency Injection**: Services are injected into the facade via constructor-based injection, while other dependencies are injected using setter-based methods.
+## Storage Initialization
+
+The system initializes storage with predefined data from files at startup using a combination of techniques:
+
+1. **Data Loading via BeanPostProcessor**: The application employs a BeanPostProcessor to load data from CSV and JSON files located in the resources folder. The system checks if the bean is an instance of a specific data loader and invokes the respective method to handle the data loading process automatically during the bean initialization phase.
+
+2. **Loading Data with @PostConstruct**: In addition to the above, data is also loaded from specific files located in the `data/save` directory of the project (e.g., `trainees.json`). This is done using the `@PostConstruct` annotation, ensuring that the loading process is executed after the bean's construction and dependency injection are complete.
+
+3. **Data Persistence**: The saving of data to files is managed using Aspect-Oriented Programming (AOP). After invoking any method related to saving or deleting a repository entry, the system automatically persists the relevant data back to the corresponding files in the `data/save` directory.
+
 
 ## Features
 
 - **Profile Management**: Create, update, delete, and select trainee and trainer profiles.
 - **Training Management**: Create and select training profiles.
 - **Username and Password Generation**:
-    - Username is generated from the first and last names concatenated with a dot (e.g., `John.Smith`).
+    - Username is generated from the first and last names concatenated with a dot (e.g., `john.smith`).
     - If a username already exists, a serial number is appended to ensure uniqueness.
     - Passwords are randomly generated as 10-character strings.
-- **Aspect-Oriented Programming**: AOP is used for logging and monitoring the persistence layer operations.
+- **Aspect-Oriented Programming**: AOP is used for serialising maps to JSON files and save it for further using.
 
 ## Technologies Used
 
