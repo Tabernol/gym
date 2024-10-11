@@ -3,11 +3,12 @@ package com.krasnopolskyi.facade;
 import com.krasnopolskyi.dto.request.TraineeDto;
 import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.request.TrainingDto;
+import com.krasnopolskyi.dto.response.TraineeResponseDto;
 import com.krasnopolskyi.dto.response.UserCredentials;
 import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.Training;
-import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TraineeService;
 import com.krasnopolskyi.service.TrainerService;
@@ -28,11 +29,11 @@ public class MainFacade {
         this.trainingService = trainingService;
     }
 
-    public UserCredentials createTrainee(TraineeDto traineeDto) {
+    public TraineeResponseDto createTrainee(TraineeDto traineeDto) throws EntityException {
         return traineeService.save(traineeDto);
     }
 
-    public Trainee findTraineeById(Long id) throws EntityNotFoundException {
+    public Trainee findTraineeById(Long id) throws EntityException {
         return traineeService.findById(id);
     }
 
@@ -55,7 +56,7 @@ public class MainFacade {
         }
     }
 
-    public Trainer findTrainerById(Long id) throws EntityNotFoundException {
+    public Trainer findTrainerById(Long id) throws EntityException {
         return trainerService.findById(id);
     }
 
@@ -74,7 +75,7 @@ public class MainFacade {
         }
     }
 
-    public Training findTrainingById(Long id) throws EntityNotFoundException {
+    public Training findTrainingById(Long id) throws EntityException {
         return trainingService.findById(id);
     }
 }

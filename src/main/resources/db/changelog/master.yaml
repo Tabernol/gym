@@ -41,17 +41,17 @@ databaseChangeLog:
         - sqlFile:
             path: db/changelog/data/training_type_default_data.sql
             relativeToChangelogFile: false
-  - changeSet:
-      id: insert_trainer_default_data
-      author: maks
-      changes:
-        - sqlFile:
-            path: db/changelog/data/trainer_default_data.sql
-            relativeToChangelogFile: false
-  - changeSet:
-      id: insert_trainee_default_data
-      author: maks
-      changes:
-        - sqlFile:
-            path: db/changelog/data/trainee_default_data.sql
-            relativeToChangelogFile: false
+#  - changeSet:
+#      id: insert_trainer_default_data
+#      author: maks
+#      changes:
+#        - sqlFile:
+#            path: db/changelog/data/trainer_default_data.sql
+#            relativeToChangelogFile: false
+#  - changeSet:
+#      id: insert_trainee_default_data
+#      author: maks
+#      changes:
+#        - sqlFile:
+#            path: db/changelog/data/trainee_default_data.sql
+#            relativeToChangelogFile: false

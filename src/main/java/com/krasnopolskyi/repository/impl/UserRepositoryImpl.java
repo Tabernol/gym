@@ -37,6 +37,11 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     public boolean isUsernameExist(String username) {
+//        Session session = sessionFactory.openSession();
+//        session.beginTransaction();
+//        session.get(User.class, username);
+//        session.getTransaction().commit();
+
         return false;
     }
 }

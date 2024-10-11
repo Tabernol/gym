@@ -5,6 +5,7 @@ import com.krasnopolskyi.entity.Trainee;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,13 @@ public class TraineeRepositoryImpl implements TraineeRepository {
     private final SessionFactory sessionFactory;
 
     public Optional<Trainee> save(Trainee trainee) {
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        session.persist(trainee.getUser());
+        session.persist(trainee);
+
+        session.getTransaction().commit();
         return Optional.ofNullable(trainee);
     }
     @Transactional(readOnly = true)

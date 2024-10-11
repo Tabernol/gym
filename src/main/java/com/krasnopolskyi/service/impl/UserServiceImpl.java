@@ -1,10 +1,11 @@
 package com.krasnopolskyi.service.impl;
 
-import com.krasnopolskyi.repository.UserRepository;
 import com.krasnopolskyi.dto.request.UserDto;
+import com.krasnopolskyi.repository.UserRepository;
 import com.krasnopolskyi.entity.User;
-import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.service.UserService;
+import com.krasnopolskyi.utils.PasswordGenerator;
 import com.krasnopolskyi.utils.UsernameGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,21 +20,25 @@ public class UserServiceImpl implements UserService {
     private final UsernameGenerator usernameGenerator;
 
     @Override
-    public User save(UserDto userDto) {
+    public User create(UserDto userDto) {
 
-//        String login = usernameGenerator.generateUsername(userDto.getFirstName(), userDto.getLastName());
-//        String password = PasswordGenerator.generatePassword();
-//        User user = new User(id, userDto.getFirstName(), userDto.getLastName(), login, password, true);
-//        log.info("Try save user");
-//        User save = userRepository.save(user);
-        log.info("User has been saved ");
-        return new User();
+        String username = usernameGenerator.generateUsername(userDto);
+        String password = PasswordGenerator.generatePassword();
+        User user = new User();
+        user.setFirstName(userDto.firstName());
+        user.setLastName(userDto.lastName());
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setIsActive(true);
+
+        log.info("User is prepared to save " + user); //todo remove user from log
+        return user;
     }
 
     @Override
-    public User findById(Long id) throws EntityNotFoundException {
+    public User findById(Long id) throws EntityException {
         return userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Could not found user with id " + id));
+                .orElseThrow(() -> new EntityException("Could not found user with id " + id));
     }
 
     @Override

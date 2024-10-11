@@ -1,5 +1,6 @@
 package com.krasnopolskyi.utils;
 
+import com.krasnopolskyi.dto.request.UserDto;
 import com.krasnopolskyi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,9 +14,9 @@ public class UsernameGenerator {
         this.userRepository = userRepository;
     }
 
-    public String generateUsername(String firstName, String lastName){
+    public String generateUsername(UserDto userDto){
         int count = 1;
-        String template = firstName + "." + lastName;
+        String template = userDto.firstName() + "." + userDto.lastName();
         String username = template;
         while (isUsernameExist(username)){
             username = template + count;

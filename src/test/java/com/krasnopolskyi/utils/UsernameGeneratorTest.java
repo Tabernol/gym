@@ -1,5 +1,6 @@
 package com.krasnopolskyi.utils;
 
+import com.krasnopolskyi.dto.request.UserDto;
 import com.krasnopolskyi.repository.impl.UserRepositoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,15 +27,14 @@ public class UsernameGeneratorTest {
     @Test
     void testGenerateUsername_noConflicts() {
         // Given
-        String firstName = "John";
-        String lastName = "Doe";
         String expectedUsername = "John.Doe";
+        UserDto userDto = new UserDto("John", "Doe");
 
         // When
         when(userRepositoryImpl.isUsernameExist("John.Doe")).thenReturn(false);
 
         // Execute
-        String actualUsername = usernameGenerator.generateUsername(firstName, lastName);
+        String actualUsername = usernameGenerator.generateUsername(userDto);
 
         // Then
         assertEquals(expectedUsername, actualUsername);
@@ -44,8 +44,7 @@ public class UsernameGeneratorTest {
     @Test
     void testGenerateUsername_withConflicts() {
         // Given
-        String firstName = "John";
-        String lastName = "Doe";
+        UserDto userDto = new UserDto("John", "Doe");
         String expectedUsername = "John.Doe2";
 
         // When
@@ -54,7 +53,7 @@ public class UsernameGeneratorTest {
         when(userRepositoryImpl.isUsernameExist("John.Doe2")).thenReturn(false); // Second variant does not exist
 
         // Execute
-        String actualUsername = usernameGenerator.generateUsername(firstName, lastName);
+        String actualUsername = usernameGenerator.generateUsername(userDto);
 
         // Then
         assertEquals(expectedUsername, actualUsername);
@@ -66,8 +65,7 @@ public class UsernameGeneratorTest {
     @Test
     void testGenerateUsername_withMultipleConflicts() {
         // Given
-        String firstName = "Jane";
-        String lastName = "Smith";
+        UserDto userDto = new UserDto("John", "Doe");
         String expectedUsername = "Jane.Smith4";
 
         // When
@@ -79,7 +77,7 @@ public class UsernameGeneratorTest {
         when(userRepositoryImpl.isUsernameExist("Jane.Smith4")).thenReturn(false); // Available username
 
         // Execute
-        String actualUsername = usernameGenerator.generateUsername(firstName, lastName);
+        String actualUsername = usernameGenerator.generateUsername(userDto);
 
         // Then
         assertEquals(expectedUsername, actualUsername);
@@ -93,15 +91,14 @@ public class UsernameGeneratorTest {
     @Test
     void testGenerateUsername_emptyNames() {
         // Given
-        String firstName = "";
-        String lastName = "";
+        UserDto userDto = new UserDto("", "");
         String expectedUsername = ".";
 
         // When
         when(userRepositoryImpl.isUsernameExist(".")).thenReturn(false);
 
         // Execute
-        String actualUsername = usernameGenerator.generateUsername(firstName, lastName);
+        String actualUsername = usernameGenerator.generateUsername(userDto);
 
         // Then
         assertEquals(expectedUsername, actualUsername);

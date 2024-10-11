@@ -8,7 +8,7 @@ import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.Training;
 import com.krasnopolskyi.entity.TrainingType;
-import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TrainingService;
 import lombok.extern.slf4j.Slf4j;
@@ -52,8 +52,8 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
-    public Training findById(Long id) throws EntityNotFoundException {
+    public Training findById(Long id) throws EntityException {
         return trainingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Could not found training with id " + id));
+                .orElseThrow(() -> new EntityException("Could not found training with id " + id));
     }
 }

@@ -1,17 +1,17 @@
-package com.krasnopolskyi.dto.request;
+package com.krasnopolskyi.dto.response;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import lombok.ToString;
 
 import java.time.LocalDate;
 
 @Builder
 @Data
-public class TraineeDto {
+public class TraineeResponseDto {
     private String firstName;
     private String lastName;
+    private String username;
+    private String password;
     private LocalDate dateOfBirth;
     private String address;
 }
