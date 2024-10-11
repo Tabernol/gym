@@ -39,12 +39,12 @@ class TraineeRepositoryTest {
     @Test
     public void testSaveTrainee() {
         // Mock saving behavior: first call returns null, second call returns the trainee
-        when(traineesMap.put(trainee.getId(), trainee)).thenReturn(null).thenReturn(trainee);
+        when(traineesMap.get(trainee.getId())).thenReturn(trainee);
 
         Trainee savedTrainee = traineeRepository.save(trainee);
 
         // Verify that the trainee is saved twice
-        verify(traineesMap, times(2)).put(trainee.getId(), trainee);
+        verify(traineesMap, times(1)).put(trainee.getId(), trainee);
         assertEquals(trainee, savedTrainee);
     }
 

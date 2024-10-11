@@ -44,7 +44,7 @@ public class TrainingServiceImpl implements TrainingService {
                 .orElseThrow(() -> new ValidateException("Could not find training type with id " + trainingDto.getTrainingType()));
 
         if(trainer.getSpecialization() != trainingType.getId()){
-            log.warn("Attempt to save training session with wrong specialization for trainer");
+            log.debug("Attempt to save training session with wrong specialization for trainer");
             throw new ValidateException("This trainer is not assigned to this training type");
         }
 
@@ -58,7 +58,7 @@ public class TrainingServiceImpl implements TrainingService {
                 .duration(trainingDto.getDuration())
                 .build();
         Training save = trainingRepository.save(training);
-        log.info("training has been saved " + save);
+        log.debug("training has been saved " + save);
         return save;
     }
 

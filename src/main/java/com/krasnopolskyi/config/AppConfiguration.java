@@ -4,9 +4,7 @@ import com.krasnopolskyi.entity.*;
 import com.krasnopolskyi.database.Storage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.*;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 

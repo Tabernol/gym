@@ -19,10 +19,8 @@ public class TraineeRepository {
     }
 
     public Trainee save(Trainee trainee) {
-        // need to save into map twice because when do it at first time Map returns null
         storage.getTrainees().put(trainee.getId(), trainee);
-        Trainee saved = storage.getTrainees().put(trainee.getId(), trainee);
-        return saved; // saving to a file is done implicitly using AOP
+        return storage.getTrainees().get(trainee.getId()); // saving to a file is done implicitly using AOP
     }
 
     public Optional<Trainee> findById(Long id) {

@@ -1,11 +1,12 @@
 package com.krasnopolskyi.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
 
-@AllArgsConstructor
-@Getter
+@Builder
+@Data
 public class TrainerDto {
+    private Long id;
     private String firstName;
     private String lastName;
     private Integer specialization;

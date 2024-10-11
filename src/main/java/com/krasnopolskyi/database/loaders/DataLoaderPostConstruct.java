@@ -37,7 +37,7 @@ public class DataLoaderPostConstruct {
     }
 
     @PostConstruct
-    public void loadDataFromJson() { // todo refactor to read all files even one failed
+    public void loadDataFromJson() {
         log.info("loading data using PostConstruct start");
 
         // Load users

@@ -1,18 +1,15 @@
 package com.krasnopolskyi.service;
 
 import com.krasnopolskyi.dto.request.TrainerDto;
-import com.krasnopolskyi.dto.response.UserCredentials;
-import com.krasnopolskyi.entity.Trainer;
+import com.krasnopolskyi.dto.response.TrainerResponseDto;
 import com.krasnopolskyi.exception.EntityNotFoundException;
-import com.krasnopolskyi.exception.ValidateException;
-
-import java.util.Optional;
+import com.krasnopolskyi.exception.GymException;
 
 public interface TrainerService {
 
-    UserCredentials save(TrainerDto trainerDto) throws ValidateException;
+    TrainerResponseDto save(TrainerDto trainerDto) throws GymException;
 
-    Trainer findById(Long id) throws EntityNotFoundException;
+    TrainerResponseDto findById(Long id) throws EntityNotFoundException;
 
-    Trainer update(Trainer Trainer);
+    TrainerResponseDto update(TrainerDto trainerDto) throws GymException;
 }

@@ -30,7 +30,12 @@ class TrainingRepositoryTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        training = Training.builder().id(1L).build();
+        training = Training.builder()
+                .id(1L)
+                .trainerId(1L)
+                .traineeId(1L)
+                .trainingType(1)
+                .build();
 
         // Mock the behavior of storage.getTrainings() to return the trainingsMap
         when(storage.getTrainings()).thenReturn(trainingsMap);
@@ -39,15 +44,18 @@ class TrainingRepositoryTest {
     @Test
     public void testSave() {
         // Mock the map to return null on first put, then return the saved training on second put
-        when(trainingsMap.put(training.getId(), training)).thenReturn(null).thenReturn(training);
+        when(trainingsMap.get(training.getId())).thenReturn(training);
 
         Training savedTraining = trainingRepository.save(training);
 
         // Verify that the training was saved twice in the map
-        verify(trainingsMap, times(2)).put(training.getId(), training);
+        verify(trainingsMap, times(1)).put(training.getId(), training);
 
         // Assert that the saved training is the one we saved in the second call
         assertEquals(training, savedTraining);
+        assertEquals(training.getTraineeId(), savedTraining.getTraineeId());
+        assertEquals(training.getTrainerId(), savedTraining.getTrainerId());
+        assertEquals(training.getTrainingType(), savedTraining.getTrainingType());
     }
 
     @Test

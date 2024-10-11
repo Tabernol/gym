@@ -1,15 +1,14 @@
 package com.krasnopolskyi.dto.request;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Data;
 
 import java.time.LocalDate;
 
 @Builder
-@Getter
-@ToString
+@Data
 public class TraineeDto {
+    private Long id;
     private String firstName;
     private String lastName;
     private LocalDate dateOfBirth;

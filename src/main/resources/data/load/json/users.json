@@ -3,7 +3,7 @@
     "id": 101,
     "firstName": "Michael",
     "lastName": "Johnson",
-    "login": "michael.johnson",
+    "username": "michael.johnson",
     "password": "mikepass789",
     "isActive": true
   },
@@ -11,7 +11,7 @@
     "id": 102,
     "firstName": "Emily",
     "lastName": "Davis",
-    "login": "emily.davis",
+    "username": "emily.davis",
     "password": "emypass101",
     "isActive": true
   }

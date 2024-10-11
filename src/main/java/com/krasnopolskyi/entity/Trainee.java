@@ -4,8 +4,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 @Builder
-@Getter
-@ToString
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Trainee {

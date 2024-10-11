@@ -1,7 +1,8 @@
 package com.krasnopolskyi;
 
 import com.krasnopolskyi.config.AppConfiguration;
-import com.krasnopolskyi.dto.response.UserCredentials;
+import com.krasnopolskyi.dto.response.TraineeResponseDto;
+import com.krasnopolskyi.dto.response.TrainerResponseDto;
 import com.krasnopolskyi.entity.*;
 import com.krasnopolskyi.facade.MainFacade;
 import com.krasnopolskyi.database.Storage;
@@ -25,27 +26,18 @@ public class GymApplication {
         MainFacade facade = context.getBean(MainFacade.class);
 
         log.info("=========================Creating trainee================================");
-        UserCredentials john = facade.createTrainee(Data.JOHN_TRAINEE);
-        UserCredentials john1 = facade.createTrainee(Data.JOHN_TRAINEE);
-        UserCredentials john2 = facade.createTrainee(Data.JOHN_TRAINEE);
-
-        log.info(john.toString());
-        log.info(john1.toString());
-        log.info(john2.toString());
+        facade.createTrainee(Data.JOHN_TRAINEE);
+        facade.createTrainee(Data.JOHN_TRAINEE);
+        facade.createTrainee(Data.JOHN_TRAINEE);
+        facade.createTrainee(Data.SHORT_NAME_TRAINEE);
         log.info("=========================Creating trainer================================");
-        UserCredentials trainer = facade.createTrainer(Data.ARNI_TRAINER);
-        UserCredentials failed = facade.createTrainer(Data.TRAINER_NOT_VALID);
-        log.info(trainer.toString());
-        log.info(failed.toString());
+        facade.createTrainer(Data.ARNI_TRAINER);
+        facade.createTrainer(Data.TRAINER_NOT_VALID);
         log.info("==================== Creating training ========================");
-        Training training = facade.addTraining(Data.trainingValid);
-        Training training1 = facade.addTraining(Data.trainingInvalidTrainee);
-        Training training2 = facade.addTraining(Data.trainingInvalidTrainer);
-        Training training3 = facade.addTraining(Data.trainingInvalidSpecialization);
-        log.info(training.toString());
-        log.info("training1 " + training1);
-        log.info("training2 " + training2);
-        log.info("training3 " + training3);
+        facade.addTraining(Data.TRAINING_VALID);
+        facade.addTraining(Data.TRAINING_INVALID_TRAINEE);
+        facade.addTraining(Data.TRAINING_INVALID_TRAINER);
+        facade.addTraining(Data.TRAINING_INVALID_SPECIALIZATION);
 
         log.info("AFTER trainingTypes size " + storage.getTrainingTypes().size());
         log.info("AFTER users size " + storage.getUsers().size());

@@ -4,6 +4,7 @@ import com.krasnopolskyi.database.dao.UserRepository;
 import com.krasnopolskyi.dto.request.UserDto;
 import com.krasnopolskyi.entity.User;
 import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.UserService;
 import com.krasnopolskyi.utils.IdGenerator;
 import com.krasnopolskyi.utils.PasswordGenerator;
@@ -24,14 +25,22 @@ public class UserServiceImpl implements UserService {
     private UsernameGenerator usernameGenerator;
 
     @Override
-    public User save(UserDto userDto) {
+    public User save(UserDto userDto) throws ValidateException {
         long id = IdGenerator.generateId();
-        String login = usernameGenerator.generateUsername(userDto.getFirstName(), userDto.getLastName());
+        // can throw ValidateException
+        String username = usernameGenerator
+                .generateUsername(userDto.getFirstName(), userDto.getLastName());
         String password = PasswordGenerator.generatePassword();
-        User user = new User(id, userDto.getFirstName(), userDto.getLastName(), login, password, true);
-        log.info("Try save user");
+        User user = User.builder()
+                .id(id)
+                .firstName(userDto.getFirstName())
+                .lastName(userDto.getLastName())
+                .username(username)
+                .password(password)
+                .isActive(true)
+                .build();
         User save = userRepository.save(user);
-        log.info("User has been saved " + save.getId());
+        log.debug("User has been saved " + save.getId());
         return save;
     }
 
@@ -48,7 +57,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean delete(User user) {
-        log.info("attempt to delete user " + user.getId());
+        log.debug("attempt to delete user " + user.getId());
         return userRepository.delete(user);
     }
 }

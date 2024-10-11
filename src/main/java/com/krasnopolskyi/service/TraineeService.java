@@ -1,16 +1,16 @@
 package com.krasnopolskyi.service;
 
 import com.krasnopolskyi.dto.request.TraineeDto;
-import com.krasnopolskyi.dto.response.UserCredentials;
-import com.krasnopolskyi.entity.Trainee;
+import com.krasnopolskyi.dto.response.TraineeResponseDto;
 import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.ValidateException;
 
 public interface TraineeService {
-    UserCredentials save(TraineeDto trainee);
+    TraineeResponseDto save(TraineeDto traineeDto) throws ValidateException;
 
-    Trainee findById(Long id) throws EntityNotFoundException;
+    TraineeResponseDto findById(Long id) throws EntityNotFoundException;
 
-    Trainee update(Trainee trainee);
+    TraineeResponseDto update(TraineeDto traineeDto) throws EntityNotFoundException;
 
-    boolean delete(Trainee trainee);
+    boolean delete(TraineeDto traineeDto) throws EntityNotFoundException;
 }

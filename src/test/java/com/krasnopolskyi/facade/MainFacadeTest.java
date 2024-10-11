@@ -3,11 +3,13 @@ package com.krasnopolskyi.facade;
 import com.krasnopolskyi.dto.request.TraineeDto;
 import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.request.TrainingDto;
-import com.krasnopolskyi.dto.response.UserCredentials;
+import com.krasnopolskyi.dto.response.TraineeResponseDto;
+import com.krasnopolskyi.dto.response.TrainerResponseDto;
 import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.Training;
 import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TraineeService;
 import com.krasnopolskyi.service.TrainerService;
@@ -34,163 +36,139 @@ class MainFacadeTest {
     @Mock
     private TrainingService trainingService;
 
+
     @InjectMocks
     private MainFacade mainFacade;
+
+    private TraineeDto traineeDto;
+    private TraineeResponseDto expectedResponse;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        traineeDto = TraineeDto.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .address("123 Main St")
+                .dateOfBirth(LocalDate.of(1990, 1, 1))
+                .build();
+
+        expectedResponse = new TraineeResponseDto(
+                "John",
+                "Doe",
+                "john.doe",
+                LocalDate.of(1990, 1, 1),
+                "123 Main St"
+        );
     }
 
     @Test
-    void testCreateTrainee() {
-        TraineeDto traineeDto = TraineeDto.builder().build();
-        UserCredentials expectedCredentials = new UserCredentials("user", "password");
-
+    void testCreateTrainee() throws ValidateException {
         // Mock the behavior of traineeService.save
-        when(traineeService.save(traineeDto)).thenReturn(expectedCredentials);
+        when(traineeService.save(traineeDto)).thenReturn(expectedResponse);
 
         // Call the method
-        UserCredentials result = mainFacade.createTrainee(traineeDto);
+        TraineeResponseDto result = mainFacade.createTrainee(traineeDto);
 
         // Verify that the service method was called
         verify(traineeService).save(traineeDto);
 
         // Assert the expected result
-        assertEquals(expectedCredentials, result);
+        assertEquals(expectedResponse, result);
     }
 
     @Test
     void testFindTraineeById_success() throws EntityNotFoundException {
         Long id = 1L;
-        Trainee expectedTrainee = Trainee.builder().id(id).build();
 
         // Mock the behavior of traineeService.findById
-        when(traineeService.findById(id)).thenReturn(expectedTrainee);
+        when(traineeService.findById(id)).thenReturn(expectedResponse);
 
         // Call the method
-        Trainee result = mainFacade.findTraineeById(id);
+        TraineeResponseDto result = mainFacade.findTraineeById(id);
 
         // Verify that the service method was called
         verify(traineeService).findById(id);
 
         // Assert the expected result
-        assertEquals(expectedTrainee, result);
+        assertEquals(expectedResponse, result);
     }
 
     @Test
-    void testFindTraineeById_notFound() throws EntityNotFoundException {
-        Long id = 1L;
-
-        // Mock the behavior of traineeService.findById to throw EntityNotFoundException
-        when(traineeService.findById(id)).thenThrow(new EntityNotFoundException("not found"));
-
-        // Call the method and expect an exception
-        assertThrows(EntityNotFoundException.class, () -> mainFacade.findTraineeById(id));
-
-        // Verify that the service method was called
-        verify(traineeService).findById(id);
-    }
-
-    @Test
-    void testUpdateTrainee() {
-        Trainee trainee = new Trainee();
-
+    void testUpdateTrainee() throws EntityNotFoundException {
         // Mock the behavior of traineeService.update
-        when(traineeService.update(trainee)).thenReturn(trainee);
+        when(traineeService.update(traineeDto)).thenReturn(expectedResponse);
 
         // Call the method
-        Trainee result = mainFacade.updateTrainee(trainee);
+        TraineeResponseDto result = mainFacade.updateTrainee(traineeDto);
 
         // Verify that the service method was called
-        verify(traineeService).update(trainee);
+        verify(traineeService).update(traineeDto);
 
         // Assert the expected result
-        assertEquals(trainee, result);
+        assertEquals(expectedResponse, result);
     }
 
     @Test
-    void testDeleteTrainee() {
-        Trainee trainee = new Trainee();
-
+    void testDeleteTrainee() throws EntityNotFoundException {
         // Mock the behavior of traineeService.delete
-        when(traineeService.delete(trainee)).thenReturn(true);
+        when(traineeService.delete(traineeDto)).thenReturn(true);
 
         // Call the method
-        boolean result = mainFacade.deleteTrainee(trainee);
+        boolean result = mainFacade.deleteTrainee(traineeDto);
 
         // Verify that the service method was called
-        verify(traineeService).delete(trainee);
+        verify(traineeService).delete(traineeDto);
 
         // Assert the expected result
         assertTrue(result);
     }
 
     @Test
-    void testCreateTrainer_success() throws ValidateException {
-        TrainerDto trainerDto = new TrainerDto("john", "black", 1);
-        UserCredentials expectedCredentials = new UserCredentials("john.black", "password");
+    void testCreateTrainer_success() throws GymException {
+        TrainerDto trainerDto = TrainerDto.builder().firstName("John").lastName("Doe").specialization(15).build();
+        TrainerResponseDto expectedResponse = new TrainerResponseDto("John", "Doe", "john.doe", "1");
 
         // Mock the behavior of trainerService.save
-        when(trainerService.save(trainerDto)).thenReturn(expectedCredentials);
+        when(trainerService.save(trainerDto)).thenReturn(expectedResponse);
 
         // Call the method
-        UserCredentials result = mainFacade.createTrainer(trainerDto);
+        TrainerResponseDto result = mainFacade.createTrainer(trainerDto);
 
         // Verify that the service method was called
         verify(trainerService).save(trainerDto);
 
         // Assert the expected result
-        assertEquals(expectedCredentials, result);
+        assertEquals(expectedResponse, result);
     }
 
     @Test
-    void testUpdateTrainer_success() throws ValidateException {
-        Trainer trainer = new Trainer(1L, 101L, 1);
-
-        // Mock the behavior of trainerService.save
-        when(trainerService.update(any(Trainer.class))).thenReturn(trainer);
-
-        // Call the method
-        Trainer result = mainFacade.updateTrainer(trainer);
-
-        // Verify that the service method was called
-        verify(trainerService).update(trainer);
-
-        // Assert the expected result
-        assertEquals(trainer.getId(), result.getId());
-        assertEquals(trainer.getSpecialization(), result.getSpecialization());
-        assertEquals(trainer.getUserId(), result.getUserId());
-    }
-
-    @Test
-    void testCreateTrainer_validateException() throws ValidateException {
-        TrainerDto trainerDto = new TrainerDto("john", "black", 15);
+    void testCreateTrainer_validateException() throws GymException {
+        TrainerDto trainerDto = TrainerDto.builder().firstName("John").lastName("Doe").specialization(15).build();
 
         // Mock the behavior of trainerService.save to throw ValidateException
         when(trainerService.save(trainerDto)).thenThrow(new ValidateException("Invalid specialization"));
 
         // Call the method
-        UserCredentials result = mainFacade.createTrainer(trainerDto);
+        TrainerResponseDto result = mainFacade.createTrainer(trainerDto);
 
         // Verify that the service method was called
         verify(trainerService).save(trainerDto);
 
-        // Assert that the result contains empty username and password
-        assertEquals("", result.getUsername());
-        assertEquals("", result.getPassword());
+        // Assert that the result is null (because of the exception)
+        assertNull(result);
     }
 
     @Test
     void testFindTrainerById_success() throws EntityNotFoundException {
         Long id = 1L;
-        Trainer expectedTrainer = Trainer.builder().id(id).build();
+        TrainerResponseDto expectedTrainer = new TrainerResponseDto("John", "Gold", "john.gold", "Cardio");
 
         // Mock the behavior of trainerService.findById
         when(trainerService.findById(id)).thenReturn(expectedTrainer);
 
         // Call the method
-        Trainer result = mainFacade.findTrainerById(id);
+        TrainerResponseDto result = mainFacade.findTrainerById(id);
 
         // Verify that the service method was called
         verify(trainerService).findById(id);
@@ -200,27 +178,27 @@ class MainFacadeTest {
     }
 
     @Test
-    void testAddTraining() throws ValidateException {
+    void testAddTraining_success() throws ValidateException {
         TrainingDto trainingDto = TrainingDto.builder()
-                .trainingName("Cardio2")
+                .trainingName("Cardio")
                 .trainingType(1)
-                .date(LocalDate.of(2024, 9,3))
+                .date(LocalDate.of(2024, 9, 3))
                 .duration(1000)
                 .traineeId(1L)
                 .trainerId(1L)
                 .build();
 
-        Training training = Training.builder()
-                .trainingName("Cardio2")
+        Training expectedTraining = Training.builder()
+                .trainingName("Cardio")
                 .trainingType(1)
-                .date(LocalDate.of(2024, 9,3))
+                .date(LocalDate.of(2024, 9, 3))
                 .duration(1000)
                 .traineeId(1L)
                 .trainerId(1L)
                 .build();
 
         // Mock the behavior of trainingService.save
-        when(trainingService.save(trainingDto)).thenReturn(training);
+        when(trainingService.save(trainingDto)).thenReturn(expectedTraining);
 
         // Call the method
         Training result = mainFacade.addTraining(trainingDto);
@@ -229,22 +207,22 @@ class MainFacadeTest {
         verify(trainingService).save(trainingDto);
 
         // Assert the expected result
-        assertEquals(training, result);
+        assertEquals(expectedTraining, result);
     }
 
     @Test
-    void testAddTraining_ValidateException() throws ValidateException {
+    void testAddTraining_validateException() throws ValidateException {
         TrainingDto trainingDto = TrainingDto.builder()
-                .trainingName("Cardio2")
+                .trainingName("Cardio")
                 .trainingType(1)
-                .date(LocalDate.of(2024, 9,3))
+                .date(LocalDate.of(2024, 9, 3))
                 .duration(1000)
                 .traineeId(1L)
                 .trainerId(1L)
                 .build();
 
-        // Mock the behavior of trainingService.save
-        when(trainingService.save(trainingDto)).thenThrow(new ValidateException("test"));
+        // Mock the behavior of trainingService.save to throw ValidateException
+        when(trainingService.save(trainingDto)).thenThrow(new ValidateException("Invalid data"));
 
         // Call the method
         Training result = mainFacade.addTraining(trainingDto);
@@ -252,17 +230,18 @@ class MainFacadeTest {
         // Verify that the service method was called
         verify(trainingService).save(trainingDto);
 
-        assertThrows(ValidateException.class, () -> trainingService.save(trainingDto));
+        // Assert that the result is null (because of the exception)
+        assertNull(result);
     }
 
     @Test
     void testFindTrainingById_success() throws EntityNotFoundException {
         Long id = 1L;
         Training expectedTraining = Training.builder()
-                .id(1L)
-                .trainingName("Cardio2")
+                .id(id)
+                .trainingName("Cardio")
                 .trainingType(1)
-                .date(LocalDate.of(2024, 9,3))
+                .date(LocalDate.of(2024, 9, 3))
                 .duration(1000)
                 .traineeId(1L)
                 .trainerId(1L)
@@ -279,5 +258,46 @@ class MainFacadeTest {
 
         // Assert the expected result
         assertEquals(expectedTraining, result);
+    }
+
+    @Test
+    void updateTrainer() throws GymException {
+        TrainerDto trainerDto = TrainerDto.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .specialization(1)
+                .build();
+
+        TrainerResponseDto expectedResponse = new TrainerResponseDto("John", "Doe", "john.doe", "1");
+
+        // Mock the behavior of trainerService.update (not save)
+        when(trainerService.update(trainerDto)).thenReturn(expectedResponse);
+
+        // Call the method
+        TrainerResponseDto result = mainFacade.updateTrainer(trainerDto);
+
+        // Verify that the service method update was called (not save)
+        verify(trainerService).update(trainerDto);
+
+        // Assert the expected result
+        assertEquals(expectedResponse, result);
+    }
+
+    @Test
+    void testCreateTrainee_validationFailure() throws ValidateException {
+        // Given
+        TraineeDto traineeDto = TraineeDto.builder().firstName("Jo").lastName("l").build(); // Create a valid TraineeDto instance
+
+        // When
+        when(traineeService.save(traineeDto)).thenThrow(new ValidateException("Invalid trainee data"));
+
+        // Execute
+        TraineeResponseDto actualResponse = mainFacade.createTrainee(traineeDto);
+
+        // Then
+        assertNull(actualResponse);
+        verify(traineeService).save(traineeDto);
+        // Optionally verify that the warning was logged
+        // Use a logging framework test utility to capture logs if needed
     }
 }

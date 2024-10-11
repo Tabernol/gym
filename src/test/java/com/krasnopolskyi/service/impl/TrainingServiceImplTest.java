@@ -141,6 +141,38 @@ public class TrainingServiceImplTest {
         when(traineeRepository.findById(1L)).thenReturn(Optional.of(trainee));
         // Mock trainer repository to return the trainer
         when(trainerRepository.findById(1L)).thenReturn(Optional.of(trainer));
+
+        TrainingDto trainingAnotherDto = TrainingDto.builder()
+                .trainingName("Yoga")
+                .trainingType(2)
+                .date(LocalDate.of(2024, 9,3))
+                .duration(1000)
+                .traineeId(1L)
+                .trainerId(1L)
+                .build();
+
+        TrainingType trainingType2 = new TrainingType(2, "Yoga");
+
+        // Mock training type repository to return taining
+        when(trainingTypeRepository.findById(2)).thenReturn(Optional.of(trainingType2));
+
+        // Assert that an IllegalArgumentException is thrown
+        ValidateException thrown = assertThrows(ValidateException.class, () -> {
+            trainingService.save(trainingAnotherDto);
+        });
+
+        assertEquals("This trainer is not assigned to this training type", thrown.getMessage());
+
+        // Verify that the trainingRepository was not called
+        verify(trainingRepository, never()).save(any(Training.class));
+    }
+
+    @Test
+    public void testSave_TrainingTypeNotMatchWithTrainerType() {
+        // Mock trainee repository to return the trainee
+        when(traineeRepository.findById(1L)).thenReturn(Optional.of(trainee));
+        // Mock trainer repository to return the trainer
+        when(trainerRepository.findById(1L)).thenReturn(Optional.of(trainer));
         // Mock training type repository to return empty
         when(trainingTypeRepository.findById(1)).thenReturn(Optional.empty());
 
