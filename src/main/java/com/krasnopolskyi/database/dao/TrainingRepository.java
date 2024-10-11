@@ -21,9 +21,8 @@ public class TrainingRepository {
     }
 
     public Training save(Training training) {
-        // need to save into map twice because when do it at first time Map returns null
         storage.getTrainings().put(training.getId(), training);
-        return storage.getTrainings().put(training.getId(), training); // saving to a file is done implicitly using AOP
+        return storage.getTrainings().get(training.getId()); // saving to a file is done implicitly using AOP
     }
 
     public Optional<Training> findById(Long id) {

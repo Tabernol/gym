@@ -58,7 +58,7 @@ public class TrainingServiceImpl implements TrainingService {
                 .duration(trainingDto.getDuration())
                 .build();
         Training save = trainingRepository.save(training);
-        log.info("training has been saved " + save);
+        log.debug("training has been saved " + save);
         return save;
     }
 

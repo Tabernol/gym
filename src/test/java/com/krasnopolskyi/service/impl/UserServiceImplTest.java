@@ -4,6 +4,7 @@ import com.krasnopolskyi.database.dao.UserRepository;
 import com.krasnopolskyi.dto.request.UserDto;
 import com.krasnopolskyi.entity.User;
 import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.utils.UsernameGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,14 +43,14 @@ public class UserServiceImplTest {
                 .id(1L)
                 .firstName("John")
                 .lastName("Doe")
-                .login("john.doe")
+                .username("john.doe")
                 .password("123")
                 .isActive(true)
                 .build();
     }
 
     @Test
-    public void testSave_Success() {
+    public void testSave_Success() throws ValidateException {
         // Mock the username generation and user repository save method
         when(usernameGenerator.generateUsername(userDto.getFirstName(), userDto.getLastName())).thenReturn("johndoe");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
@@ -64,7 +65,7 @@ public class UserServiceImplTest {
         assertNotNull(savedUser);
         assertEquals("John", savedUser.getFirstName());
         assertEquals("Doe", savedUser.getLastName());
-        assertEquals("johndoe", savedUser.getLogin());
+        assertEquals("johndoe", savedUser.getUsername());
         assertNotNull(savedUser.getId());
         assertTrue(savedUser.getIsActive());
 

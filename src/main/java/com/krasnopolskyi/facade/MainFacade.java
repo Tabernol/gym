@@ -3,11 +3,13 @@ package com.krasnopolskyi.facade;
 import com.krasnopolskyi.dto.request.TraineeDto;
 import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.request.TrainingDto;
-import com.krasnopolskyi.dto.response.UserCredentials;
+import com.krasnopolskyi.dto.response.TraineeResponseDto;
+import com.krasnopolskyi.dto.response.TrainerResponseDto;
 import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.Training;
 import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TraineeService;
 import com.krasnopolskyi.service.TrainerService;
@@ -28,39 +30,44 @@ public class MainFacade {
         this.trainingService = trainingService;
     }
 
-    public UserCredentials createTrainee(TraineeDto traineeDto) {
-        return traineeService.save(traineeDto);
-    }
-
-    public Trainee findTraineeById(Long id) throws EntityNotFoundException {
-        return traineeService.findById(id);
-    }
-
-    public Trainee updateTrainee(Trainee trainee){
-        return traineeService.update(trainee);
-    }
-
-    public boolean deleteTrainee(Trainee trainee){
-        return traineeService.delete(trainee);
-    }
-    //////////////////////////////////////////////////////////
-
-    public UserCredentials createTrainer(TrainerDto trainerDto){
+    public TraineeResponseDto createTrainee(TraineeDto traineeDto) {
         try {
-            return trainerService.save(trainerDto);
+            return traineeService.save(traineeDto);
         } catch (ValidateException e) {
-            // here should be ExceptionHandler
-            log.warn("Registration failed wrong type of specialization");
-            return new UserCredentials("","");
+            log.warn("Registration failed " + e.getMessage());
+            return null;
         }
     }
 
-    public Trainer findTrainerById(Long id) throws EntityNotFoundException {
+    public TraineeResponseDto findTraineeById(Long id) throws EntityNotFoundException {
+        return traineeService.findById(id);
+    }
+
+    public TraineeResponseDto updateTrainee(TraineeDto traineeDto) throws EntityNotFoundException {
+        return traineeService.update(traineeDto);
+    }
+
+    public boolean deleteTrainee(TraineeDto traineeDto) throws EntityNotFoundException {
+        return traineeService.delete(traineeDto);
+    }
+    //////////////////////////////////////////////////////////
+
+    public TrainerResponseDto createTrainer(TrainerDto trainerDto){
+        try {
+            return trainerService.save(trainerDto);
+        } catch (GymException e) {
+            // here should be ExceptionHandler
+            log.warn("Registration failed " + e.getMessage());
+            return null;
+        }
+    }
+
+    public TrainerResponseDto findTrainerById(Long id) throws EntityNotFoundException {
         return trainerService.findById(id);
     }
 
-    public Trainer updateTrainer(Trainer trainer){
-        return trainerService.update(trainer);
+    public TrainerResponseDto updateTrainer(TrainerDto trainerDto) throws GymException {
+        return trainerService.update(trainerDto);
     }
     //////////////////////////////////////////////////////////////
 
@@ -69,7 +76,7 @@ public class MainFacade {
             return trainingService.save(trainingDto);
         } catch (ValidateException e) {
             // here should be ExceptionHandler
-            log.info("adding training session failed " + e.getMessage());
+            log.warn("adding training session failed " + e.getMessage());
             return null;
         }
     }

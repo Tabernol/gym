@@ -1,6 +1,7 @@
 package com.krasnopolskyi.utils;
 
 import com.krasnopolskyi.database.dao.UserRepository;
+import com.krasnopolskyi.exception.ValidateException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -24,70 +25,70 @@ public class UsernameGeneratorTest {
     }
 
     @Test
-    void testGenerateUsername_noConflicts() {
+    void testGenerateUsername_noConflicts() throws ValidateException {
         // Given
         String firstName = "John";
         String lastName = "Doe";
-        String expectedUsername = "John.Doe";
+        String expectedUsername = "john.doe";
 
         // When
-        when(userRepository.isUsernameExist("John.Doe")).thenReturn(false);
+        when(userRepository.isUsernameExist("john.doe")).thenReturn(false);
 
         // Execute
         String actualUsername = usernameGenerator.generateUsername(firstName, lastName);
 
         // Then
         assertEquals(expectedUsername, actualUsername);
-        verify(userRepository).isUsernameExist("John.Doe");
+        verify(userRepository).isUsernameExist("john.doe");
     }
 
     @Test
-    void testGenerateUsername_withConflicts() {
+    void testGenerateUsername_withConflicts() throws ValidateException {
         // Given
         String firstName = "John";
         String lastName = "Doe";
-        String expectedUsername = "John.Doe2";
+        String expectedUsername = "john.doe2";
 
         // When
-        when(userRepository.isUsernameExist("John.Doe")).thenReturn(true); // First username exists
-        when(userRepository.isUsernameExist("John.Doe1")).thenReturn(true); // First variant exists
-        when(userRepository.isUsernameExist("John.Doe2")).thenReturn(false); // Second variant does not exist
+        when(userRepository.isUsernameExist("john.doe")).thenReturn(true); // First username exists
+        when(userRepository.isUsernameExist("john.doe1")).thenReturn(true); // First variant exists
+        when(userRepository.isUsernameExist("john.doe2")).thenReturn(false); // Second variant does not exist
 
         // Execute
         String actualUsername = usernameGenerator.generateUsername(firstName, lastName);
 
         // Then
         assertEquals(expectedUsername, actualUsername);
-        verify(userRepository).isUsernameExist("John.Doe");
-        verify(userRepository).isUsernameExist("John.Doe1");
-        verify(userRepository).isUsernameExist("John.Doe2");
+        verify(userRepository).isUsernameExist("john.doe");
+        verify(userRepository).isUsernameExist("john.doe1");
+        verify(userRepository).isUsernameExist("john.doe2");
     }
 
     @Test
-    void testGenerateUsername_withMultipleConflicts() {
+    void testGenerateUsername_withMultipleConflicts() throws ValidateException {
         // Given
         String firstName = "Jane";
         String lastName = "Smith";
-        String expectedUsername = "Jane.Smith4";
+        String expectedUsername = "jane.smith4";
 
         // When
         // Mock multiple existing usernames
-        when(userRepository.isUsernameExist("Jane.Smith")).thenReturn(true);
-        when(userRepository.isUsernameExist("Jane.Smith1")).thenReturn(true);
-        when(userRepository.isUsernameExist("Jane.Smith2")).thenReturn(true);
-        when(userRepository.isUsernameExist("Jane.Smith3")).thenReturn(true);
-        when(userRepository.isUsernameExist("Jane.Smith4")).thenReturn(false); // Available username
+        when(userRepository.isUsernameExist("jane.smith")).thenReturn(true);
+        when(userRepository.isUsernameExist("jane.smith1")).thenReturn(true);
+        when(userRepository.isUsernameExist("jane.smith2")).thenReturn(true);
+        when(userRepository.isUsernameExist("jane.smith3")).thenReturn(true);
+        when(userRepository.isUsernameExist("jane.smith4")).thenReturn(false); // Available username
 
         // Execute
         String actualUsername = usernameGenerator.generateUsername(firstName, lastName);
 
         // Then
         assertEquals(expectedUsername, actualUsername);
-        verify(userRepository).isUsernameExist("Jane.Smith");
-        verify(userRepository).isUsernameExist("Jane.Smith1");
-        verify(userRepository).isUsernameExist("Jane.Smith2");
-        verify(userRepository).isUsernameExist("Jane.Smith3");
-        verify(userRepository).isUsernameExist("Jane.Smith4");
+        verify(userRepository).isUsernameExist("jane.smith");
+        verify(userRepository).isUsernameExist("jane.smith1");
+        verify(userRepository).isUsernameExist("jane.smith2");
+        verify(userRepository).isUsernameExist("jane.smith3");
+        verify(userRepository).isUsernameExist("jane.smith4");
     }
 
     @Test
@@ -95,16 +96,13 @@ public class UsernameGeneratorTest {
         // Given
         String firstName = "";
         String lastName = "";
-        String expectedUsername = ".";
 
-        // When
-        when(userRepository.isUsernameExist(".")).thenReturn(false);
+        // When & Then
+        ValidateException thrown = assertThrows(ValidateException.class, () -> {
+            usernameGenerator.generateUsername(firstName, lastName);
+        });
 
-        // Execute
-        String actualUsername = usernameGenerator.generateUsername(firstName, lastName);
-
-        // Then
-        assertEquals(expectedUsername, actualUsername);
-        verify(userRepository).isUsernameExist(".");
+        // Assert the expected exception message
+        assertEquals("First name or Last name must consist of at least two letters", thrown.getMessage());
     }
 }

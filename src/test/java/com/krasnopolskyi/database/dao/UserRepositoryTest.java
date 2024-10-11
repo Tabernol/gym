@@ -31,7 +31,7 @@ class UserRepositoryTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        user = User.builder().id(1L).login("testUser").build();
+        user = User.builder().id(1L).username("testUser").password("pass123").build();
 
         // Mock the storage to return the usersMap when getUsers is called
         when(storage.getUsers()).thenReturn(usersMap);
@@ -40,15 +40,16 @@ class UserRepositoryTest {
     @Test
     public void testSave() {
         // Simulate saving the user twice into the map (as per the method behavior)
-        when(usersMap.put(user.getId(), user)).thenReturn(null).thenReturn(user);
+        when(usersMap.get(user.getId())).thenReturn(user);
 
         User savedUser = userRepository.save(user);
 
         // Assert that the user is saved correctly after the second put
         assertEquals(user, savedUser);
+        assertEquals(user.getPassword(), savedUser.getPassword());
 
         // Verify that the map's put method was called twice
-        verify(usersMap, times(2)).put(user.getId(), user);
+        verify(usersMap, times(1)).put(user.getId(), user);
     }
 
     @Test
@@ -127,7 +128,7 @@ class UserRepositoryTest {
         // Mock the map to contain a user with the matching username
         when(usersMap.values()).thenReturn(List.of(user));
 
-        boolean result = userRepository.isUsernameExist(user.getLogin());
+        boolean result = userRepository.isUsernameExist(user.getUsername());
 
         // Assert that the username exists
         assertTrue(result);

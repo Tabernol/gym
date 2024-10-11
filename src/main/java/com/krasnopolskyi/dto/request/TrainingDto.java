@@ -1,12 +1,13 @@
 package com.krasnopolskyi.dto.request;
 
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 
 import java.time.LocalDate;
-@Getter
 @Builder
+@Data
 public class TrainingDto {
+    private Long id;
     private Long traineeId;
     private Long trainerId;
     private String trainingName;

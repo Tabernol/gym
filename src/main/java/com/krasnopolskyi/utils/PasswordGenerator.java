@@ -1,10 +1,12 @@
 package com.krasnopolskyi.utils;
 
+import lombok.experimental.UtilityClass;
+
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
+@UtilityClass
 public class PasswordGenerator {
     private static final String UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
