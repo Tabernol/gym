@@ -13,7 +13,7 @@ public class GymApplication {
         MainFacade facade = context.getBean(MainFacade.class);
 
         System.out.println("---------------------=============-----------");
-        log.warn("========================== GYM ==============================");
+        log.info("========================== GYM ==============================");
 
 //        facade.createTrainee(Data.JOHN_TRAINEE);
 

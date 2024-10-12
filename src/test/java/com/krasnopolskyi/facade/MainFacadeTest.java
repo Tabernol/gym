@@ -5,10 +5,8 @@ import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.request.TrainingDto;
 import com.krasnopolskyi.dto.response.TraineeResponseDto;
 import com.krasnopolskyi.dto.response.TrainerResponseDto;
-import com.krasnopolskyi.entity.Trainee;
-import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.Training;
-import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TraineeService;
@@ -78,7 +76,7 @@ class MainFacadeTest {
     }
 
     @Test
-    void testFindTraineeById_success() throws EntityNotFoundException {
+    void testFindTraineeById_success() throws EntityException {
         Long id = 1L;
 
         // Mock the behavior of traineeService.findById
@@ -160,7 +158,7 @@ class MainFacadeTest {
     }
 
     @Test
-    void testFindTrainerById_success() throws EntityNotFoundException {
+    void testFindTrainerById_success() throws EntityException {
         Long id = 1L;
         TrainerResponseDto expectedTrainer = new TrainerResponseDto("John", "Gold", "john.gold", "Cardio");
 
@@ -235,7 +233,7 @@ class MainFacadeTest {
     }
 
     @Test
-    void testFindTrainingById_success() throws EntityNotFoundException {
+    void testFindTrainingById_success() throws EntityException {
         Long id = 1L;
         Training expectedTraining = Training.builder()
                 .id(id)

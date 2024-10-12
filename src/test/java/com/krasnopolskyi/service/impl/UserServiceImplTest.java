@@ -59,7 +59,7 @@ public class UserServiceImplTest {
             return savedUser;
         });
 
-        User savedUser = userService.save(userDto);
+        User savedUser = userService.create(userDto);
 
         // Assert that the saved user is not null and has the expected properties
         assertNotNull(savedUser);

@@ -1,7 +1,7 @@
 package com.krasnopolskyi.database.dao;
 
 import com.krasnopolskyi.entity.TrainingType;
-import com.krasnopolskyi.service.impl.TrainingTypeRepositoryImpl;
+import com.krasnopolskyi.repository.TrainingTypeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -16,7 +16,7 @@ class TrainingTypeRepositoryTest {
     private Map<Integer, TrainingType> trainingTypesMap;
 
     @InjectMocks
-    private TrainingTypeRepositoryImpl trainingTypeRepositoryImpl;
+    private TrainingTypeRepository trainingTypeRepository;
 
     private TrainingType trainingType;
 

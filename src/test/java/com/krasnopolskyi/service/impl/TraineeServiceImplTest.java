@@ -1,13 +1,13 @@
 package com.krasnopolskyi.service.impl;
 
-import com.krasnopolskyi.database.dao.TraineeRepository;
 import com.krasnopolskyi.dto.request.TraineeDto;
 import com.krasnopolskyi.dto.request.UserDto;
 import com.krasnopolskyi.dto.response.TraineeResponseDto;
 import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.User;
-import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.ValidateException;
+import com.krasnopolskyi.repository.impl.TraineeRepositoryImpl;
 import com.krasnopolskyi.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
 class TraineeServiceImplTest {
 
     @Mock
-    private TraineeRepository traineeRepository;
+    private TraineeRepositoryImpl traineeRepository;
 
     @Mock
     private UserService userService;
@@ -33,8 +33,8 @@ class TraineeServiceImplTest {
     private TraineeServiceImpl traineeService;
 
     private TraineeDto traineeDto;
-    private Trainee trainee;
-    private User user;
+    private Trainee trainee = new Trainee();
+    private User user = new User();
 
     @BeforeEach
     public void setUp() {
@@ -46,26 +46,22 @@ class TraineeServiceImplTest {
                 .dateOfBirth(LocalDate.of(1995, 5, 5))
                 .build();
 
-        user = User.builder()
-                .id(1L)
-                .username("john.doe")
-                .firstName("John")
-                .lastName("Doe")
-                .password("123")
-                .build();
+        user.setId(1L);
+        user.setUsername("john.doe");
+        user.setFirstName("John");
+        user.setLastName("Doe");
+        user.setPassword("123");
 
-        trainee = Trainee.builder()
-                .id(1L)
-                .userId(user.getId())
-                .address(traineeDto.getAddress())
-                .dateOfBirth(traineeDto.getDateOfBirth())
-                .build();
+        trainee.setId(1L);
+        trainee.setDateOfBirth(traineeDto.getDateOfBirth());
+        trainee.setAddress(traineeDto.getAddress());
+        trainee.setUser(user);
     }
 
     @Test
     public void testSave() throws ValidateException {
         // Mock the user service to return the user when saving
-        when(userService.save(any(UserDto.class))).thenReturn(user);
+        when(userService.create(any(UserDto.class))).thenReturn(user);
         // Mock the trainee repository to return the saved trainee
         when(traineeRepository.save(any(Trainee.class))).thenReturn(trainee);
 
@@ -79,16 +75,16 @@ class TraineeServiceImplTest {
         assertEquals(trainee.getDateOfBirth(), result.dateOfBirth());
 
         // Verify that userService.save() was called with the correct UserDto
-        verify(userService, times(1)).save(any(UserDto.class));
+        verify(userService, times(1)).create(any(UserDto.class));
         // Verify that traineeRepository.save() was called with the correct Trainee
         verify(traineeRepository, times(1)).save(any(Trainee.class));
     }
 
     @Test
-    public void testFindById_Success() throws EntityNotFoundException {
+    public void testFindById_Success() throws EntityException {
         // Mock the trainee repository to return the trainee when queried by ID
         when(traineeRepository.findById(1L)).thenReturn(Optional.of(trainee));
-        when(userService.findById(trainee.getUserId())).thenReturn(user);
+        when(userService.findById(trainee.getUser().getId())).thenReturn(user);
 
         TraineeResponseDto result = traineeService.findById(1L);
 
@@ -101,7 +97,7 @@ class TraineeServiceImplTest {
 
         // Verify that findById() was called once with the correct ID
         verify(traineeRepository, times(1)).findById(1L);
-        verify(userService, times(1)).findById(trainee.getUserId());
+        verify(userService, times(1)).findById(trainee.getUser().getId());
     }
 
     @Test
@@ -110,7 +106,7 @@ class TraineeServiceImplTest {
         when(traineeRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Assert that an EntityNotFoundException is thrown
-        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class, () -> {
+        EntityException thrown = assertThrows(EntityException.class, () -> {
             traineeService.findById(1L);
         });
 
@@ -121,10 +117,10 @@ class TraineeServiceImplTest {
     }
 
     @Test
-    public void testUpdate() throws EntityNotFoundException {
+    public void testUpdate() throws EntityException {
         // Mock the trainee repository to return the saved trainee
         when(traineeRepository.findById(1L)).thenReturn(Optional.of(trainee));
-        when(userService.findById(trainee.getUserId())).thenReturn(user);
+        when(userService.findById(trainee.getUser().getId())).thenReturn(user);
         when(traineeRepository.save(any(Trainee.class))).thenReturn(trainee);
         when(userService.update(any(User.class))).thenReturn(user);
 
@@ -151,7 +147,7 @@ class TraineeServiceImplTest {
     }
 
     @Test
-    public void testDelete() throws EntityNotFoundException {
+    public void testDelete() throws EntityException {
         // Mock the trainee repository to return the trainee when found
         when(traineeRepository.findById(1L)).thenReturn(Optional.of(trainee));
         // Mock the trainee repository to return true when deleting

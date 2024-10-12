@@ -23,7 +23,7 @@ dependencies {
 
     compileOnly 'org.projectlombok:lombok:1.18.28'
     annotationProcessor 'org.projectlombok:lombok:1.18.28'
-    implementation 'org.apache.logging.log4j:log4j-slf4j2-impl:2.24.1' //logger
+
 
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0' // work with JSON
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.0' // for working with LocalData and other

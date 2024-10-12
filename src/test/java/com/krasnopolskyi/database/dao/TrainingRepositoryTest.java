@@ -1,13 +1,14 @@
 package com.krasnopolskyi.database.dao;
 
-import com.krasnopolskyi.database.Storage;
 import com.krasnopolskyi.entity.Training;
+import com.krasnopolskyi.repository.impl.TrainingRepositoryImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 
@@ -17,28 +18,27 @@ import static org.mockito.Mockito.*;
 class TrainingRepositoryTest {
 
     @Mock
-    private Storage storage;
-
-    @Mock
     private Map<Long, Training> trainingsMap;
 
     @InjectMocks
-    private TrainingRepository trainingRepository;
+    private TrainingRepositoryImpl trainingRepository;
 
     private Training training;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        training = Training.builder()
-                .id(1L)
-                .trainerId(1L)
-                .traineeId(1L)
-                .trainingType(1)
-                .build();
+        Training training = new Training();
+        training.setId(1L);
+        training.setTrainingName("Cardio");
+        training.setTrainingType(1);
+        training.setDate(LocalDate.of(2024, 9,3));
+        training.setDuration(1000);
+        training.setTraineeId(1L);
+        training.setTrainerId(1L);
 
         // Mock the behavior of storage.getTrainings() to return the trainingsMap
-        when(storage.getTrainings()).thenReturn(trainingsMap);
+//        when(storage.getTrainings()).thenReturn(trainingsMap);
     }
 
     @Test

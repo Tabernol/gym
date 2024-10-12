@@ -1,16 +1,17 @@
 package com.krasnopolskyi.service.impl;
 
-import com.krasnopolskyi.database.dao.TraineeRepository;
-import com.krasnopolskyi.database.dao.TrainerRepository;
-import com.krasnopolskyi.database.dao.TrainingRepository;
-import com.krasnopolskyi.database.dao.TrainingTypeRepository;
+
 import com.krasnopolskyi.dto.request.TrainingDto;
 import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.Training;
 import com.krasnopolskyi.entity.TrainingType;
-import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.ValidateException;
+import com.krasnopolskyi.repository.impl.TraineeRepositoryImpl;
+import com.krasnopolskyi.repository.impl.TrainerRepositoryImpl;
+import com.krasnopolskyi.repository.impl.TrainingRepositoryImpl;
+import com.krasnopolskyi.repository.impl.TrainingTypeRepositoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -26,22 +27,22 @@ import static org.mockito.Mockito.*;
 public class TrainingServiceImplTest {
 
     @Mock
-    private TrainingRepository trainingRepository;
+    private TrainingRepositoryImpl trainingRepository;
 
     @Mock
-    private TraineeRepository traineeRepository;
+    private TraineeRepositoryImpl traineeRepository;
 
     @Mock
-    private TrainerRepository trainerRepository;
+    private TrainerRepositoryImpl trainerRepository;
 
     @Mock
-    private TrainingTypeRepository trainingTypeRepository;
+    private TrainingTypeRepositoryImpl trainingTypeRepository;
 
     @InjectMocks
     private TrainingServiceImpl trainingService;
 
     private TrainingDto trainingDto;
-    private Trainee trainee;
+    private Trainee trainee = new Trainee();
     private Trainer trainer;
     private TrainingType trainingType;
 
@@ -60,7 +61,9 @@ public class TrainingServiceImplTest {
                 .build();
 
         // Set up corresponding entities
-        trainee = Trainee.builder().id(1L).build();
+        trainee.setId(1L);
+        trainee.setDateOfBirth(LocalDate.of(2000,1,1));
+        trainee.setAddress("test street");
 
         trainer = Trainer.builder().id(1L).specialization(1).userId(101L).build();
 
@@ -68,7 +71,7 @@ public class TrainingServiceImplTest {
     }
 
     @Test
-    public void testSave_Success() throws ValidateException {
+    public void testSave_Success() throws ValidateException, EntityException {
         // Mock repositories to return the corresponding entities
         when(traineeRepository.findById(1L)).thenReturn(Optional.of(trainee));
         when(trainerRepository.findById(1L)).thenReturn(Optional.of(trainer));
@@ -78,7 +81,7 @@ public class TrainingServiceImplTest {
         when(trainingRepository.save(any(Training.class))).thenAnswer(invocation -> {
             // Return the training object with the generated ID
             Training savedTraining = invocation.getArgument(0);
-            savedTraining.builder().id(1L).build(); // Simulate ID generation
+//            savedTraining.builder().id(1L).build(); // Simulate ID generation
             return savedTraining;
         });
 
@@ -99,7 +102,7 @@ public class TrainingServiceImplTest {
     }
 
     @Test
-    public void testSave_TraineeNotFound() {
+    public void testSave_TraineeNotFound() throws EntityException {
         // Mock trainee repository to return empty
         when(traineeRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -117,7 +120,7 @@ public class TrainingServiceImplTest {
     }
 
     @Test
-    public void testSave_TrainerNotFound() {
+    public void testSave_TrainerNotFound() throws EntityException {
         // Mock trainee repository to return the trainee
         when(traineeRepository.findById(1L)).thenReturn(Optional.of(trainee));
         // Mock trainer repository to return empty
@@ -136,7 +139,7 @@ public class TrainingServiceImplTest {
     }
 
     @Test
-    public void testSave_TrainingTypeNotFound() {
+    public void testSave_TrainingTypeNotFound() throws EntityException {
         // Mock trainee repository to return the trainee
         when(traineeRepository.findById(1L)).thenReturn(Optional.of(trainee));
         // Mock trainer repository to return the trainer
@@ -168,7 +171,7 @@ public class TrainingServiceImplTest {
     }
 
     @Test
-    public void testSave_TrainingTypeNotMatchWithTrainerType() {
+    public void testSave_TrainingTypeNotMatchWithTrainerType() throws EntityException {
         // Mock trainee repository to return the trainee
         when(traineeRepository.findById(1L)).thenReturn(Optional.of(trainee));
         // Mock trainer repository to return the trainer
@@ -188,17 +191,15 @@ public class TrainingServiceImplTest {
     }
 
     @Test
-    public void testFindById_Success() throws EntityNotFoundException {
-        Training training = Training.builder()
-                .id(1L)
-                .trainingName("Cardio")
-                .trainingType(1)
-                .date(LocalDate.of(2024, 9,3))
-                .duration(1000)
-                .traineeId(1L)
-                .trainerId(1L)
-                .build();
-
+    public void testFindById_Success() throws EntityException {
+        Training training = new Training();
+        training.setId(1L);
+        training.setTrainingName("Cardio");
+        training.setTrainingType(1);
+        training.setDate(LocalDate.of(2024, 9,3));
+        training.setDuration(1000);
+        training.setTraineeId(1L);
+        training.setTrainerId(1L);
 
         // Mock the training repository to return the training object
         when(trainingRepository.findById(1L)).thenReturn(Optional.of(training));
@@ -218,7 +219,7 @@ public class TrainingServiceImplTest {
         when(trainingRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Assert that an EntityNotFoundException is thrown
-        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class, () -> {
+        EntityException thrown = assertThrows(EntityException.class, () -> {
             trainingService.findById(1L);
         });
 
