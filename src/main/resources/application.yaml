@@ -1,13 +1,10 @@
-data.load.training-types: data/load/csv/training-types.csv
+hibernate.connection.url: jdbc:postgresql://localhost:5432/gym
+hibernate.connection.driver: org.postgresql.Driver
+hibernate.connection.username: postgres
+hibernate.connection.password: postgres
+hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+hibernate.current_session_context_class: thread
+hibernate.show_sql: true
+hibernate.format_sql: true
 
-data.load.users: data/load/json/users.json
-data.load.trainees: data/load/json/trainees.json
-data.load.trainers: data/load/json/trainers.json
-#data.path.trainer: data/trainer.csv
-#data.path.training: data/training.csv
-
-data.save.users: data/save/users.json
-data.save.trainees: data/save/trainees.json
-data.save.trainers: data/save/trainers.json
-data.save.trainings: data/save/trainings.json
-data.save.training-types: data/save/training-types.json
+datasource.master-change-log: db/changelog/master.yaml

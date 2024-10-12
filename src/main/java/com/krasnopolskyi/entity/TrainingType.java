@@ -2,9 +2,13 @@ package com.krasnopolskyi.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 @Getter
-@AllArgsConstructor
+@Setter
+@NoArgsConstructor
 public class TrainingType {
-    private final int id;
-    private final String type;
+    private int id;
+    private String type;
 }

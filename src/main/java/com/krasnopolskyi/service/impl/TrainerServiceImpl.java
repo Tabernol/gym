@@ -1,19 +1,20 @@
 package com.krasnopolskyi.service.impl;
 
-import com.krasnopolskyi.database.dao.TrainerRepository;
-import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.request.UserDto;
+import com.krasnopolskyi.repository.impl.TrainerRepositoryImpl;
+import com.krasnopolskyi.dto.request.TrainerDto;
+import com.krasnopolskyi.dto.response.UserCredentials;
 import com.krasnopolskyi.dto.response.TrainerResponseDto;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.TrainingType;
 import com.krasnopolskyi.entity.User;
+import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.EntityNotFoundException;
 import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TrainerService;
 import com.krasnopolskyi.service.TrainingTypeService;
 import com.krasnopolskyi.service.UserService;
-import com.krasnopolskyi.utils.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class TrainerServiceImpl implements TrainerService {
     // initialized via autowired because task condition 4
     // I prefer initialized via constructor
     @Autowired
-    private TrainerRepository trainerRepository;
+    private TrainerRepositoryImpl trainerRepository;
     @Autowired
     private UserService userService;
     @Autowired

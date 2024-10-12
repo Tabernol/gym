@@ -1,28 +1,24 @@
 package com.krasnopolskyi.service.impl;
 
-import com.krasnopolskyi.database.dao.UserRepository;
 import com.krasnopolskyi.dto.request.UserDto;
+import com.krasnopolskyi.repository.UserRepository;
 import com.krasnopolskyi.entity.User;
 import com.krasnopolskyi.exception.EntityNotFoundException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.UserService;
-import com.krasnopolskyi.utils.IdGenerator;
 import com.krasnopolskyi.utils.PasswordGenerator;
 import com.krasnopolskyi.utils.UsernameGenerator;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    // initialized via autowired because task condition 4
-    // I prefer initialized via constructor
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private UsernameGenerator usernameGenerator;
+    private final UsernameGenerator usernameGenerator;
 
     @Override
     public User save(UserDto userDto) throws ValidateException {

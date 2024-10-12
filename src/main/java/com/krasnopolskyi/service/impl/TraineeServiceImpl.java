@@ -3,27 +3,24 @@ package com.krasnopolskyi.service.impl;
 import com.krasnopolskyi.database.dao.TraineeRepository;
 import com.krasnopolskyi.dto.request.TraineeDto;
 import com.krasnopolskyi.dto.request.UserDto;
-import com.krasnopolskyi.dto.response.TraineeResponseDto;
+import com.krasnopolskyi.dto.response.UserCredentials;
 import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.User;
 import com.krasnopolskyi.exception.EntityNotFoundException;
-import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TraineeService;
 import com.krasnopolskyi.service.UserService;
-import com.krasnopolskyi.utils.IdGenerator;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class TraineeServiceImpl implements TraineeService {
-    // initialized via autowired because task condition 4
-    // I prefer initialized via constructor
-    @Autowired
-    private TraineeRepository traineeRepository;
-    @Autowired
-    private UserService userService;
+    private final TraineeRepository traineeRepository;
+    private final UserService userService;
 
     @Override
     public TraineeResponseDto save(TraineeDto traineeDto) throws ValidateException {

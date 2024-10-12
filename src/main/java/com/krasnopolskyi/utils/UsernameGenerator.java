@@ -1,5 +1,7 @@
 package com.krasnopolskyi.utils;
 
+import com.krasnopolskyi.dto.request.UserDto;
+import com.krasnopolskyi.repository.UserRepository;
 import com.krasnopolskyi.database.dao.UserRepository;
 import com.krasnopolskyi.exception.ValidateException;
 import org.springframework.beans.factory.annotation.Autowired;

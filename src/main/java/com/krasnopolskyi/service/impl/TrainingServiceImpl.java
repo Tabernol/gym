@@ -1,15 +1,14 @@
 package com.krasnopolskyi.service.impl;
 
-import com.krasnopolskyi.database.dao.TraineeRepository;
-import com.krasnopolskyi.database.dao.TrainerRepository;
-import com.krasnopolskyi.database.dao.TrainingRepository;
-import com.krasnopolskyi.database.dao.TrainingTypeRepository;
+import com.krasnopolskyi.repository.TraineeRepository;
+import com.krasnopolskyi.repository.impl.TrainerRepositoryImpl;
+import com.krasnopolskyi.repository.impl.TrainingRepositoryImpl;
 import com.krasnopolskyi.dto.request.TrainingDto;
 import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.Training;
 import com.krasnopolskyi.entity.TrainingType;
-import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TrainingService;
 import com.krasnopolskyi.utils.IdGenerator;
@@ -48,23 +47,14 @@ public class TrainingServiceImpl implements TrainingService {
             throw new ValidateException("This trainer is not assigned to this training type");
         }
 
-        long id = IdGenerator.generateId();
-        Training training = Training.builder()
-                .id(id)
-                .traineeId(trainee.getId())
-                .trainerId(trainer.getId())
-                .trainingName(trainingType.getType())
-                .date(trainingDto.getDate())
-                .duration(trainingDto.getDuration())
-                .build();
-        Training save = trainingRepository.save(training);
-        log.debug("training has been saved " + save);
-        return save;
+
+        log.info("training has been saved ");
+        return new Training();
     }
 
     @Override
-    public Training findById(Long id) throws EntityNotFoundException {
+    public Training findById(Long id) throws EntityException {
         return trainingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Could not found training with id " + id));
+                .orElseThrow(() -> new EntityException("Could not found training with id " + id));
     }
 }
