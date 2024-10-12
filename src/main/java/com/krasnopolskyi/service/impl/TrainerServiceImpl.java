@@ -1,15 +1,13 @@
 package com.krasnopolskyi.service.impl;
 
 import com.krasnopolskyi.dto.request.UserDto;
+import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.repository.impl.TrainerRepositoryImpl;
 import com.krasnopolskyi.dto.request.TrainerDto;
-import com.krasnopolskyi.dto.response.UserCredentials;
 import com.krasnopolskyi.dto.response.TrainerResponseDto;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.TrainingType;
 import com.krasnopolskyi.entity.User;
-import com.krasnopolskyi.exception.EntityException;
-import com.krasnopolskyi.exception.EntityNotFoundException;
 import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TrainerService;
@@ -37,11 +35,9 @@ public class TrainerServiceImpl implements TrainerService {
         TrainingType specialization = trainingTypeService.findById(trainerDto.getSpecialization()); // receive specialization
 
         User savedUser = userService
-                .save(new UserDto(trainerDto.getFirstName(),
+                .create(new UserDto(trainerDto.getFirstName(),
                         trainerDto.getLastName())); //return user with id, username and password
-        long id = IdGenerator.generateId();
         Trainer trainer = Trainer.builder()
-                .id(id)
                 .userId(savedUser.getId())
                 .specialization(specialization.getId())
                 .build();
@@ -51,9 +47,9 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
-    public TrainerResponseDto findById(Long id) throws EntityNotFoundException {
+    public TrainerResponseDto findById(Long id) throws EntityException {
         Trainer trainer = trainerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Could not found trainer with id " + id));
+                .orElseThrow(() -> new EntityException("Could not found trainer with id " + id));
         User user = userService.findById(trainer.getUserId()); // find user associated with trainer
         TrainingType specialization = trainingTypeService.findById(trainer.getSpecialization()); // find specialization of trainee
 
@@ -64,7 +60,7 @@ public class TrainerServiceImpl implements TrainerService {
     public TrainerResponseDto update(TrainerDto trainerDto) throws GymException {
         validate(trainerDto); // validate specialization
         Trainer trainer = trainerRepository.findById(trainerDto.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Could not found trainer with id " + trainerDto.getId()));
+                .orElseThrow(() -> new EntityException("Could not found trainer with id " + trainerDto.getId()));
         //update user's fields
         User user = userService.findById(trainer.getUserId()); // pass refreshed user to repository
         user.setFirstName(trainerDto.getFirstName());
@@ -82,7 +78,7 @@ public class TrainerServiceImpl implements TrainerService {
     private void validate(TrainerDto trainerDto) throws ValidateException {
         try {
             trainingTypeService.findById(trainerDto.getSpecialization());
-        } catch (EntityNotFoundException e) {
+        } catch (EntityException e) {
             log.debug("Attempt to save trainer with wrong specialization " + trainerDto.getSpecialization());
             throw new ValidateException("Specialisation with id " + trainerDto.getSpecialization() + " does not exist");
         }

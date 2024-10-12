@@ -6,7 +6,7 @@ import com.krasnopolskyi.dto.request.TrainingDto;
 import com.krasnopolskyi.dto.response.TraineeResponseDto;
 import com.krasnopolskyi.dto.response.TrainerResponseDto;
 import com.krasnopolskyi.entity.Training;
-import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TraineeService;
@@ -44,7 +44,7 @@ public class MainFacade {
             TraineeResponseDto trainee = traineeService.findById(id);
             log.info("trainee with " + id + " has been found");
             return trainee;
-        } catch (EntityNotFoundException e) {
+        } catch (EntityException e) {
             log.info("Failed find trainee " + e.getMessage());
             return null;
         }
@@ -55,7 +55,7 @@ public class MainFacade {
             TraineeResponseDto refreshedTrainee = traineeService.update(traineeDto);
             log.info("Trainee successfully refreshed");
             return refreshedTrainee;
-        } catch (EntityNotFoundException e) {
+        } catch (EntityException e) {
             log.info("Failed update trainee " + traineeDto.getId());
             throw null;
         }
@@ -66,7 +66,7 @@ public class MainFacade {
             boolean isDeleted = traineeService.delete(traineeDto);
             log.info("trainee with " + traineeDto.getId() + " has been deleted");
             return isDeleted;
-        } catch (EntityNotFoundException e) {
+        } catch (EntityException e) {
             log.info("Failed attempt to delete trainee " + e.getMessage());
             return false;
         }
@@ -90,7 +90,7 @@ public class MainFacade {
             TrainerResponseDto maybeTrainer = trainerService.findById(id);
             log.info("trainee with " + id + " has been found");
             return maybeTrainer;
-        } catch (EntityNotFoundException e) {
+        } catch (EntityException e) {
             log.info("Failed find trainee " + e.getMessage());
             return null;
         }
@@ -125,7 +125,7 @@ public class MainFacade {
             Training training = trainingService.findById(id);
             log.info("training with " + id + " has been found");
             return training;
-        } catch (EntityNotFoundException e) {
+        } catch (EntityException e) {
             log.info("Failed find training " + e.getMessage());
             return null;
         }

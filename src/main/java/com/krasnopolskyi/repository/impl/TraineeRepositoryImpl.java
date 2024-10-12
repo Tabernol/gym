@@ -2,12 +2,11 @@ package com.krasnopolskyi.repository.impl;
 
 import com.krasnopolskyi.repository.TraineeRepository;
 import com.krasnopolskyi.entity.Trainee;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 @Repository
@@ -16,17 +15,14 @@ public class TraineeRepositoryImpl implements TraineeRepository {
 
     private final SessionFactory sessionFactory;
 
-    public Optional<Trainee> save(Trainee trainee) {
+    @Transactional
+    public Trainee save(Trainee trainee) {
         Session session = sessionFactory.openSession();
-        session.beginTransaction();
-
         session.persist(trainee.getUser());
         session.persist(trainee);
-
-        session.getTransaction().commit();
-        return Optional.ofNullable(trainee);
+        return trainee;
     }
-    @Transactional(readOnly = true)
+
     public Optional<Trainee> findById(Long id) {
         Session session = sessionFactory.openSession();
         session.beginTransaction();

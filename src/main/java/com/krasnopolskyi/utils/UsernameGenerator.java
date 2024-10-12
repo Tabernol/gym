@@ -1,20 +1,14 @@
 package com.krasnopolskyi.utils;
 
-import com.krasnopolskyi.dto.request.UserDto;
 import com.krasnopolskyi.repository.UserRepository;
-import com.krasnopolskyi.database.dao.UserRepository;
 import com.krasnopolskyi.exception.ValidateException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class UsernameGenerator {
-    private UserRepository userRepository;
-
-    @Autowired
-    public void setUserRepository(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final UserRepository userRepository;
 
     public String generateUsername(String firstName, String lastName) throws ValidateException {
         if(firstName.length() < 2 || lastName.length() < 2){

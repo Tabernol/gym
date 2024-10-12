@@ -1,12 +1,14 @@
 package com.krasnopolskyi.service.impl;
 
-import com.krasnopolskyi.database.dao.TraineeRepository;
+
 import com.krasnopolskyi.dto.request.TraineeDto;
 import com.krasnopolskyi.dto.request.UserDto;
-import com.krasnopolskyi.dto.response.UserCredentials;
+import com.krasnopolskyi.dto.response.TraineeResponseDto;
 import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.User;
-import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.EntityException;
+import com.krasnopolskyi.exception.ValidateException;
+import com.krasnopolskyi.repository.TraineeRepository;
 import com.krasnopolskyi.service.TraineeService;
 import com.krasnopolskyi.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -24,64 +26,71 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public TraineeResponseDto save(TraineeDto traineeDto) throws ValidateException {
-        User savedUser = userService
-                .save(new UserDto(traineeDto.getFirstName(),
-                        traineeDto.getLastName())); //return user with id, username and password
-        long id = IdGenerator.generateId(); // generate if for trainee
-        Trainee trainee = Trainee.builder()
-                .id(id)
-                .userId(savedUser.getId())
-                .address(traineeDto.getAddress())
-                .dateOfBirth(traineeDto.getDateOfBirth())
-                .build();
-        Trainee saveTrainee = traineeRepository.save(trainee); // pass to repository
-        log.debug("trainee has been saved " + trainee.getId());
-        return mapToDto(saveTrainee, savedUser); // mapping
+        User newUser = userService
+                .create(new UserDto(traineeDto.getFirstName(),
+                        traineeDto.getLastName())); //return user with firstName, lastName, username, password, isActive
+
+        Trainee trainee = mapToEntity(traineeDto, newUser);
+
+        Trainee savedTrainee = traineeRepository.save(trainee);// pass to repository
+        log.debug("trainee has been saved " + trainee);
+        return mapToDto(savedTrainee);
     }
 
     @Override
-    public TraineeResponseDto findById(Long id) throws EntityNotFoundException {
+    public TraineeResponseDto findById(Long id) throws EntityException {
         Trainee trainee = traineeRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Could not found trainee with id " + id)); // find trainee entity
-        User user = userService.findById(trainee.getUserId()); // find user associated with trainee
-        return mapToDto(trainee, user); // mapping
+                .orElseThrow(() -> new EntityException("Could not found trainee with id " + id)); // find trainee entity
+//        User user = userService.findById(trainee.getUser().getId()); // find user associated with trainee
+        return mapToDto(trainee); // mapping
 
     }
 
     @Override
-    public TraineeResponseDto update(TraineeDto traineeDto) throws EntityNotFoundException {
+    public TraineeResponseDto update(TraineeDto traineeDto) throws EntityException {
         // find trainee entity
         Trainee trainee = traineeRepository.findById(traineeDto.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Could not found trainee with id " + traineeDto.getId()));
+                .orElseThrow(() -> new EntityException("Could not found trainee with id " + traineeDto.getId()));
         //update trainee's fields
         trainee.setAddress(traineeDto.getAddress());
         trainee.setDateOfBirth(traineeDto.getDateOfBirth());
-        Trainee savedTrainee = traineeRepository.save(trainee); // pass trainee to repository
+//        Trainee savedTrainee = traineeRepository.save(trainee); // pass trainee to repository
 
-        User user = userService.findById(trainee.getUserId()); // find user associated with trainee
+        User user = userService.findById(trainee.getUser().getId()); // find user associated with trainee
         //update user's fields
         user.setFirstName(traineeDto.getFirstName());
         user.setLastName(traineeDto.getLastName());
         User savedUser = userService.update(user); // pass refreshed user to repository
         log.debug("trainee has been updated " + trainee.getId());
-        return mapToDto(savedTrainee, savedUser); //mapping
+//        return mapToDto(savedTrainee, savedUser); //mapping
+        return null;
     }
 
     @Override
-    public boolean delete(TraineeDto traineeDto) throws EntityNotFoundException {
+    public boolean delete(TraineeDto traineeDto) throws EntityException {
         Trainee trainee = traineeRepository.findById(traineeDto.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Could not found trainee with id " + traineeDto.getId()));
+                .orElseThrow(() -> new EntityException("Could not found trainee with id " + traineeDto.getId()));
         log.debug("try delete trainee " + trainee.getId());
-        return traineeRepository.delete(trainee);
+//        return traineeRepository.delete(trainee);
+        return false;
     }
 
 
-    private TraineeResponseDto mapToDto(Trainee trainee, User user) {
+    private TraineeResponseDto mapToDto(Trainee trainee) {
         return new TraineeResponseDto(
-                user.getFirstName(),
-                user.getLastName(),
-                user.getUsername(),
+                trainee.getUser().getFirstName(),
+                trainee.getUser().getLastName(),
+                trainee.getUser().getUsername(),
                 trainee.getDateOfBirth(),
                 trainee.getAddress());
+    }
+
+    private Trainee mapToEntity(TraineeDto traineeDto, User user){
+        Trainee trainee = new Trainee();
+        trainee.setId(traineeDto.getId());
+        trainee.setAddress(traineeDto.getAddress());
+        trainee.setDateOfBirth(traineeDto.getDateOfBirth());
+        trainee.setUser(user);
+        return trainee;
     }
 }
