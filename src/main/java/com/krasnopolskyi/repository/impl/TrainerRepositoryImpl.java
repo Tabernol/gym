@@ -8,12 +8,18 @@ import java.util.Optional;
 @Repository
 public class TrainerRepositoryImpl implements TrainerRepository {
 
-
+    @Override
     public Trainer save(Trainer trainer) {
-        return trainer;
+        return null;
     }
 
+    @Override
     public Optional<Trainer> findById(Long id) {
-        return Optional.ofNullable( null);
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Trainer> findByUsername(String username) {
+        return Optional.empty();
     }
 }

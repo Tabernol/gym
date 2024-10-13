@@ -14,8 +14,7 @@ import com.krasnopolskyi.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -25,6 +24,7 @@ public class TraineeServiceImpl implements TraineeService {
     private final UserService userService;
 
     @Override
+    @Transactional
     public TraineeResponseDto save(TraineeDto traineeDto) throws ValidateException {
         User newUser = userService
                 .create(new UserDto(traineeDto.getFirstName(),
@@ -44,6 +44,14 @@ public class TraineeServiceImpl implements TraineeService {
 //        User user = userService.findById(trainee.getUser().getId()); // find user associated with trainee
         return mapToDto(trainee); // mapping
 
+    }
+
+    @Override
+    @Transactional
+    public TraineeResponseDto findByUsername(String username) throws EntityException {
+        return traineeRepository.findByUsername(username)
+                .map(this::mapToDto)
+                .orElseThrow(() -> new EntityException("Can't find trainee with username " + username));
     }
 
     @Override
@@ -67,12 +75,10 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    public boolean delete(TraineeDto traineeDto) throws EntityException {
-        Trainee trainee = traineeRepository.findById(traineeDto.getId())
-                .orElseThrow(() -> new EntityException("Could not found trainee with id " + traineeDto.getId()));
-        log.debug("try delete trainee " + trainee.getId());
-//        return traineeRepository.delete(trainee);
-        return false;
+    @Transactional
+    public boolean delete(String username) throws EntityException {
+        return traineeRepository.delete(username);
+//        return false;
     }
 
 

@@ -1,4 +1,6 @@
 package com.krasnopolskyi.repository;
 
-public interface TrainerRepository {
+import com.krasnopolskyi.entity.Trainer;
+
+public interface TrainerRepository extends BaseCrudRepository<Trainer>{
 }

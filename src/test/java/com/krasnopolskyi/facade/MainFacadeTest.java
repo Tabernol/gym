@@ -108,7 +108,7 @@ class MainFacadeTest {
     }
 
     @Test
-    void testDeleteTrainee() throws EntityNotFoundException {
+    void testDeleteTrainee() throws EntityException {
         // Mock the behavior of traineeService.delete
         when(traineeService.delete(traineeDto)).thenReturn(true);
 

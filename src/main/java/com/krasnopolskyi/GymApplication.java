@@ -1,6 +1,7 @@
 package com.krasnopolskyi;
 
 import com.krasnopolskyi.config.AppConfiguration;
+import com.krasnopolskyi.dto.response.TraineeResponseDto;
 import com.krasnopolskyi.facade.MainFacade;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
@@ -16,7 +17,10 @@ public class GymApplication {
         log.info("========================== GYM ==============================");
 
 //        facade.createTrainee(Data.JOHN_TRAINEE);
-
+//        facade.createTrainee(Data.JOHN_TRAINEE_LONG_ADDRESS);
+//        facade.findTraineeById(1L);
+        TraineeResponseDto trainee = facade.findTraineeByUsername("john.black");
+        System.out.println(trainee);
 
     }
 }

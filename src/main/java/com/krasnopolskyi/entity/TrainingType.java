@@ -1,15 +1,16 @@
 package com.krasnopolskyi.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@Getter
-@Setter
+import jakarta.persistence.*;
+import lombok.*;
+@Entity
+@Table(name = "training_type")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class TrainingType {
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    @Column(name = "training_type_name")
     private String type;
 }

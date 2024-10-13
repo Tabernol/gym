@@ -1,14 +1,21 @@
 package com.krasnopolskyi.entity;
 
+import jakarta.persistence.*;
 import lombok.*;
 
-
-@Builder
+@Entity
+@Table(name = "trainer")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Trainer {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long userId;
-    private Integer specialization;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private TrainingType specialization;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

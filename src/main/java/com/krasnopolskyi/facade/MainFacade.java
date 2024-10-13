@@ -5,6 +5,7 @@ import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.request.TrainingDto;
 import com.krasnopolskyi.dto.response.TraineeResponseDto;
 import com.krasnopolskyi.dto.response.TrainerResponseDto;
+import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.Training;
 import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.GymException;
@@ -14,6 +15,9 @@ import com.krasnopolskyi.service.TrainerService;
 import com.krasnopolskyi.service.TrainingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -50,6 +54,17 @@ public class MainFacade {
         }
     }
 
+    public TraineeResponseDto findTraineeByUsername(String username) {
+        try {
+            TraineeResponseDto trainee = traineeService.findByUsername(username);
+            log.info("trainee with " + username + " has been found");
+            return trainee;
+        } catch (EntityException e) {
+            log.info("Failed find trainee " + e.getMessage());
+            return null;
+        }
+    }
+
     public TraineeResponseDto updateTrainee(TraineeDto traineeDto) {
         try {
             TraineeResponseDto refreshedTrainee = traineeService.update(traineeDto);
@@ -61,10 +76,10 @@ public class MainFacade {
         }
     }
 
-    public boolean deleteTrainee(TraineeDto traineeDto) {
+    public boolean deleteTrainee(String username) {
         try {
-            boolean isDeleted = traineeService.delete(traineeDto);
-            log.info("trainee with " + traineeDto.getId() + " has been deleted");
+            boolean isDeleted = traineeService.delete(username);
+            log.info("trainee with " + username + " has been deleted");
             return isDeleted;
         } catch (EntityException e) {
             log.info("Failed attempt to delete trainee " + e.getMessage());
@@ -129,5 +144,17 @@ public class MainFacade {
             log.info("Failed find training " + e.getMessage());
             return null;
         }
+    }
+
+    public List<Training> getAllTrainingsByUsername(String username){
+        return new ArrayList<>();
+    }
+
+    public List<Trainer> getAllNotAssignedTrainersByTraineeUsername(String username){
+        return new ArrayList<>();
+    }
+
+    public List<Trainer> updateTrainers(TrainerDto trainee, List<Trainer> newTrainers){
+        return new ArrayList<>();
     }
 }

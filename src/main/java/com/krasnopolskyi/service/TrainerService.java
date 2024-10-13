@@ -5,7 +5,7 @@ import com.krasnopolskyi.dto.response.TrainerResponseDto;
 import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.GymException;
 
-public interface TrainerService {
+public interface TrainerService extends BaseCrudService<TrainerResponseDto, TrainerDto> {
 
     TrainerResponseDto save(TrainerDto trainerDto) throws GymException;
 

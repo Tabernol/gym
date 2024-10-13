@@ -37,10 +37,10 @@ public class TrainerServiceImpl implements TrainerService {
         User savedUser = userService
                 .create(new UserDto(trainerDto.getFirstName(),
                         trainerDto.getLastName())); //return user with id, username and password
-        Trainer trainer = Trainer.builder()
-                .userId(savedUser.getId())
-                .specialization(specialization.getId())
-                .build();
+        Trainer trainer = new Trainer();
+        trainer.setUser(savedUser);
+        trainer.setSpecialization(specialization);
+
         trainerRepository.save(trainer);// save entity
         log.debug("trainer has been saved " + trainer.getId());
         return mapToDto(specialization, savedUser);
@@ -50,10 +50,15 @@ public class TrainerServiceImpl implements TrainerService {
     public TrainerResponseDto findById(Long id) throws EntityException {
         Trainer trainer = trainerRepository.findById(id)
                 .orElseThrow(() -> new EntityException("Could not found trainer with id " + id));
-        User user = userService.findById(trainer.getUserId()); // find user associated with trainer
-        TrainingType specialization = trainingTypeService.findById(trainer.getSpecialization()); // find specialization of trainee
+        User user = userService.findById(trainer.getUser().getId()); // find user associated with trainer
+        TrainingType specialization = trainingTypeService.findById(trainer.getSpecialization().getId()); // find specialization of trainee
 
         return mapToDto(specialization, user);
+    }
+
+    @Override
+    public TrainerResponseDto findByUsername(String username) throws GymException {
+        return null;
     }
 
     @Override
@@ -62,14 +67,14 @@ public class TrainerServiceImpl implements TrainerService {
         Trainer trainer = trainerRepository.findById(trainerDto.getId())
                 .orElseThrow(() -> new EntityException("Could not found trainer with id " + trainerDto.getId()));
         //update user's fields
-        User user = userService.findById(trainer.getUserId()); // pass refreshed user to repository
+        User user = userService.findById(trainer.getUser().getId()); // pass refreshed user to repository
         user.setFirstName(trainerDto.getFirstName());
         user.setLastName(trainerDto.getLastName());
         userService.update(user);
         //update trainer's fields
         trainer.setSpecialization(trainer.getSpecialization());
         Trainer saveDTrainer = trainerRepository.save(trainer); // pass refreshed trainer to repository
-        TrainingType newSpecialization = trainingTypeService.findById(saveDTrainer.getSpecialization()); // received specialization
+        TrainingType newSpecialization = trainingTypeService.findById(saveDTrainer.getSpecialization().getId()); // received specialization
         log.debug("trainer has been updated " + trainer.getId());
         return mapToDto(newSpecialization, user);
     }

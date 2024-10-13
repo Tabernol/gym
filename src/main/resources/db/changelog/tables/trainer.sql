@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS trainer (
     id BIGSERIAL PRIMARY KEY,
-    user_id INT NOT NULL UNIQUE,
+    user_id BIGSERIAL NOT NULL UNIQUE,
     specialization_id INT NOT NULL,
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,

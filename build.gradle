@@ -13,6 +13,8 @@ dependencies {
 //    implementation 'org.springframework:spring-context:6.1.12'
     implementation 'org.springframework.data:spring-data-jpa:3.3.3'
     implementation 'org.hibernate.orm:hibernate-core:6.6.0.Final'
+    implementation 'com.zaxxer:HikariCP:6.0.0'// connection pool
+
 
 
     implementation 'org.postgresql:postgresql:42.7.4'
@@ -23,6 +25,10 @@ dependencies {
 
     compileOnly 'org.projectlombok:lombok:1.18.28'
     annotationProcessor 'org.projectlombok:lombok:1.18.28'
+
+    implementation 'org.slf4j:slf4j-api:2.0.16' //logger api
+    implementation 'org.slf4j:slf4j-jdk14:2.0.16' //logger impl
+
 
 
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0' // work with JSON

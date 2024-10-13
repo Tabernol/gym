@@ -3,8 +3,5 @@ hibernate.connection.driver: org.postgresql.Driver
 hibernate.connection.username: postgres
 hibernate.connection.password: postgres
 hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
-hibernate.current_session_context_class: thread
-hibernate.show_sql: true
-hibernate.format_sql: true
 
 datasource.master-change-log: db/changelog/master.yaml

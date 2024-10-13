@@ -2,9 +2,7 @@ package com.krasnopolskyi.repository;
 
 import com.krasnopolskyi.entity.Trainee;
 
-import java.util.Optional;
 
-public interface TraineeRepository {
-    Trainee save(Trainee trainee);
-    Optional<Trainee> findById(Long id);
+public interface TraineeRepository extends BaseCrudRepository<Trainee> {
+    boolean delete(String username);
 }
