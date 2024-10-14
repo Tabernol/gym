@@ -3,6 +3,9 @@ package com.krasnopolskyi.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import javax.naming.Name;
+import java.util.List;
+
 @Entity
 @Table(name = "trainer")
 @Data
@@ -18,4 +21,8 @@ public class Trainer {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany()
+    @JoinColumn(name = "trainer_id")
+    private List<Training> trainingList;
 }

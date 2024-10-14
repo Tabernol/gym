@@ -3,6 +3,7 @@ package com.krasnopolskyi.facade;
 import com.krasnopolskyi.dto.request.TraineeDto;
 import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.request.TrainingDto;
+import com.krasnopolskyi.dto.request.UserCredentials;
 import com.krasnopolskyi.dto.response.TraineeResponseDto;
 import com.krasnopolskyi.dto.response.TrainerResponseDto;
 import com.krasnopolskyi.entity.Trainer;
@@ -17,7 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -37,7 +40,7 @@ public class MainFacade {
             TraineeResponseDto trainee = traineeService.save(traineeDto);
             log.info("Trainee saved successfully");
             return trainee;
-        } catch (ValidateException e) {
+        } catch (GymException e) {
             log.warn("Registration failed " + e.getMessage());
             return null;
         }
@@ -70,7 +73,7 @@ public class MainFacade {
             TraineeResponseDto refreshedTrainee = traineeService.update(traineeDto);
             log.info("Trainee successfully refreshed");
             return refreshedTrainee;
-        } catch (EntityException e) {
+        } catch (GymException e) {
             log.info("Failed update trainee " + traineeDto.getId());
             throw null;
         }
@@ -118,7 +121,7 @@ public class MainFacade {
             return updatedTrainer;
         } catch (GymException e) {
             log.info("Failed update trainee " + trainerDto.getId());
-            throw null;
+            return null;
         }
     }
     //////////////////////////////////////////////////////////////
@@ -131,7 +134,7 @@ public class MainFacade {
         } catch (ValidateException e) {
             // here should be ExceptionHandler
             log.warn("adding training session failed " + e.getMessage());
-            return null;
+            return new Training();
         }
     }
 

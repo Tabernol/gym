@@ -1,7 +1,9 @@
 package com.krasnopolskyi.service.impl;
 
+import com.krasnopolskyi.dto.request.UserCredentials;
 import com.krasnopolskyi.dto.request.UserDto;
 import com.krasnopolskyi.exception.EntityException;
+import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.repository.UserRepository;
 import com.krasnopolskyi.entity.User;
 import com.krasnopolskyi.exception.ValidateException;
@@ -11,6 +13,7 @@ import com.krasnopolskyi.utils.UsernameGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -29,7 +32,7 @@ public class UserServiceImpl implements UserService {
         user.setUsername(username);
         user.setPassword(password);
         user.setIsActive(true);
-        log.info("User has been created " + user);
+        log.debug("User has been created " + user);
         return user;
     }
 
@@ -40,15 +43,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User update(User user) {
-        return user;
-//        return userRepository.save(user);
+    @Transactional
+    public boolean checkCredentials(UserCredentials credentials) throws EntityException {
+        User user = userRepository.findByUsername(credentials.username())
+                .orElseThrow(() -> new EntityException("Could not found user: " + credentials.username()));
+
+        if (user.getPassword().equals(credentials.password())) {
+            return true;
+        }
+        return false;
     }
 
     @Override
-    public boolean delete(User user) {
-//        log.debug("attempt to delete user " + user.getId());
-//        return userRepository.delete(user);
-        return false;
+    public User changePassword(User user, String password) throws GymException {
+        // authorization
+        user.setPassword(password);
+        return userRepository.update(user);
+    }
+
+    @Override
+    public User changeActivityStatus(User user) throws GymException {
+        user.setIsActive(!user.getIsActive()); //status changes here
+        return userRepository.update(user);
     }
 }

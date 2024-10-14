@@ -38,16 +38,16 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TraineeResponseDto findById(Long id) throws EntityException {
         Trainee trainee = traineeRepository.findById(id)
                 .orElseThrow(() -> new EntityException("Could not found trainee with id " + id)); // find trainee entity
-//        User user = userService.findById(trainee.getUser().getId()); // find user associated with trainee
         return mapToDto(trainee); // mapping
 
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public TraineeResponseDto findByUsername(String username) throws EntityException {
         return traineeRepository.findByUsername(username)
                 .map(this::mapToDto)
@@ -55,6 +55,7 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
+    @Transactional
     public TraineeResponseDto update(TraineeDto traineeDto) throws EntityException {
         // find trainee entity
         Trainee trainee = traineeRepository.findById(traineeDto.getId())
@@ -62,23 +63,21 @@ public class TraineeServiceImpl implements TraineeService {
         //update trainee's fields
         trainee.setAddress(traineeDto.getAddress());
         trainee.setDateOfBirth(traineeDto.getDateOfBirth());
-//        Trainee savedTrainee = traineeRepository.save(trainee); // pass trainee to repository
 
-        User user = userService.findById(trainee.getUser().getId()); // find user associated with trainee
         //update user's fields
+        User user = userService.findById(trainee.getUser().getId()); // find user associated with trainee
         user.setFirstName(traineeDto.getFirstName());
         user.setLastName(traineeDto.getLastName());
-        User savedUser = userService.update(user); // pass refreshed user to repository
+        trainee.setUser(user);
+        Trainee savedTrainee = traineeRepository.save(trainee);
         log.debug("trainee has been updated " + trainee.getId());
-//        return mapToDto(savedTrainee, savedUser); //mapping
-        return null;
+        return mapToDto(savedTrainee);
     }
 
     @Override
     @Transactional
     public boolean delete(String username) throws EntityException {
         return traineeRepository.delete(username);
-//        return false;
     }
 
 

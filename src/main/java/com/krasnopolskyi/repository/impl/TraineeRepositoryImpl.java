@@ -37,25 +37,24 @@ public class TraineeRepositoryImpl implements TraineeRepository {
     @Override
     public Optional<Trainee> findByUsername(String username) {
         Session session = sessionFactory.getCurrentSession();
-        String query = "SELECT t.id AS trainee_id, u.id AS u_id, first_name, last_name FROM trainee t " +
-                "JOIN users u ON t.user_id = u.id WHERE u.username LIKE :username;";
+        String sql = "SELECT t.* FROM trainee t " +
+                "JOIN users u ON t.user_id = u.id " +
+                "WHERE u.username = :username";
 
-        NativeQuery<Trainee> nativeQuery = session.createNativeQuery(query, Trainee.class);
+        NativeQuery<Trainee> nativeQuery = session.createNativeQuery(sql, Trainee.class);
         nativeQuery.setParameter("username", username);
-        Optional<Trainee> trainee = nativeQuery.getResultList().stream().findFirst();
-
-        return trainee;
+        return nativeQuery.getResultList().stream().findFirst();
     }
 
     @Override
     public boolean delete(String username) {
-//        Session session = sessionFactory.getCurrentSession();
-//
-//        Trainee traineeFromDb = session.get(Trainee.class, trainee.getId());
-//        if (traineeFromDb == null) {
-//            return false; // Trainee not found
-//        }
-//        session.remove(traineeFromDb);
-        return true;
+        Session session = sessionFactory.getCurrentSession();
+        Optional<Trainee> maybeTrainee = findByUsername(username);
+
+        if (maybeTrainee.isPresent()) {
+            session.remove(maybeTrainee.get());
+            return true;
+        }
+        return false;
     }
 }

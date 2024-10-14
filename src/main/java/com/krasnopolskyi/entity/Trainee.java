@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
+
 @Entity
 @Table(name = "trainee")
 @Data
@@ -17,4 +19,9 @@ public class Trainee {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trainee_id")
+    private List<Training> trainingList;
 }

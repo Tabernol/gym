@@ -1,10 +1,10 @@
 package com.krasnopolskyi.service.impl;
 
-import com.krasnopolskyi.database.dao.UserRepository;
 import com.krasnopolskyi.dto.request.UserDto;
 import com.krasnopolskyi.entity.User;
-import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.ValidateException;
+import com.krasnopolskyi.repository.UserRepository;
 import com.krasnopolskyi.utils.UsernameGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,7 +75,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testFindById_Success() throws EntityNotFoundException {
+    public void testFindById_Success() throws EntityException {
         // Mock the user repository to return the user object
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
@@ -94,7 +94,7 @@ public class UserServiceImplTest {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Assert that an EntityNotFoundException is thrown
-        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class, () -> {
+        EntityException thrown = assertThrows(EntityException.class, () -> {
             userService.findById(1L);
         });
 

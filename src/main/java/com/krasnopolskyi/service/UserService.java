@@ -1,17 +1,22 @@
 package com.krasnopolskyi.service;
 
 
+import com.krasnopolskyi.dto.request.UserCredentials;
 import com.krasnopolskyi.dto.request.UserDto;
 import com.krasnopolskyi.entity.User;
 import com.krasnopolskyi.exception.EntityException;
+import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.exception.ValidateException;
+
+import java.util.Optional;
 
 public interface UserService {
     User create(UserDto user) throws ValidateException;
-
     User findById(Long id) throws EntityException;
 
-    User update(User user);
+    boolean checkCredentials(UserCredentials credentials) throws EntityException;
 
-    boolean delete(User user);
+    User changePassword(User user, String password) throws GymException;
+
+    User changeActivityStatus(User user) throws GymException;
 }

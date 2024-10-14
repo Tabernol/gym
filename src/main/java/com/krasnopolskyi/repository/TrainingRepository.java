@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface TrainingRepository {
 
-    Training save(TrainingDto trainingDto);
+    Training save(Training training);
 
     List<Training> findAllByUsername(String username);
 }

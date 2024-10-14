@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -30,24 +31,34 @@ public class TrainingServiceImpl implements TrainingService {
     private final TrainingTypeRepository trainingTypeRepository;
 
     @Override
+    @Transactional
     public Training save(TrainingDto trainingDto) throws ValidateException {
         Trainee trainee = traineeRepository.findById(trainingDto.getTraineeId())
                 .orElseThrow(() -> new ValidateException("Could not find trainee with id " + trainingDto.getTraineeId()));
 
-//        Trainer trainer = trainerRepository.findById(trainingDto.getTrainerId())
-//                .orElseThrow(() -> new ValidateException("Could not find trainer with id " + trainingDto.getTrainerId()));
-//
-//        TrainingType trainingType = trainingTypeRepository.findById(trainingDto.getTrainingType())
-//                .orElseThrow(() -> new ValidateException("Could not find training type with id " + trainingDto.getTrainingType()));
+        Trainer trainer = trainerRepository.findById(trainingDto.getTrainerId())
+                .orElseThrow(() -> new ValidateException("Could not find trainer with id " + trainingDto.getTrainerId()));
 
-//        if(trainer.getSpecialization() != trainingType.getId()){
-//            log.debug("Attempt to save training session with wrong specialization for trainer");
-//            throw new ValidateException("This trainer is not assigned to this training type");
-//        }
+        TrainingType trainingType = trainingTypeRepository.findById(trainingDto.getTrainingType())
+                .orElseThrow(() -> new ValidateException("Could not find training type with id " + trainingDto.getTrainingType()));
+
+        if(trainer.getSpecialization().getId() != trainingType.getId()){
+            log.debug("Attempt to save training session with wrong specialization for trainer");
+            throw new ValidateException("This trainer is not assigned to this training type");
+        }
+        Training training = new Training();
+        training.setTraineeId(trainee.getId());
+        training.setTrainerId(trainer.getId());
+        training.setTrainingType(trainingType);
+        training.setDate(trainingDto.getDate());
+        training.setDuration(trainingDto.getDuration());
+        training.setTrainingName(trainingDto.getTrainingName());
+        log.info("Before safe " + training.toString());
+        trainingRepository.save(training);
 
 
         log.info("training has been saved ");
-        return new Training();
+        return training;
     }
 
     @Override
