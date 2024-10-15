@@ -20,8 +20,11 @@ public class Trainee {
     @JoinColumn(name = "user_id")
     private User user;
 
+//    @ManyToMany
+//    private List<Trainer> trainerList;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "trainee_id")
-    private List<Training> trainingList;
+
+//    @OneToMany(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "trainee_id")
+//    private List<Training> trainingList;
 }

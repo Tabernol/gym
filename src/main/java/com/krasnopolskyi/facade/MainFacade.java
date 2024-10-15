@@ -1,11 +1,9 @@
 package com.krasnopolskyi.facade;
 
-import com.krasnopolskyi.dto.request.TraineeDto;
-import com.krasnopolskyi.dto.request.TrainerDto;
-import com.krasnopolskyi.dto.request.TrainingDto;
-import com.krasnopolskyi.dto.request.UserCredentials;
+import com.krasnopolskyi.dto.request.*;
 import com.krasnopolskyi.dto.response.TraineeResponseDto;
 import com.krasnopolskyi.dto.response.TrainerResponseDto;
+import com.krasnopolskyi.dto.response.TrainingResponseDto;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.Training;
 import com.krasnopolskyi.exception.EntityException;
@@ -138,19 +136,33 @@ public class MainFacade {
         }
     }
 
-    public Training findTrainingById(Long id) {
+    public TrainingResponseDto findTrainingById(Long id) {
         try {
-            Training training = trainingService.findById(id);
+            TrainingResponseDto trainingResponseDto = trainingService.findById(id);
             log.info("training with " + id + " has been found");
-            return training;
+            return trainingResponseDto;
         } catch (EntityException e) {
             log.info("Failed find training " + e.getMessage());
             return null;
         }
     }
 
-    public List<Training> getAllTrainingsByUsername(String username){
-        return new ArrayList<>();
+//    public List<Training> getAllTrainingsByUsernameAndFilter(TrainingFilterDto filterDto) {
+//        try {
+//            return traineeService.getFilteredTrainings(filterDto);
+//        } catch (ValidateException e) {
+//            log.info("Something went wrong " + e.getMessage());
+//            return new ArrayList<>();
+//        }
+//    }
+
+    public List<TrainingResponseDto> getAllTrainingsByUsernameAndFilter(TrainingFilterDto filterDto) {
+        try {
+            return trainingService.getFilteredTrainings(filterDto);
+        } catch (ValidateException e) {
+            log.info("Something went wrong " + e.getMessage());
+            return new ArrayList<>();
+        }
     }
 
     public List<Trainer> getAllNotAssignedTrainersByTraineeUsername(String username){

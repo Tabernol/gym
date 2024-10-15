@@ -22,7 +22,7 @@ public class Trainer {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany()
-    @JoinColumn(name = "trainer_id")
-    private List<Training> trainingList;
+//    @OneToMany()
+//    @JoinColumn(name = "trainer_id")
+//    private List<Training> trainingList;
 }

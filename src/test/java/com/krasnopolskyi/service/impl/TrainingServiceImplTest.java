@@ -65,7 +65,10 @@ public class TrainingServiceImplTest {
         trainee.setDateOfBirth(LocalDate.of(2000,1,1));
         trainee.setAddress("test street");
 
-        trainer = Trainer.builder().id(1L).specialization(1).userId(101L).build();
+        Trainer trainer = new Trainer();
+        trainer.setId(1L);
+
+//        trainer = Trainer.builder().id(1L).specialization(1).userId(101L).build();
 
         trainingType = new TrainingType(1, "Cardio");
     }
@@ -195,7 +198,7 @@ public class TrainingServiceImplTest {
         Training training = new Training();
         training.setId(1L);
         training.setTrainingName("Cardio");
-        training.setTrainingType(1);
+        training.setTrainingType(new TrainingType(1, "Cardio"));
         training.setDate(LocalDate.of(2024, 9,3));
         training.setDuration(1000);
         training.setTraineeId(1L);

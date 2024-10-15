@@ -35,6 +35,13 @@ databaseChangeLog:
             path: db/changelog/tables/training.sql
             relativeToChangelogFile: false
   - changeSet:
+      id: create_trainer_trainee_table
+      author: maks
+      changes:
+        - sqlFile:
+            path: db/changelog/tables/trainer_trainee.sql
+            relativeToChangelogFile: false
+  - changeSet:
       id: insert_training_type_default_data
       author: maks
       changes:

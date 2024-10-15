@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS training (
     id BIGSERIAL PRIMARY KEY,
-    trainee_id BIGSERIAL NOT NULL,
-    trainer_id BIGSERIAL NOT NULL,
+    trainee_id BIGINT NOT NULL,
+    trainer_id BIGINT NOT NULL,
     training_name VARCHAR(128) NOT NULL,
     training_type_id INT NOT NULL,
     training_date DATE NOT NULL,

@@ -1,5 +1,7 @@
 package com.krasnopolskyi.service.impl;
 
+import com.krasnopolskyi.dto.request.TrainingFilterDto;
+import com.krasnopolskyi.dto.response.TrainingResponseDto;
 import com.krasnopolskyi.repository.TraineeRepository;
 import com.krasnopolskyi.repository.TrainerRepository;
 import com.krasnopolskyi.repository.TrainingRepository;
@@ -19,6 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -42,13 +47,13 @@ public class TrainingServiceImpl implements TrainingService {
         TrainingType trainingType = trainingTypeRepository.findById(trainingDto.getTrainingType())
                 .orElseThrow(() -> new ValidateException("Could not find training type with id " + trainingDto.getTrainingType()));
 
-        if(trainer.getSpecialization().getId() != trainingType.getId()){
+        if (trainer.getSpecialization().getId() != trainingType.getId()) {
             log.debug("Attempt to save training session with wrong specialization for trainer");
             throw new ValidateException("This trainer is not assigned to this training type");
         }
         Training training = new Training();
-        training.setTraineeId(trainee.getId());
-        training.setTrainerId(trainer.getId());
+        training.setTrainee(trainee);
+        training.setTrainer(trainer);
         training.setTrainingType(trainingType);
         training.setDate(trainingDto.getDate());
         training.setDuration(trainingDto.getDuration());
@@ -62,9 +67,38 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
-    public Training findById(Long id) throws EntityException {
-        return new Training();
-//        return trainingRepository.findById(id)
-//                .orElseThrow(() -> new EntityException("Could not found training with id " + id));
+    @Transactional(readOnly = true)
+    public TrainingResponseDto findById(Long id) throws EntityException {
+        Training training = trainingRepository.findById(id)
+                .orElseThrow(() -> new EntityException("Could not found training with id " + id));
+        return mapToDto(training);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TrainingResponseDto> getFilteredTrainings(TrainingFilterDto filter) throws ValidateException {
+        if (filter.getOwner() == null) {
+            throw new ValidateException("The training owner must exist");
+        }
+        List<Training> trainings = trainingRepository.getFilteredTrainings(filter);
+
+        return trainings.stream().map(this::mapToDto).collect(Collectors.toList());
+    }
+
+
+    private TrainingResponseDto mapToDto(Training training) {
+        String trainerFullName = training.getTrainer().getUser().getFirstName() + " "
+                + training.getTrainer().getUser().getLastName();
+        String traineeFullName = training.getTrainee().getUser().getFirstName() + " "
+                + training.getTrainee().getUser().getLastName();
+
+        return new TrainingResponseDto(
+                training.getId(),
+                training.getTrainingName(),
+                training.getTrainingType().getType(),
+                trainerFullName,
+                traineeFullName,
+                training.getDate(),
+                training.getDuration());
     }
 }

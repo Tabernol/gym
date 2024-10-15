@@ -61,7 +61,7 @@ class MainFacadeTest {
     }
 
     @Test
-    void testCreateTrainee() throws ValidateException {
+    void testCreateTrainee() throws GymException {
         // Mock the behavior of traineeService.save
         when(traineeService.save(traineeDto)).thenReturn(expectedResponse);
 
@@ -93,7 +93,7 @@ class MainFacadeTest {
     }
 
     @Test
-    void testUpdateTrainee() throws EntityNotFoundException {
+    void testUpdateTrainee() throws GymException {
         // Mock the behavior of traineeService.update
         when(traineeService.update(traineeDto)).thenReturn(expectedResponse);
 

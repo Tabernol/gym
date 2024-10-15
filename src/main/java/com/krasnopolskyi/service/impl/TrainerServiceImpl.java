@@ -13,6 +13,7 @@ import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TrainerService;
 import com.krasnopolskyi.service.TrainingTypeService;
 import com.krasnopolskyi.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,15 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class TrainerServiceImpl implements TrainerService {
-    // initialized via autowired because task condition 4
-    // I prefer initialized via constructor
-    @Autowired
-    private TrainerRepositoryImpl trainerRepository;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private TrainingTypeService trainingTypeService;
+
+    private final TrainerRepositoryImpl trainerRepository;
+    private final UserService userService;
+    private final TrainingTypeService trainingTypeService;
 
     @Override
     @Transactional

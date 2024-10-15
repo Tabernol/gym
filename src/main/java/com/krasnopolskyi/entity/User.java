@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
+@ToString(exclude = "password")
+@EqualsAndHashCode
 @NoArgsConstructor
 public class User {
     @Id
