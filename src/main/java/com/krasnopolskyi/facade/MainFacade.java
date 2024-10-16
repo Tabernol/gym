@@ -4,40 +4,43 @@ import com.krasnopolskyi.dto.request.*;
 import com.krasnopolskyi.dto.response.TraineeResponseDto;
 import com.krasnopolskyi.dto.response.TrainerResponseDto;
 import com.krasnopolskyi.dto.response.TrainingResponseDto;
-import com.krasnopolskyi.entity.Trainer;
-import com.krasnopolskyi.entity.Training;
 import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TraineeService;
 import com.krasnopolskyi.service.TrainerService;
 import com.krasnopolskyi.service.TrainingService;
+import com.krasnopolskyi.validation.CommonValidator;
+import com.krasnopolskyi.validation.Create;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
+import jakarta.validation.Validator;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class MainFacade {
     private final TraineeService traineeService;
     private final TrainerService trainerService;
     private final TrainingService trainingService;
-
-    public MainFacade(TraineeService traineeService, TrainerService trainerService, TrainingService trainingService) {
-        this.traineeService = traineeService;
-        this.trainerService = trainerService;
-        this.trainingService = trainingService;
-    }
+    private final CommonValidator validator;
 
     public TraineeResponseDto createTrainee(TraineeDto traineeDto) {
         try {
+            validator.validate(traineeDto, Create.class);
             TraineeResponseDto trainee = traineeService.save(traineeDto);
             log.info("Trainee saved successfully");
             return trainee;
+        } catch (ConstraintViolationException e) {
+            log.warn("Validation failed: " + e.getMessage());
+            return null;
         } catch (GymException e) {
             log.warn("Registration failed " + e.getMessage());
             return null;
@@ -68,9 +71,13 @@ public class MainFacade {
 
     public TraineeResponseDto updateTrainee(TraineeDto traineeDto) {
         try {
+            validator.validate(traineeDto, Create.class);
             TraineeResponseDto refreshedTrainee = traineeService.update(traineeDto);
             log.info("Trainee successfully refreshed");
             return refreshedTrainee;
+        } catch (ConstraintViolationException e) {
+            log.warn("Validation failed: " + e.getMessage());
+            return null;
         } catch (GymException e) {
             log.info("Failed update trainee " + traineeDto.getId());
             throw null;
@@ -89,11 +96,15 @@ public class MainFacade {
     }
     //////////////////////////////////////////////////////////
 
-    public TrainerResponseDto createTrainer(TrainerDto trainerDto){
+    public TrainerResponseDto createTrainer(TrainerDto trainerDto) {
         try {
+            validator.validate(trainerDto, Create.class);
             TrainerResponseDto trainer = trainerService.save(trainerDto);
             log.info("Trainer saved successfully");
             return trainer;
+        } catch (ConstraintViolationException e) {
+            log.warn("Validation failed: " + e.getMessage());
+            return null;
         } catch (GymException e) {
             // here should be ExceptionHandler
             log.warn("Registration failed " + e.getMessage());
@@ -114,9 +125,13 @@ public class MainFacade {
 
     public TrainerResponseDto updateTrainer(TrainerDto trainerDto) {
         try {
+            validator.validate(trainerDto, Create.class);
             TrainerResponseDto updatedTrainer = trainerService.update(trainerDto);
             log.info("Trainer successfully refreshed");
             return updatedTrainer;
+        } catch (ConstraintViolationException e) {
+            log.warn("Validation failed: " + e.getMessage());
+            return null;
         } catch (GymException e) {
             log.info("Failed update trainee " + trainerDto.getId());
             return null;
@@ -124,15 +139,19 @@ public class MainFacade {
     }
     //////////////////////////////////////////////////////////////
 
-    public Training addTraining(TrainingDto trainingDto){
+    public TrainingResponseDto addTraining(TrainingDto trainingDto) {
         try {
-            Training training = trainingService.save(trainingDto);
+            validator.validate(trainingDto, Create.class);
+            TrainingResponseDto training = trainingService.save(trainingDto);
             log.info("Trainining saved successfully");
             return training;
+        } catch (ConstraintViolationException e) {
+            log.warn("Validation failed: " + e.getMessage());
+            return null;
         } catch (ValidateException e) {
             // here should be ExceptionHandler
             log.warn("adding training session failed " + e.getMessage());
-            return new Training();
+            return null;
         }
     }
 
@@ -147,29 +166,34 @@ public class MainFacade {
         }
     }
 
-//    public List<Training> getAllTrainingsByUsernameAndFilter(TrainingFilterDto filterDto) {
-//        try {
-//            return traineeService.getFilteredTrainings(filterDto);
-//        } catch (ValidateException e) {
-//            log.info("Something went wrong " + e.getMessage());
-//            return new ArrayList<>();
-//        }
-//    }
-
     public List<TrainingResponseDto> getAllTrainingsByUsernameAndFilter(TrainingFilterDto filterDto) {
         try {
+            validator.validate(filterDto, Create.class);
             return trainingService.getFilteredTrainings(filterDto);
+        } catch (ConstraintViolationException e) {
+            log.warn("Validation failed: " + e.getMessage());
+            return null;
         } catch (ValidateException e) {
             log.info("Something went wrong " + e.getMessage());
             return new ArrayList<>();
         }
     }
 
-    public List<Trainer> getAllNotAssignedTrainersByTraineeUsername(String username){
-        return new ArrayList<>();
+    public List<TrainerResponseDto> getAllNotAssignedTrainersByTraineeUsername(String username) {
+        try {
+            return traineeService.findAllNotAssignedTrainersByTrainee(username);
+        } catch (EntityException e) {
+            log.info("Something went wrong " + e.getMessage());
+            return new ArrayList<>();
+        }
     }
 
-    public List<Trainer> updateTrainers(TrainerDto trainee, List<Trainer> newTrainers){
-        return new ArrayList<>();
+    public List<TrainerResponseDto> updateTrainers(TraineeDto trainee, List<TrainerDto> newTrainers) {
+        try {
+            return traineeService.updateTrainers(trainee, newTrainers);
+        } catch (EntityException e) {
+            log.info("Could not update trainers list " + e.getMessage());
+            return new ArrayList<>();
+        }
     }
 }

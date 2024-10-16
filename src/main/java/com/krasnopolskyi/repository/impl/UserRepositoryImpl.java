@@ -20,13 +20,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User update(User user) throws GymException {
         Session session = sessionFactory.getCurrentSession();
-        User oldUser = session.get(User.class, user.getId());
-        oldUser.setFirstName(user.getFirstName());
-        oldUser.setLastName(user.getLastName());
-        oldUser.setUsername(user.getUsername());
-        oldUser.setPassword(user.getPassword());
-        oldUser.setIsActive(user.getIsActive());
-        session.persist(oldUser);
+        session.persist(user);
         return null;
     }
 

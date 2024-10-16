@@ -4,11 +4,14 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "trainee")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Trainee {
     @Id
@@ -16,15 +19,19 @@ public class Trainee {
     private Long id;
     private LocalDate dateOfBirth;
     private String address;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
 
-//    @ManyToMany
-//    private List<Trainer> trainerList;
+    //    @ManyToMany(mappedBy = "trainees")
+    @ManyToMany
+    @JoinTable(
+            name = "trainer_trainee",
+            joinColumns = @JoinColumn(name = "trainee_id"),
+            inverseJoinColumns = @JoinColumn(name = "trainer_id")
+    )
+    private Set<Trainer> trainers = new HashSet<>();
 
-
-//    @OneToMany(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "trainee_id")
-//    private List<Training> trainingList;
+    @OneToMany(mappedBy = "trainee", cascade = CascadeType.ALL)
+    private List<Training> trainingList;
 }

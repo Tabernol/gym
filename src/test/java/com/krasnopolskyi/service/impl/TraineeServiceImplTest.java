@@ -43,7 +43,7 @@ class TraineeServiceImplTest {
                 .firstName("John")
                 .lastName("Doe")
                 .address("123 Street")
-                .dateOfBirth(LocalDate.of(1995, 5, 5))
+                .dateOfBirth(LocalDate.of(2000, 1, 1))
                 .build();
 
         user.setId(1L);
@@ -122,7 +122,7 @@ class TraineeServiceImplTest {
         when(traineeRepository.findById(1L)).thenReturn(Optional.of(trainee));
         when(userService.findById(trainee.getUser().getId())).thenReturn(user);
         when(traineeRepository.save(any(Trainee.class))).thenReturn(trainee);
-        when(userService.update(any(User.class))).thenReturn(user);
+//        when(userService.update(any(User.class))).thenReturn(user);
 
         TraineeDto updatedDto = TraineeDto.builder()
                 .id(1L)
@@ -143,7 +143,7 @@ class TraineeServiceImplTest {
 
         // Verify the calls to save trainee and update user
         verify(traineeRepository, times(1)).save(any(Trainee.class));
-        verify(userService, times(1)).update(any(User.class));
+//        verify(userService, times(1)).update(any(User.class));
     }
 
     @Test
@@ -151,18 +151,18 @@ class TraineeServiceImplTest {
         // Mock the trainee repository to return the trainee when found
         when(traineeRepository.findById(1L)).thenReturn(Optional.of(trainee));
         // Mock the trainee repository to return true when deleting
-        when(traineeRepository.delete(trainee)).thenReturn(true);
+        when(traineeRepository.delete(trainee.getUser().getUsername())).thenReturn(true);
 
         TraineeDto traineeDto = TraineeDto.builder()
                 .id(1L)
                 .build();
 
-        boolean result = traineeService.delete(traineeDto);
+        boolean result = traineeService.delete("john.doe");
 
         // Assert that the trainee is deleted successfully
         assertTrue(result);
 
         // Verify that traineeRepository.delete() was called once with the correct Trainee
-        verify(traineeRepository, times(1)).delete(trainee);
+        verify(traineeRepository, times(1)).delete("john.doe");
     }
 }

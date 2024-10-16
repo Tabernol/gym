@@ -16,6 +16,7 @@ import com.krasnopolskyi.entity.TrainingType;
 import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TrainingService;
+import com.krasnopolskyi.utils.mapper.TrainingMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,7 +39,7 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     @Transactional
-    public Training save(TrainingDto trainingDto) throws ValidateException {
+    public TrainingResponseDto save(TrainingDto trainingDto) throws ValidateException {
         Trainee trainee = traineeRepository.findById(trainingDto.getTraineeId())
                 .orElseThrow(() -> new ValidateException("Could not find trainee with id " + trainingDto.getTraineeId()));
 
@@ -51,6 +53,8 @@ public class TrainingServiceImpl implements TrainingService {
             log.debug("Attempt to save training session with wrong specialization for trainer");
             throw new ValidateException("This trainer is not assigned to this training type");
         }
+        trainer.getTrainees().add(trainee); // save into set and table trainer_trainee
+
         Training training = new Training();
         training.setTrainee(trainee);
         training.setTrainer(trainer);
@@ -58,12 +62,14 @@ public class TrainingServiceImpl implements TrainingService {
         training.setDate(trainingDto.getDate());
         training.setDuration(trainingDto.getDuration());
         training.setTrainingName(trainingDto.getTrainingName());
-        log.info("Before safe " + training.toString());
+
+        trainee.getTrainers().add(trainer);
+        trainer.getTrainees().add(trainee);
+
         trainingRepository.save(training);
 
-
         log.info("training has been saved ");
-        return training;
+        return TrainingMapper.mapToDto(training);
     }
 
     @Override
@@ -71,7 +77,7 @@ public class TrainingServiceImpl implements TrainingService {
     public TrainingResponseDto findById(Long id) throws EntityException {
         Training training = trainingRepository.findById(id)
                 .orElseThrow(() -> new EntityException("Could not found training with id " + id));
-        return mapToDto(training);
+        return TrainingMapper.mapToDto(training);
     }
 
     @Override
@@ -82,23 +88,6 @@ public class TrainingServiceImpl implements TrainingService {
         }
         List<Training> trainings = trainingRepository.getFilteredTrainings(filter);
 
-        return trainings.stream().map(this::mapToDto).collect(Collectors.toList());
-    }
-
-
-    private TrainingResponseDto mapToDto(Training training) {
-        String trainerFullName = training.getTrainer().getUser().getFirstName() + " "
-                + training.getTrainer().getUser().getLastName();
-        String traineeFullName = training.getTrainee().getUser().getFirstName() + " "
-                + training.getTrainee().getUser().getLastName();
-
-        return new TrainingResponseDto(
-                training.getId(),
-                training.getTrainingName(),
-                training.getTrainingType().getType(),
-                trainerFullName,
-                traineeFullName,
-                training.getDate(),
-                training.getDuration());
+        return trainings.stream().map(TrainingMapper::mapToDto).collect(Collectors.toList());
     }
 }

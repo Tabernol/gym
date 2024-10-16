@@ -7,8 +7,10 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.NativeQuery;
+import org.hibernate.query.SelectionQuery;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
@@ -19,7 +21,6 @@ public class TrainerRepositoryImpl implements TrainerRepository {
     @Override
     public Trainer save(Trainer trainer) {
         Session session = sessionFactory.getCurrentSession();
-        session.persist(trainer.getUser());
         session.persist(trainer);
         return trainer;
     }
@@ -41,5 +42,12 @@ public class TrainerRepositoryImpl implements TrainerRepository {
         NativeQuery<Trainer> nativeQuery = session.createNativeQuery(sql, Trainer.class);
         nativeQuery.setParameter("username", username);
         return nativeQuery.getResultList().stream().findFirst();
+    }
+    @Override
+    public List<Trainer> findAll() {
+        Session session = sessionFactory.getCurrentSession();
+        List<Trainer> trainers = session
+                .createSelectionQuery("select t from Trainer t", Trainer.class).getResultList();
+        return trainers;
     }
 }

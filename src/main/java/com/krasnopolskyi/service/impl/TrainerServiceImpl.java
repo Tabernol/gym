@@ -13,11 +13,14 @@ import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TrainerService;
 import com.krasnopolskyi.service.TrainingTypeService;
 import com.krasnopolskyi.service.UserService;
+import com.krasnopolskyi.utils.mapper.TrainerMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -43,7 +46,7 @@ public class TrainerServiceImpl implements TrainerService {
 
         Trainer saveTrainer = trainerRepository.save(trainer);// save entity
         log.debug("trainer has been saved " + trainer.getId());
-        return mapToDto(saveTrainer);
+        return TrainerMapper.mapToDto(saveTrainer);
     }
 
     @Override
@@ -51,18 +54,14 @@ public class TrainerServiceImpl implements TrainerService {
     public TrainerResponseDto findById(Long id) throws EntityException {
         Trainer trainer = trainerRepository.findById(id)
                 .orElseThrow(() -> new EntityException("Could not found trainer with id " + id));
-        User user = userService.findById(trainer.getUser().getId()); // find user associated with trainer
-        TrainingType specialization = trainingTypeService.findById(trainer.getSpecialization().getId()); // find specialization of trainee
-        trainer.setUser(user);
-        trainer.setSpecialization(specialization);
-        return mapToDto(trainer);
+        return TrainerMapper.mapToDto(trainer);
     }
 
     @Override
     @Transactional(readOnly = true)
     public TrainerResponseDto findByUsername(String username) throws EntityException {
         return trainerRepository.findByUsername(username)
-                .map(this::mapToDto)
+                .map(trainer -> TrainerMapper.mapToDto(trainer))
                 .orElseThrow(() -> new EntityException("Can't find trainer with username " + username));
     }
 
@@ -73,9 +72,9 @@ public class TrainerServiceImpl implements TrainerService {
                 .orElseThrow(() -> new EntityException("Could not found trainer with id " + trainerDto.getId()));
         //update user's fields
         User user = userService.findById(trainer.getUser().getId()); // pass refreshed user to repository
-        user.setFirstName(trainerDto.getFirstName());
+        user.setFirstName(trainerDto.getFirstName()); // here I change user's field and them will be safe if CascadeType.ALL
         user.setLastName(trainerDto.getLastName());
-        trainer.setUser(user);
+//        trainer.setUser(user); // what is better use CascadeType or set it manual
         //update trainer's fields
         if(trainerDto.getSpecialization() != null){
             TrainingType specialization = trainingTypeService.findById(trainerDto.getSpecialization());
@@ -83,7 +82,7 @@ public class TrainerServiceImpl implements TrainerService {
         }
         Trainer savedTrainer = trainerRepository.save(trainer); // pass refreshed trainer to repository
         log.info("trainer has been updated " + trainer.getId());
-        return mapToDto(savedTrainer);
+        return TrainerMapper.mapToDto(savedTrainer);
     }
 
 
@@ -94,13 +93,5 @@ public class TrainerServiceImpl implements TrainerService {
             log.debug("Attempt to save trainer with does not exist specialization " + trainerDto.getSpecialization());
             throw new ValidateException("Specialisation with id " + trainerDto.getSpecialization() + " does not exist");
         }
-    }
-
-    private TrainerResponseDto mapToDto(Trainer trainer) {
-        return new TrainerResponseDto(
-                trainer.getUser().getFirstName(),
-                trainer.getUser().getLastName(),
-                trainer.getUser().getUsername(),
-                trainer.getSpecialization().getType());
     }
 }

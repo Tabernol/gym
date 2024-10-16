@@ -9,12 +9,18 @@ import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.Training;
 import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.ValidateException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface TraineeService extends BaseCrudService<TraineeResponseDto, TraineeDto> {
     TraineeResponseDto findByUsername(String username) throws EntityException;
+
     boolean delete(String username) throws EntityException;
-    List<TrainerResponseDto> updateTrainers(List<TrainerDto> trainerDtoList);
+
+    List<TrainerResponseDto> updateTrainers(TraineeDto traineeDto, List<TrainerDto> trainerDtoList)
+            throws EntityException;
+
+    List<TrainerResponseDto> findAllNotAssignedTrainersByTrainee(String username) throws EntityException;
 }

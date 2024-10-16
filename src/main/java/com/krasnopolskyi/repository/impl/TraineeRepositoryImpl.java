@@ -24,7 +24,6 @@ public class TraineeRepositoryImpl implements TraineeRepository {
     @Override
     public Trainee save(Trainee trainee) {
         Session session = sessionFactory.getCurrentSession();
-        session.persist(trainee.getUser());
         session.persist(trainee);
         return trainee;
     }
@@ -49,25 +48,9 @@ public class TraineeRepositoryImpl implements TraineeRepository {
     }
 
     @Override
-    public boolean delete(String username) {
+    public boolean delete(Trainee trainee) {
         Session session = sessionFactory.getCurrentSession();
-        Optional<Trainee> maybeTrainee = findByUsername(username);
-
-        if (maybeTrainee.isPresent()) {
-            session.remove(maybeTrainee.get());
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public List<Trainer> updateTrainers(List<Trainer> trainerList) {
-
-
-
-
-
-
-        return null;
+        session.remove(trainee);
+        return true;
     }
 }

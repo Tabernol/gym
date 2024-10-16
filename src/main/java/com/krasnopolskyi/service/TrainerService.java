@@ -6,6 +6,8 @@ import com.krasnopolskyi.dto.response.TrainerResponseDto;
 import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.GymException;
 
+import java.util.List;
+
 public interface TrainerService extends BaseCrudService<TrainerResponseDto, TrainerDto> {
     TrainerResponseDto findByUsername(String username) throws EntityException;
 }

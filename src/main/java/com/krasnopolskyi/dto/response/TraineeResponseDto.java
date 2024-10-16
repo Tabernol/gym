@@ -1,5 +1,6 @@
 package com.krasnopolskyi.dto.response;
 
+
 import java.time.LocalDate;
 
 public record TraineeResponseDto(String firstName,

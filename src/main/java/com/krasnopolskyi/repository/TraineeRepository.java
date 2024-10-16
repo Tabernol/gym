@@ -12,6 +12,5 @@ import java.util.Optional;
 
 public interface TraineeRepository extends BaseCrudRepository<Trainee> {
     Optional<Trainee> findByUsername(String username);
-    boolean delete(String username);
-    List<Trainer> updateTrainers(List<Trainer> trainerList);
+    boolean delete(Trainee trainee);
 }

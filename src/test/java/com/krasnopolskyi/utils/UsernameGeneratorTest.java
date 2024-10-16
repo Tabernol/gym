@@ -1,7 +1,7 @@
 package com.krasnopolskyi.utils;
 
-import com.krasnopolskyi.database.dao.UserRepository;
 import com.krasnopolskyi.exception.ValidateException;
+import com.krasnopolskyi.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

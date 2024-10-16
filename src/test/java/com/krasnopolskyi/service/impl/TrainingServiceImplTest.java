@@ -2,6 +2,7 @@ package com.krasnopolskyi.service.impl;
 
 
 import com.krasnopolskyi.dto.request.TrainingDto;
+import com.krasnopolskyi.dto.response.TrainingResponseDto;
 import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.Training;
@@ -88,14 +89,14 @@ public class TrainingServiceImplTest {
             return savedTraining;
         });
 
-        Training savedTraining = trainingService.save(trainingDto);
+        TrainingResponseDto trainingResponseDto = trainingService.save(trainingDto);
 
         // Assert that the saved training object is not null and has an ID
-        assertNotNull(savedTraining);
-        assertNotNull(savedTraining.getId());
-        assertEquals(trainingDto.getDate(), savedTraining.getDate());
-        assertEquals(trainingDto.getDuration(), savedTraining.getDuration());
-        assertEquals(trainingDto.getTrainingName(), savedTraining.getTrainingName());
+        assertNotNull(trainingResponseDto);
+        assertNotNull(trainingResponseDto.id());
+        assertEquals(trainingDto.getDate(), trainingResponseDto.date());
+        assertEquals(trainingDto.getDuration(), trainingResponseDto.duration());
+        assertEquals(trainingDto.getTrainingName(), trainingResponseDto.trainingName());
 
         // Verify that the necessary repository methods were called
         verify(traineeRepository, times(1)).findById(1L);
@@ -201,13 +202,11 @@ public class TrainingServiceImplTest {
         training.setTrainingType(new TrainingType(1, "Cardio"));
         training.setDate(LocalDate.of(2024, 9,3));
         training.setDuration(1000);
-        training.setTraineeId(1L);
-        training.setTrainerId(1L);
 
         // Mock the training repository to return the training object
         when(trainingRepository.findById(1L)).thenReturn(Optional.of(training));
 
-        Training result = trainingService.findById(1L);
+        TrainingResponseDto result = trainingService.findById(1L);
 
         // Assert that the training object is retrieved correctly
         assertEquals(training, result);
