@@ -3,17 +3,22 @@ package com.krasnopolskyi.facade;
 import com.krasnopolskyi.dto.request.TraineeDto;
 import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.request.TrainingDto;
-import com.krasnopolskyi.dto.request.TrainingFilterDto;
 import com.krasnopolskyi.dto.response.TraineeResponseDto;
 import com.krasnopolskyi.dto.response.TrainerResponseDto;
 import com.krasnopolskyi.dto.response.TrainingResponseDto;
-import com.krasnopolskyi.entity.Training;
+import com.krasnopolskyi.entity.User;
+import com.krasnopolskyi.exception.AccessException;
 import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.exception.ValidateException;
+import com.krasnopolskyi.security.AuthenticationManager;
 import com.krasnopolskyi.service.TraineeService;
 import com.krasnopolskyi.service.TrainerService;
 import com.krasnopolskyi.service.TrainingService;
+import com.krasnopolskyi.service.UserService;
+import com.krasnopolskyi.validation.CommonValidator;
+import com.krasnopolskyi.validation.group.Create;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -21,8 +26,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -34,22 +37,35 @@ class MainFacadeTest {
 
     @Mock
     private TrainerService trainerService;
-
     @Mock
     private TrainingService trainingService;
-
+    @Mock
+    private AuthenticationManager manager;
+    @Mock
+    private UserService userService;
+    @Mock
+    private CommonValidator validator;
 
     @InjectMocks
     private MainFacade mainFacade;
-
     private TraineeDto traineeDto;
-    private TraineeResponseDto expectedResponse;
-
-    TrainingResponseDto expectedTraining;
+    private TraineeResponseDto expectedTrainee;
+    private TrainingResponseDto expectedTraining;
+    private TrainerDto trainerDto;
+    private TrainerResponseDto expectedTrainer;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        trainerDto = TrainerDto.builder()
+                .firstName("Arni")
+                .specialization(1)
+                .id(1L)
+                .lastName("schwarz")
+                .build();
+        expectedTrainer = new TrainerResponseDto("Arni", "schwarz", "arni.schwarz", "Cardio");
+
+
         traineeDto = TraineeDto.builder()
                 .firstName("John")
                 .lastName("Doe")
@@ -57,7 +73,7 @@ class MainFacadeTest {
                 .dateOfBirth(LocalDate.of(1990, 1, 1))
                 .build();
 
-        expectedResponse = new TraineeResponseDto(
+        expectedTrainee = new TraineeResponseDto(
                 "John",
                 "Doe",
                 "john.doe",
@@ -66,374 +82,383 @@ class MainFacadeTest {
         );
 
         expectedTraining = new TrainingResponseDto(1L, "first Cardio", "Cardio",
-                "Arni Schwartz", "John gold",
-                LocalDate.of(2024,1,1), 1000);
+                "Arni Schwartz", "John Doe",
+                LocalDate.of(2024, 1, 1), 1000);
 
     }
 
     @Test
-    void testCreateTrainee() throws GymException {
-        // Mock the behavior of traineeService.save
-        when(traineeService.save(traineeDto)).thenReturn(expectedResponse);
+    void testChangePasswordFailure() throws GymException {
+        String executor = "testExecutor";
+        String password = "newPassword";
 
-        // Call the method
+        // Mocking behavior to throw AccessException
+        doThrow(new AccessException("Permission denied")).when(manager).checkPermissions(executor);
+
+        // Executing the method
+        boolean result = mainFacade.changePassword(password, executor);
+
+        // Verifying results
+        assertFalse(result);
+        verify(manager).checkPermissions(executor);
+        verify(userService, never()).findByUsername(executor);
+        verify(userService, never()).changePassword(any(), anyString());
+    }
+
+    @Test
+    void testCreateTraineeSuccess() throws GymException {
+        // Mocking behavior
+        doNothing().when(validator).validate(traineeDto, Create.class);
+        when(traineeService.save(traineeDto)).thenReturn(expectedTrainee);
+
+        // Executing the method
         TraineeResponseDto result = mainFacade.createTrainee(traineeDto);
 
-        // Verify that the service method was called
+        // Verifying results
+        assertNotNull(result);
+        assertEquals(expectedTrainee, result);
+        verify(validator).validate(traineeDto, Create.class);
         verify(traineeService).save(traineeDto);
-
-        // Assert the expected result
-        assertEquals(expectedResponse, result);
     }
 
     @Test
-    void testFindTraineeById_success() throws EntityException {
-        Long id = 1L;
+    void testCreateTraineeValidationFailure() throws GymException {
 
-        // Mock the behavior of traineeService.findById
-        when(traineeService.findById(id)).thenReturn(expectedResponse);
+        // Mocking behavior to throw ConstraintViolationException
+        doThrow(new ConstraintViolationException(null)).when(validator).validate(traineeDto, Create.class);
 
-        // Call the method
-        TraineeResponseDto result = mainFacade.findTraineeById(id);
+        // Executing the method
+        TraineeResponseDto result = mainFacade.createTrainee(traineeDto);
 
-        // Verify that the service method was called
-        verify(traineeService).findById(id);
-
-        // Assert the expected result
-        assertEquals(expectedResponse, result);
+        // Verifying results
+        assertNull(result);
+        verify(validator).validate(traineeDto, Create.class);
+        verify(traineeService, never()).save(any(TraineeDto.class));
     }
 
     @Test
-    void testUpdateTrainee() throws GymException {
-        // Mock the behavior of traineeService.update
-        when(traineeService.update(traineeDto)).thenReturn(expectedResponse);
+    void testFindTraineeByIdSuccess() throws EntityException, AccessException {
+        Long traineeId = 1L;
+        String executor = "testExecutor";
+        // Mocking behavior
+        doNothing().when(manager).checkPermissions(executor);
+        when(traineeService.findById(traineeId)).thenReturn(expectedTrainee);
 
-        // Call the method
-        TraineeResponseDto result = mainFacade.updateTrainee(traineeDto);
+        // Executing the method
+        TraineeResponseDto result = mainFacade.findTraineeById(traineeId, executor);
 
-        // Verify that the service method was called
-        verify(traineeService).update(traineeDto);
-
-        // Assert the expected result
-        assertEquals(expectedResponse, result);
-    }
-
-//    @Test
-//    void testDeleteTrainee() throws EntityException {
-//        // Mock the behavior of traineeService.delete
-//        when(traineeService.delete(traineeDto)).thenReturn(true);
-//
-//        // Call the method
-//        boolean result = mainFacade.deleteTrainee(traineeDto);
-//
-//        // Verify that the service method was called
-//        verify(traineeService).delete(traineeDto);
-//
-//        // Assert the expected result
-//        assertTrue(result);
-//    }
-
-    @Test
-    void testCreateTrainer_success() throws GymException {
-        TrainerDto trainerDto = TrainerDto.builder().firstName("John").lastName("Doe").specialization(15).build();
-        TrainerResponseDto expectedResponse = new TrainerResponseDto("John", "Doe", "john.doe", "1");
-
-        // Mock the behavior of trainerService.save
-        when(trainerService.save(trainerDto)).thenReturn(expectedResponse);
-
-        // Call the method
-        TrainerResponseDto result = mainFacade.createTrainer(trainerDto);
-
-        // Verify that the service method was called
-        verify(trainerService).save(trainerDto);
-
-        // Assert the expected result
-        assertEquals(expectedResponse, result);
+        // Verifying results
+        assertNotNull(result);
+        assertEquals(expectedTrainee, result);
+        verify(manager).checkPermissions(executor);
+        verify(traineeService).findById(traineeId);
     }
 
     @Test
-    void testCreateTrainer_validateException() throws GymException {
-        TrainerDto trainerDto = TrainerDto.builder().firstName("John").lastName("Doe").specialization(15).build();
+    void testFindTraineeByIdAccessFailure() throws AccessException, EntityException {
+        Long traineeId = 1L;
+        String executor = "testExecutor";
 
-        // Mock the behavior of trainerService.save to throw ValidateException
-        when(trainerService.save(trainerDto)).thenThrow(new ValidateException("Invalid specialization"));
+        // Mocking behavior to throw AccessException
+        doThrow(new AccessException("Permission denied")).when(manager).checkPermissions(executor);
 
-        // Call the method
-        TrainerResponseDto result = mainFacade.createTrainer(trainerDto);
+        // Executing the method
+        TraineeResponseDto result = mainFacade.findTraineeById(traineeId, executor);
 
-        // Verify that the service method was called
-        verify(trainerService).save(trainerDto);
+        // Verifying results
+        assertNull(result);
+        verify(manager).checkPermissions(executor);
+        verify(traineeService, never()).findById(traineeId);
+    }
 
-        // Assert that the result is null (because of the exception)
+    @Test
+    void shouldNotChangePasswordDueToAccessException() throws GymException {
+        String newPassword = "newPassword123";
+        String executor = "executor";
+
+        doThrow(new AccessException("No permission")).when(manager).checkPermissions(executor);
+
+        boolean result = mainFacade.changePassword(newPassword, executor);
+
+        verify(manager, times(1)).checkPermissions(executor);
+        verify(userService, never()).findByUsername(anyString());
+        verify(userService, never()).changePassword(any(User.class), anyString());
+        assertFalse(result);
+    }
+
+    @Test
+    void shouldCreateTraineeSuccessfully() throws GymException {
+        when(traineeService.save(any(TraineeDto.class))).thenReturn(expectedTrainee);
+
+        TraineeResponseDto result = mainFacade.createTrainee(traineeDto);
+
+        verify(validator, times(1)).validate(traineeDto, Create.class);
+        verify(traineeService, times(1)).save(traineeDto);
+        assertEquals(expectedTrainee, result);
+    }
+
+    @Test
+    void shouldNotCreateTraineeDueToValidationFailure() throws GymException {
+        doThrow(new ConstraintViolationException(null)).when(validator).validate(any(), any());
+
+        TraineeResponseDto result = mainFacade.createTrainee(traineeDto);
+
+        verify(validator, times(1)).validate(traineeDto, Create.class);
+        verify(traineeService, never()).save(any());
         assertNull(result);
     }
 
     @Test
-    void testFindTrainerById_success() throws EntityException {
-        Long id = 1L;
-        TrainerResponseDto expectedTrainer = new TrainerResponseDto("John", "Gold", "john.gold", "Cardio");
+    void shouldFindTraineeByIdSuccessfully() throws AccessException, EntityException {
+        String executor = "executor";
+        when(traineeService.findById(anyLong())).thenReturn(expectedTrainee);
 
-        // Mock the behavior of trainerService.findById
-        when(trainerService.findById(id)).thenReturn(expectedTrainer);
+        TraineeResponseDto result = mainFacade.findTraineeById(1L, executor);
 
-        // Call the method
-        TrainerResponseDto result = mainFacade.findTrainerById(id);
+        verify(manager, times(1)).checkPermissions(executor);
+        verify(traineeService, times(1)).findById(1L);
+        assertEquals(expectedTrainee, result);
+    }
 
-        // Verify that the service method was called
-        verify(trainerService).findById(id);
+    @Test
+    void shouldFailToFindTraineeByIdDueToAccessException() throws EntityException, AccessException {
+        String executor = "executor";
+        doThrow(new AccessException("No permission")).when(manager).checkPermissions(executor);
 
-        // Assert the expected result
+        TraineeResponseDto result = mainFacade.findTraineeById(1L, executor);
+
+        verify(manager, times(1)).checkPermissions(executor);
+        verify(traineeService, never()).findById(anyLong());
+        assertNull(result);
+    }
+
+    @Test
+    void shouldAddTrainingSuccessfully() throws AccessException, ValidateException {
+        String executor = "executor";
+        when(trainingService.save(any(TrainingDto.class))).thenReturn(expectedTraining);
+
+        TrainingDto trainingDto = new TrainingDto();
+        TrainingResponseDto result = mainFacade.addTraining(trainingDto, executor);
+
+        verify(manager, times(1)).checkPermissions(executor);
+        verify(validator, times(1)).validate(trainingDto, Create.class);
+        verify(trainingService, times(1)).save(trainingDto);
+        assertEquals(expectedTraining, result);
+    }
+
+    @Test
+    void shouldNotAddTrainingDueToValidationFailure() throws ValidateException, AccessException {
+        String executor = "executor";
+        TrainingDto trainingDto = new TrainingDto();
+        doThrow(new ConstraintViolationException(null)).when(validator).validate(trainingDto, Create.class);
+
+        TrainingResponseDto result = mainFacade.addTraining(trainingDto, executor);
+
+        verify(manager, times(1)).checkPermissions(executor);
+        verify(validator, times(1)).validate(trainingDto, Create.class);
+        verify(trainingService, never()).save(any(TrainingDto.class));
+        assertNull(result);
+    }
+
+    // Test for findTraineeByUsername
+
+    @Test
+    void shouldNotFindTraineeDueToEntityException() throws AccessException, EntityException {
+        String username = "john.doe";
+        String executor = "executor";
+
+        doThrow(new EntityException("Trainee not found")).when(traineeService).findByUsername(username);
+
+        TraineeResponseDto result = mainFacade.findTraineeByUsername(username, executor);
+
+        verify(manager, times(1)).checkPermissions(executor);
+        verify(traineeService, times(1)).findByUsername(username);
+        assertNull(result);
+    }
+
+    @Test
+    void shouldNotFindTraineeDueToAccessException() throws EntityException, AccessException {
+        String username = "john.doe";
+        String executor = "executor";
+
+        doThrow(new AccessException("No permission")).when(manager).checkPermissions(executor);
+
+        TraineeResponseDto result = mainFacade.findTraineeByUsername(username, executor);
+
+        verify(manager, times(1)).checkPermissions(executor);
+        verify(traineeService, never()).findByUsername(username);
+        assertNull(result);
+    }
+
+    // Test for updateTrainee
+
+    @Test
+    void shouldNotUpdateTraineeDueToConstraintViolation() throws GymException {
+        doThrow(new ConstraintViolationException(null)).when(validator).validate(any(), any());
+
+        TraineeResponseDto result = mainFacade.updateTrainee(traineeDto, "executor");
+
+        verify(manager, times(1)).checkPermissions("executor");
+        verify(validator, times(1)).validate(traineeDto, Create.class);
+        verify(traineeService, never()).update(any());
+        assertNull(result);
+    }
+
+    // Test findTraineeByUsername
+    @Test
+    void shouldFindTraineeByUsernameSuccessfully() throws EntityException, AccessException {
+        String username = "john.doe";
+        String executor = "executor";
+
+        when(traineeService.findByUsername(username)).thenReturn(expectedTrainee);
+
+        TraineeResponseDto result = mainFacade.findTraineeByUsername(username, executor);
+
+        verify(manager, times(1)).checkPermissions(executor);
+        verify(traineeService, times(1)).findByUsername(username);
+        assertEquals(expectedTrainee, result);
+    }
+
+    @Test
+    void shouldReturnNullWhenFindTraineeByUsernameThrowsEntityException() throws EntityException, AccessException {
+        String username = "john.doe";
+        String executor = "executor";
+
+        when(traineeService.findByUsername(username)).thenThrow(new EntityException("Trainee not found"));
+
+        TraineeResponseDto result = mainFacade.findTraineeByUsername(username, executor);
+
+        verify(manager, times(1)).checkPermissions(executor);
+        verify(traineeService, times(1)).findByUsername(username);
+        assertNull(result);
+    }
+
+    // Test updateTrainee
+    @Test
+    void shouldUpdateTraineeSuccessfully() throws GymException {
+        when(traineeService.update(any(TraineeDto.class))).thenReturn(expectedTrainee);
+
+        TraineeResponseDto result = mainFacade.updateTrainee(traineeDto, "executor");
+
+        verify(manager, times(1)).checkPermissions("executor");
+        verify(validator, times(1)).validate(traineeDto, Create.class);
+        verify(traineeService, times(1)).update(traineeDto);
+        assertEquals(expectedTrainee, result);
+    }
+
+    @Test
+    void shouldReturnNullWhenUpdateTraineeThrowsConstraintViolationException() throws GymException {
+        doThrow(new ConstraintViolationException(null)).when(validator).validate(any(), any());
+
+        TraineeResponseDto result = mainFacade.updateTrainee(traineeDto, "executor");
+
+        verify(validator, times(1)).validate(traineeDto, Create.class);
+        verify(traineeService, never()).update(any());
+        assertNull(result);
+    }
+
+    // Test deleteTrainee
+    @Test
+    void shouldDeleteTraineeSuccessfully() throws EntityException, AccessException {
+        String username = "john.doe";
+        String executor = "executor";
+
+        when(traineeService.delete(username)).thenReturn(true);
+
+        boolean result = mainFacade.deleteTrainee(username, executor);
+
+        verify(manager, times(1)).checkPermissions(executor);
+        verify(traineeService, times(1)).delete(username);
+        assertTrue(result);
+    }
+
+    @Test
+    void shouldReturnFalseWhenDeleteTraineeThrowsEntityException() throws AccessException, EntityException {
+        String username = "john.doe";
+        String executor = "executor";
+
+        when(traineeService.delete(username)).thenThrow(new EntityException("Failed to delete"));
+
+        boolean result = mainFacade.deleteTrainee(username, executor);
+
+        verify(manager, times(1)).checkPermissions(executor);
+        verify(traineeService, times(1)).delete(username);
+        assertFalse(result);
+    }
+
+    // Test createTrainer
+    @Test
+    void shouldCreateTrainerSuccessfully() throws GymException {
+        when(trainerService.save(any(TrainerDto.class))).thenReturn(expectedTrainer);
+
+        TrainerResponseDto result = mainFacade.createTrainer(trainerDto);
+
+        verify(validator, times(1)).validate(trainerDto, Create.class);
+        verify(trainerService, times(1)).save(trainerDto);
         assertEquals(expectedTrainer, result);
     }
 
     @Test
-    void testAddTraining_success() throws ValidateException {
-        TrainingDto trainingDto = TrainingDto.builder()
-                .trainingName("Cardio")
-                .trainingType(1)
-                .date(LocalDate.of(2024, 9, 3))
-                .duration(1000)
-                .traineeId(1L)
-                .trainerId(1L)
-                .build();
+    void shouldReturnNullWhenCreateTrainerThrowsConstraintViolationException() throws GymException {
+        doThrow(new ConstraintViolationException(null)).when(validator).validate(any(), any());
 
+        TrainerResponseDto result = mainFacade.createTrainer(trainerDto);
 
-        // Mock the behavior of trainingService.save
-        when(trainingService.save(trainingDto)).thenReturn(expectedTraining);
-
-        // Call the method
-        TrainingResponseDto result = mainFacade.addTraining(trainingDto);
-
-        // Verify that the service method was called
-        verify(trainingService).save(trainingDto);
-
-        // Assert the expected result
-        assertEquals(expectedTraining, result);
-    }
-
-    @Test
-    void testAddTraining_validateException() throws ValidateException {
-        TrainingDto trainingDto = TrainingDto.builder()
-                .trainingName("Cardio")
-                .trainingType(1)
-                .date(LocalDate.of(2024, 9, 3))
-                .duration(1000)
-                .traineeId(1L)
-                .trainerId(1L)
-                .build();
-
-        // Mock the behavior of trainingService.save to throw ValidateException
-        when(trainingService.save(trainingDto)).thenThrow(new ValidateException("Invalid data"));
-
-        // Call the method
-        TrainingResponseDto result = mainFacade.addTraining(trainingDto);
-
-        // Verify that the service method was called
-        verify(trainingService).save(trainingDto);
-
-        // Assert that the result is null (because of the exception)
+        verify(validator, times(1)).validate(trainerDto, Create.class);
+        verify(trainerService, never()).save(any());
         assertNull(result);
     }
 
+    // Test findTrainerById
     @Test
-    void testFindTrainingById_success() throws EntityException {
+    void shouldFindTrainerByIdSuccessfully() throws AccessException, EntityException {
         Long id = 1L;
+        String executor = "executor";
 
-        // Mock the behavior of trainingService.findById
-        when(trainingService.findById(id)).thenReturn(expectedTraining);
+        when(trainerService.findById(id)).thenReturn(expectedTrainer);
 
-        // Call the method
-        TrainingResponseDto result = mainFacade.findTrainingById(id);
+        TrainerResponseDto result = mainFacade.findTrainerById(id, executor);
 
-        // Verify that the service method was called
-        verify(trainingService).findById(id);
-
-        // Assert the expected result
-        assertEquals(expectedTraining, result);
+        verify(manager, times(1)).checkPermissions(executor);
+        verify(trainerService, times(1)).findById(id);
+        assertEquals(expectedTrainer, result);
     }
 
     @Test
-    void updateTrainer() throws GymException {
-        TrainerDto trainerDto = TrainerDto.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .specialization(1)
-                .build();
+    void shouldReturnNullWhenFindTrainerByIdThrowsEntityException() throws AccessException, EntityException {
+        Long id = 1L;
+        String executor = "executor";
 
-        TrainerResponseDto expectedResponse = new TrainerResponseDto("John", "Doe", "john.doe", "1");
+        when(trainerService.findById(id)).thenThrow(new EntityException("Trainer not found"));
 
-        // Mock the behavior of trainerService.update (not save)
-        when(trainerService.update(trainerDto)).thenReturn(expectedResponse);
+        TrainerResponseDto result = mainFacade.findTrainerById(id, executor);
 
-        // Call the method
-        TrainerResponseDto result = mainFacade.updateTrainer(trainerDto);
-
-        // Verify that the service method update was called (not save)
-        verify(trainerService).update(trainerDto);
-
-        // Assert the expected result
-        assertEquals(expectedResponse, result);
-    }
-
-    @Test
-    void testCreateTrainee_validationFailure() throws GymException {
-        // Given
-        TraineeDto traineeDto = TraineeDto.builder().firstName("Jo").lastName("l").build(); // Create a valid TraineeDto instance
-
-        // When
-        when(traineeService.save(traineeDto)).thenThrow(new ValidateException("Invalid trainee data"));
-
-        // Execute
-        TraineeResponseDto actualResponse = mainFacade.createTrainee(traineeDto);
-
-        // Then
-        assertNull(actualResponse);
-        verify(traineeService).save(traineeDto);
-        // Optionally verify that the warning was logged
-        // Use a logging framework test utility to capture logs if needed
-    }
-
-    @Test
-    void getAllTrainingsByUsernameAndFilter_ShouldReturnTrainings() throws ValidateException {
-        // Arrange
-        TrainingFilterDto filterDto = TrainingFilterDto.builder().build();; // Define the filter criteria here
-        List<TrainingResponseDto> expectedTrainings = List.of(expectedTraining);
-
-        when(trainingService.getFilteredTrainings(filterDto)).thenReturn(expectedTrainings);
-
-        // Act
-        List<TrainingResponseDto> result = mainFacade.getAllTrainingsByUsernameAndFilter(filterDto);
-
-        // Assert
-        assertEquals(expectedTrainings, result);
-        verify(trainingService, times(1)).getFilteredTrainings(filterDto);
-    }
-
-    @Test
-    void getAllTrainingsByUsernameAndFilter_ShouldHandleException() throws ValidateException {
-        // Arrange
-        TrainingFilterDto filterDto = TrainingFilterDto.builder().build();
-        when(trainingService.getFilteredTrainings(filterDto)).thenThrow(new ValidateException("Validation failed"));
-
-        // Act
-        List<TrainingResponseDto> result = mainFacade.getAllTrainingsByUsernameAndFilter(filterDto);
-
-        // Assert
-        assertTrue(result.isEmpty());
-        verify(trainingService, times(1)).getFilteredTrainings(filterDto);
-    }
-
-    @Test
-    void getAllNotAssignedTrainersByTraineeUsername_ShouldReturnTrainers() throws EntityException {
-        // Arrange
-        String username = "john.doe";
-        List<TrainerResponseDto> expectedTrainers = new ArrayList<>();
-        when(traineeService.findAllNotAssignedTrainersByTrainee(username)).thenReturn(expectedTrainers);
-
-        // Act
-        List<TrainerResponseDto> result = mainFacade.getAllNotAssignedTrainersByTraineeUsername(username);
-
-        // Assert
-        assertEquals(expectedTrainers, result);
-        verify(traineeService, times(1)).findAllNotAssignedTrainersByTrainee(username);
-    }
-
-    @Test
-    void getAllNotAssignedTrainersByTraineeUsername_ShouldHandleException() throws EntityException {
-        // Arrange
-        String username = "john.doe";
-        when(traineeService.findAllNotAssignedTrainersByTrainee(username)).thenThrow(new EntityException("Entity not found"));
-
-        // Act
-        List<TrainerResponseDto> result = mainFacade.getAllNotAssignedTrainersByTraineeUsername(username);
-
-        // Assert
-        assertTrue(result.isEmpty());
-        verify(traineeService, times(1)).findAllNotAssignedTrainersByTrainee(username);
-    }
-
-    @Test
-    void updateTrainers_ShouldReturnUpdatedTrainers() throws EntityException {
-        // Arrange
-        List<TrainerDto> newTrainers = new ArrayList<>();
-        List<TrainerResponseDto> updatedTrainers = new ArrayList<>();
-        when(traineeService.updateTrainers(traineeDto, newTrainers)).thenReturn(updatedTrainers);
-
-        // Act
-        List<TrainerResponseDto> result = mainFacade.updateTrainers(traineeDto, newTrainers);
-
-        // Assert
-        assertEquals(updatedTrainers, result);
-        verify(traineeService, times(1)).updateTrainers(traineeDto, newTrainers);
-    }
-
-    @Test
-    void updateTrainers_ShouldHandleException() throws EntityException {
-        // Arrange
-        List<TrainerDto> newTrainers = new ArrayList<>();
-        when(traineeService.updateTrainers(traineeDto, newTrainers)).thenThrow(new EntityException("Update failed"));
-
-        // Act
-        List<TrainerResponseDto> result = mainFacade.updateTrainers(traineeDto, newTrainers);
-
-        // Assert
-        assertTrue(result.isEmpty());
-        verify(traineeService, times(1)).updateTrainers(traineeDto, newTrainers);
-    }
-
-    @Test
-    void deleteTrainee_ShouldReturnTrueWhenDeleted() throws EntityException {
-        // Arrange
-        String username = "john.doe";
-        when(traineeService.delete(username)).thenReturn(true);
-
-        // Act
-        boolean result = mainFacade.deleteTrainee(username);
-
-        // Assert
-        assertTrue(result);
-        verify(traineeService, times(1)).delete(username);
-    }
-
-    @Test
-    void deleteTrainee_ShouldReturnFalseWhenException() throws EntityException {
-        // Arrange
-        String username = "john.doe";
-        when(traineeService.delete(username)).thenThrow(new EntityException("Delete failed"));
-
-        // Act
-        boolean result = mainFacade.deleteTrainee(username);
-
-        // Assert
-        assertFalse(result);
-        verify(traineeService, times(1)).delete(username);
-    }
-
-    @Test
-    void findTraineeByUsername_ShouldReturnTrainee() throws EntityException {
-        // Arrange
-        String username = "john.doe";
-        when(traineeService.findByUsername(username)).thenReturn(expectedResponse);
-
-        // Act
-        TraineeResponseDto result = mainFacade.findTraineeByUsername(username);
-
-        // Assert
-        assertEquals(expectedResponse, result);
-        verify(traineeService, times(1)).findByUsername(username);
-    }
-
-    @Test
-    void findTraineeByUsername_ShouldHandleException() throws EntityException {
-        // Arrange
-        String username = "john.doe";
-        when(traineeService.findByUsername(username)).thenThrow(new EntityException("Find failed"));
-
-        // Act
-        TraineeResponseDto result = mainFacade.findTraineeByUsername(username);
-
-        // Assert
+        verify(manager, times(1)).checkPermissions(executor);
+        verify(trainerService, times(1)).findById(id);
         assertNull(result);
-        verify(traineeService, times(1)).findByUsername(username);
+    }
+
+    // Test updateTrainer
+    @Test
+    void shouldUpdateTrainerSuccessfully() throws GymException {
+        when(trainerService.update(any(TrainerDto.class))).thenReturn(expectedTrainer);
+
+        TrainerResponseDto result = mainFacade.updateTrainer(trainerDto, "executor");
+
+        verify(manager, times(1)).checkPermissions("executor");
+        verify(validator, times(1)).validate(trainerDto, Create.class);
+        verify(trainerService, times(1)).update(trainerDto);
+        assertEquals(expectedTrainer, result);
+    }
+
+    @Test
+    void shouldReturnNullWhenUpdateTrainerThrowsConstraintViolationException() throws GymException {
+        doThrow(new ConstraintViolationException(null)).when(validator).validate(any(), any());
+
+        TrainerResponseDto result = mainFacade.updateTrainer(trainerDto, "executor");
+
+        verify(validator, times(1)).validate(trainerDto, Create.class);
+        verify(trainerService, never()).update(any());
+        assertNull(result);
     }
 }

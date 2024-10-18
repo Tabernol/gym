@@ -43,10 +43,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findByUsername(String username) throws EntityException {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityException("Could not found user: " + username));
+    }
+
+    @Override
     @Transactional
     public boolean checkCredentials(UserCredentials credentials) throws EntityException {
-        User user = userRepository.findByUsername(credentials.username())
-                .orElseThrow(() -> new EntityException("Could not found user: " + credentials.username()));
+        User user = findByUsername(credentials.username());
 
         if (user.getPassword().equals(credentials.password())) {
             return true;
@@ -55,14 +60,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User changePassword(User user, String password) throws GymException {
+    @Transactional
+    public User changePassword(String username, String password) throws GymException {
         // authorization
+        User user = findByUsername(username);
         user.setPassword(password);
         return userRepository.update(user);
     }
 
     @Override
-    public User changeActivityStatus(User user) throws GymException {
+    @Transactional
+    public User changeActivityStatus(String target) throws GymException {
+        User user = findByUsername(target);
         user.setIsActive(!user.getIsActive()); //status changes here
         return userRepository.update(user);
     }

@@ -83,9 +83,6 @@ public class TrainingServiceImpl implements TrainingService {
     @Override
     @Transactional(readOnly = true)
     public List<TrainingResponseDto> getFilteredTrainings(TrainingFilterDto filter) throws ValidateException {
-        if (filter.getOwner() == null) {
-            throw new ValidateException("The training owner must exist");
-        }
         List<Training> trainings = trainingRepository.getFilteredTrainings(filter);
 
         return trainings.stream().map(TrainingMapper::mapToDto).collect(Collectors.toList());

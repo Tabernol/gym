@@ -3,6 +3,9 @@ package com.krasnopolskyi.repository.impl;
 import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.repository.UserRepository;
 import com.krasnopolskyi.entity.User;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -14,14 +17,13 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
-
     private final SessionFactory sessionFactory;
 
     @Override
-    public User update(User user) throws GymException {
+    public User update(User user) {
         Session session = sessionFactory.getCurrentSession();
         session.persist(user);
-        return null;
+        return user;
     }
 
     public Optional<User> findById(Long id) {

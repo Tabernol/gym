@@ -1,10 +1,13 @@
 package com.krasnopolskyi.service.impl;
 
+import com.krasnopolskyi.dto.request.UserCredentials;
 import com.krasnopolskyi.dto.request.UserDto;
 import com.krasnopolskyi.entity.User;
 import com.krasnopolskyi.exception.EntityException;
+import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.repository.UserRepository;
+import com.krasnopolskyi.utils.PasswordGenerator;
 import com.krasnopolskyi.utils.UsernameGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -76,5 +79,134 @@ public class UserServiceImplTest {
 
         // Verify that findById() was called once with the correct ID
         verify(userRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testCreateUser_Success() throws ValidateException {
+        // Given
+        UserDto userDto = new UserDto("John", "Doe");
+        String generatedUsername = "john.doe";
+        String generatedPassword = "securePassword";
+
+        when(usernameGenerator.generateUsername("John", "Doe")).thenReturn(generatedUsername);
+        mockStatic(PasswordGenerator.class);
+        when(PasswordGenerator.generatePassword()).thenReturn(generatedPassword);
+
+        // When
+        User result = userService.create(userDto);
+
+        // Then
+        assertEquals("John", result.getFirstName());
+        assertEquals("Doe", result.getLastName());
+        assertEquals(generatedUsername, result.getUsername());
+        assertEquals(generatedPassword, result.getPassword());
+        assertTrue(result.getIsActive());
+        verify(usernameGenerator, times(1)).generateUsername("John", "Doe");
+        PasswordGenerator.generatePassword();
+    }
+
+    @Test
+    void testCheckCredentials_ValidCredentials() throws EntityException {
+        // Given
+        String username = "john.doe";
+        String password = "securePassword";
+        UserCredentials credentials = new UserCredentials(username, password);
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+
+        // When
+        boolean result = userService.checkCredentials(credentials);
+
+        // Then
+        assertTrue(result);
+        verify(userRepository, times(1)).findByUsername(username);
+    }
+
+    @Test
+    void testCheckCredentials_InvalidCredentials() throws EntityException {
+        // Given
+        String username = "john.doe";
+        String password = "wrongPassword";
+        UserCredentials credentials = new UserCredentials(username, password);
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword("securePassword"); // The password in the database is different
+
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+
+        // When
+        boolean result = userService.checkCredentials(credentials);
+
+        // Then
+        assertFalse(result);
+        verify(userRepository, times(1)).findByUsername(username);
+    }
+
+    @Test
+    void testCheckCredentials_UserNotFound() {
+        // Given
+        String username = "john.doe";
+        UserCredentials credentials = new UserCredentials(username, "password");
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        // When
+        EntityException exception = assertThrows(EntityException.class, () -> {
+            userService.checkCredentials(credentials);
+        });
+
+        // Then
+        assertEquals("Could not found user: " + username, exception.getMessage());
+        verify(userRepository, times(1)).findByUsername(username);
+    }
+
+    @Test
+    void testChangePassword_Success() throws GymException {
+        // Given
+        User user = new User();
+        String newPassword = "newPassword";
+
+        when(userRepository.update(user)).thenReturn(user);
+
+        // When
+        User result = userService.changePassword(user, newPassword);
+
+        // Then
+        assertEquals(newPassword, result.getPassword());
+        verify(userRepository, times(1)).update(user);
+    }
+
+    @Test
+    void testChangeActivityStatus_Success() throws GymException {
+        // Given
+        User user = new User();
+        user.setIsActive(true); // Current status is active
+
+        when(userRepository.update(user)).thenReturn(user);
+
+        // When
+        User result = userService.changeActivityStatus(user);
+
+        // Then
+        assertFalse(result.getIsActive()); // Status should be toggled to inactive
+        verify(userRepository, times(1)).update(user);
+    }
+
+    @Test
+    void testChangeActivityStatus_InactiveToActive() throws GymException {
+        // Given
+        User user = new User();
+        user.setIsActive(false); // Current status is inactive
+
+        when(userRepository.update(user)).thenReturn(user);
+
+        // When
+        User result = userService.changeActivityStatus(user);
+
+        // Then
+        assertTrue(result.getIsActive()); // Status should be toggled to active
+        verify(userRepository, times(1)).update(user);
     }
 }

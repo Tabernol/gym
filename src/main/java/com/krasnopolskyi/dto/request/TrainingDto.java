@@ -1,13 +1,15 @@
 package com.krasnopolskyi.dto.request;
 
-import com.krasnopolskyi.validation.Create;
+import com.krasnopolskyi.validation.group.Create;
 import jakarta.validation.constraints.*;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDate;
 @Builder
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TrainingDto {
     private Long id;
 
@@ -24,6 +26,7 @@ public class TrainingDto {
     @NotNull(message = "Training type cannot be null")
     private Integer trainingType;
 
+    @PastOrPresent(groups = Create.class, message = "The training date cannot be in the future")
     private LocalDate date;
 
     @NotNull(message = "Duration cannot be null")

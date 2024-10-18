@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,14 +49,14 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional()
     public TraineeResponseDto findById(Long id) throws EntityException {
         return TraineeMapper.mapToDto(findTraineeById(id));
 
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional()
     public TraineeResponseDto findByUsername(String username) throws EntityException {
         return traineeRepository.findByUsername(username)
                 .map(trainee -> TraineeMapper.mapToDto(trainee))
@@ -86,7 +87,6 @@ public class TraineeServiceImpl implements TraineeService {
     public boolean delete(String username) throws EntityException {
         Trainee trainee = traineeRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityException("Can't find trainee with username " + username));
-
         return traineeRepository.delete(trainee);
     }
 
@@ -95,13 +95,12 @@ public class TraineeServiceImpl implements TraineeService {
     public List<TrainerResponseDto> updateTrainers(TraineeDto traineeDto, List<TrainerDto> trainerDtoList) throws EntityException {
         Trainee trainee = findTraineeById(traineeDto.getId());
         trainee.getTrainers().clear();
-        for(TrainerDto trainerDto : trainerDtoList){
+        for (TrainerDto trainerDto : trainerDtoList) {
             Trainer trainer = trainerRepository.findById(trainerDto.getId())
                     .orElseThrow(() -> new EntityException("Could not found trainer with id " + trainerDto.getId()));
             trainer.getTrainees().add(trainee); // save to set and to database
             trainee.getTrainers().add(trainer);
         }
-
 
         return trainee.getTrainers()
                 .stream()

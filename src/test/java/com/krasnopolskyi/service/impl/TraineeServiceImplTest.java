@@ -97,7 +97,6 @@ class TraineeServiceImplTest {
 
         // Verify that findById() was called once with the correct ID
         verify(traineeRepository, times(1)).findById(1L);
-        verify(userService, times(1)).findById(trainee.getUser().getId());
     }
 
     @Test
@@ -149,13 +148,9 @@ class TraineeServiceImplTest {
     @Test
     public void testDelete() throws EntityException {
         // Mock the trainee repository to return the trainee when found
-        when(traineeRepository.findById(1L)).thenReturn(Optional.of(trainee));
+        when(traineeRepository.findByUsername(any(String.class))).thenReturn(Optional.of(trainee));
         // Mock the trainee repository to return true when deleting
-        when(traineeRepository.delete(trainee.getUser().getUsername())).thenReturn(true);
-
-        TraineeDto traineeDto = TraineeDto.builder()
-                .id(1L)
-                .build();
+        when(traineeRepository.delete(trainee)).thenReturn(true);
 
         boolean result = traineeService.delete("john.doe");
 
@@ -163,6 +158,6 @@ class TraineeServiceImplTest {
         assertTrue(result);
 
         // Verify that traineeRepository.delete() was called once with the correct Trainee
-        verify(traineeRepository, times(1)).delete("john.doe");
+        verify(traineeRepository, times(1)).delete(trainee);
     }
 }

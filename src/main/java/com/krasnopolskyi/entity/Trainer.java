@@ -22,7 +22,7 @@ public class Trainer {
     @ManyToOne(fetch = FetchType.LAZY)
     private TrainingType specialization;
 
-    @OneToOne()
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
 

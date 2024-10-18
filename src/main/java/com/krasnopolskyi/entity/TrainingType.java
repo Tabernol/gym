@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 @Entity
 @Table(name = "training_type")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class TrainingType {

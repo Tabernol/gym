@@ -37,7 +37,9 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0' // work with JSON
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.0' // for working with LocalData and other
 
-    testImplementation 'org.mockito:mockito-core:4.5.1'
+    testImplementation 'org.mockito:mockito-core:5.2.0'
+    testImplementation 'org.mockito:mockito-inline:5.2.0'
+
     testImplementation 'org.mockito:mockito-junit-jupiter:4.5.1'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'

@@ -1,6 +1,5 @@
 package com.krasnopolskyi.repository.impl;
 
-import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.repository.TraineeRepository;
 import com.krasnopolskyi.entity.Trainee;
 
@@ -11,7 +10,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.query.NativeQuery;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository

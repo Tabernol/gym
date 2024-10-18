@@ -71,17 +71,16 @@ public class TrainerServiceImpl implements TrainerService {
         Trainer trainer = trainerRepository.findById(trainerDto.getId())
                 .orElseThrow(() -> new EntityException("Could not found trainer with id " + trainerDto.getId()));
         //update user's fields
-        User user = userService.findById(trainer.getUser().getId()); // pass refreshed user to repository
-        user.setFirstName(trainerDto.getFirstName()); // here I change user's field and them will be safe if CascadeType.ALL
-        user.setLastName(trainerDto.getLastName());
-//        trainer.setUser(user); // what is better use CascadeType or set it manual
+        User user = userService.findById(trainer.getUser().getId()); // get user from repository
+        user.setFirstName(trainerDto.getFirstName()); // here I change user's field and don't save them to trainer explicitly
+        user.setLastName(trainerDto.getLastName()); // but them also will be safe because this user exist in the same transaction
+
         //update trainer's fields
         if(trainerDto.getSpecialization() != null){
             TrainingType specialization = trainingTypeService.findById(trainerDto.getSpecialization());
             trainer.setSpecialization(specialization);
         }
         Trainer savedTrainer = trainerRepository.save(trainer); // pass refreshed trainer to repository
-        log.info("trainer has been updated " + trainer.getId());
         return TrainerMapper.mapToDto(savedTrainer);
     }
 

@@ -56,11 +56,12 @@ public class TrainingRepositoryImpl implements TrainingRepository {
         var trainer = training.join("trainer");
         var user = trainee.join("user");
 
+
         List<Predicate> predicates = new ArrayList<>();
 
         // Add predicates dynamically based on filter values
         if (filter.getOwner() != null) {
-            predicates.add(cb.equal(user.get("username"), filter.getOwner()));
+            predicates.add(cb.equal(user.get("username"), filter.getOwner())); // currently I here
         }
         if (filter.getPartner() != null) {
             predicates.add(cb.equal(user.get("username"), filter.getPartner()));
