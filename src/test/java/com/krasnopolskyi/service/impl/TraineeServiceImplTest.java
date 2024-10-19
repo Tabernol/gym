@@ -1,14 +1,21 @@
 package com.krasnopolskyi.service.impl;
 
 import com.krasnopolskyi.dto.request.TraineeDto;
+import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.request.UserDto;
 import com.krasnopolskyi.dto.response.TraineeResponseDto;
+import com.krasnopolskyi.dto.response.TrainerResponseDto;
 import com.krasnopolskyi.entity.Trainee;
+import com.krasnopolskyi.entity.Trainer;
+import com.krasnopolskyi.entity.TrainingType;
 import com.krasnopolskyi.entity.User;
 import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.repository.impl.TraineeRepositoryImpl;
+import com.krasnopolskyi.repository.impl.TrainerRepositoryImpl;
 import com.krasnopolskyi.service.UserService;
+import com.krasnopolskyi.utils.mapper.TraineeMapper;
+import com.krasnopolskyi.utils.mapper.TrainerMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -16,7 +23,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDate;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -25,16 +32,22 @@ class TraineeServiceImplTest {
 
     @Mock
     private TraineeRepositoryImpl traineeRepository;
-
+    @Mock
+    private TrainerRepositoryImpl trainerRepository;
     @Mock
     private UserService userService;
+    @Mock
+    private TrainingType trainingType;
 
     @InjectMocks
     private TraineeServiceImpl traineeService;
 
     private TraineeDto traineeDto;
     private Trainee trainee = new Trainee();
+    private Trainer trainer = new Trainer();
+    private TrainerDto trainerDto;
     private User user = new User();
+    TrainerResponseDto trainerResponseDto;
 
     @BeforeEach
     public void setUp() {
@@ -56,6 +69,17 @@ class TraineeServiceImplTest {
         trainee.setDateOfBirth(traineeDto.getDateOfBirth());
         trainee.setAddress(traineeDto.getAddress());
         trainee.setUser(user);
+
+        trainingType = new TrainingType(1, "Cardio");
+
+        trainer = new Trainer();
+        trainer.setId(1L);
+        trainer.setUser(user);
+        trainer.setSpecialization(trainingType);
+
+        trainerDto = TrainerDto.builder().firstName("John").lastName("Doe").specialization(1).build();
+
+        trainerResponseDto = new TrainerResponseDto("John", "Doe", "john.doe", "cardio");
     }
 
     @Test
@@ -160,4 +184,61 @@ class TraineeServiceImplTest {
         // Verify that traineeRepository.delete() was called once with the correct Trainee
         verify(traineeRepository, times(1)).delete(trainee);
     }
+
+    @Test
+    void testFindByUsername() throws EntityException {
+        String username = "testUser";
+        when(traineeRepository.findByUsername(any(String.class))).thenReturn(Optional.of(trainee));
+
+        TraineeResponseDto result = traineeService.findByUsername(username);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    void findAllNotAssignedTrainersByTraineeThrow() throws EntityException {
+        when(traineeRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
+
+        assertThrows(EntityException.class, () -> traineeService.findAllNotAssignedTrainersByTrainee("test"));
+    }
+
+    @Test
+    void findAllNotAssignedTrainersByTraineeSuccess() throws EntityException {
+        trainee.setTrainers(Set.of(trainer));
+        Trainer trainer2 = new Trainer();
+        trainer2.setUser(user);
+        trainer2.setSpecialization(trainingType);
+        List<Trainer> allTrainers = new ArrayList<>();
+        allTrainers.add(trainer2);
+        allTrainers.add(trainer);
+        when(traineeRepository.findByUsername(any(String.class))).thenReturn(Optional.ofNullable(trainee));
+        when(trainerRepository.findAll()).thenReturn(allTrainers);
+
+
+        List<TrainerResponseDto> result = traineeService.findAllNotAssignedTrainersByTrainee("test");
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void updateTrainersSuccess() throws EntityException {
+        trainee.setTrainers(new HashSet<>());
+        trainee.setId(1L);
+//        Trainer trainer2 = new Trainer();
+//        trainer2.setUser(user);
+//        trainer2.setSpecialization(trainingType);
+        trainer.setUser(user);
+        trainer.setSpecialization(trainingType);
+        List<TrainerDto> allTrainers = new ArrayList<>();
+        allTrainers.add(TrainerDto.builder().id(1L).build());
+        when(traineeRepository.findById(anyLong())).thenReturn(Optional.ofNullable(trainee));
+        when(trainerRepository.findById(anyLong())).thenReturn(Optional.ofNullable(trainer));
+
+        List<TrainerResponseDto> result = traineeService.updateTrainers(TraineeDto.builder().id(1L).build(), allTrainers);
+
+        assertEquals(1, result.size());
+
+    }
+
+
 }

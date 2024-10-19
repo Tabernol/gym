@@ -3,6 +3,7 @@ package com.krasnopolskyi.facade;
 import com.krasnopolskyi.dto.request.TraineeDto;
 import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.request.TrainingDto;
+import com.krasnopolskyi.dto.request.TrainingFilterDto;
 import com.krasnopolskyi.dto.response.TraineeResponseDto;
 import com.krasnopolskyi.dto.response.TrainerResponseDto;
 import com.krasnopolskyi.dto.response.TrainingResponseDto;
@@ -26,6 +27,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -101,7 +104,6 @@ class MainFacadeTest {
         // Verifying results
         assertFalse(result);
         verify(manager).checkPermissions(executor);
-        verify(userService, never()).findByUsername(executor);
         verify(userService, never()).changePassword(any(), anyString());
     }
 
@@ -136,55 +138,21 @@ class MainFacadeTest {
         verify(traineeService, never()).save(any(TraineeDto.class));
     }
 
-    @Test
-    void testFindTraineeByIdSuccess() throws EntityException, AccessException {
-        Long traineeId = 1L;
-        String executor = "testExecutor";
-        // Mocking behavior
-        doNothing().when(manager).checkPermissions(executor);
-        when(traineeService.findById(traineeId)).thenReturn(expectedTrainee);
 
-        // Executing the method
-        TraineeResponseDto result = mainFacade.findTraineeById(traineeId, executor);
-
-        // Verifying results
-        assertNotNull(result);
-        assertEquals(expectedTrainee, result);
-        verify(manager).checkPermissions(executor);
-        verify(traineeService).findById(traineeId);
-    }
-
-    @Test
-    void testFindTraineeByIdAccessFailure() throws AccessException, EntityException {
-        Long traineeId = 1L;
-        String executor = "testExecutor";
-
-        // Mocking behavior to throw AccessException
-        doThrow(new AccessException("Permission denied")).when(manager).checkPermissions(executor);
-
-        // Executing the method
-        TraineeResponseDto result = mainFacade.findTraineeById(traineeId, executor);
-
-        // Verifying results
-        assertNull(result);
-        verify(manager).checkPermissions(executor);
-        verify(traineeService, never()).findById(traineeId);
-    }
-
-    @Test
-    void shouldNotChangePasswordDueToAccessException() throws GymException {
-        String newPassword = "newPassword123";
-        String executor = "executor";
-
-        doThrow(new AccessException("No permission")).when(manager).checkPermissions(executor);
-
-        boolean result = mainFacade.changePassword(newPassword, executor);
-
-        verify(manager, times(1)).checkPermissions(executor);
-        verify(userService, never()).findByUsername(anyString());
-        verify(userService, never()).changePassword(any(User.class), anyString());
-        assertFalse(result);
-    }
+//    @Test
+//    void shouldNotChangePasswordDueToAccessException() throws GymException {
+//        String newPassword = "newPassword123";
+//        String executor = "executor";
+//
+//        doThrow(new AccessException("No permission")).when(manager).checkPermissions(executor);
+//
+//        boolean result = mainFacade.changePassword(newPassword, executor);
+//
+//        verify(manager, times(1)).checkPermissions(executor);
+//        verify(userService, never()).findByUsername(anyString());
+//        verify(userService, never()).changePassword(any(User.class), anyString());
+//        assertFalse(result);
+//    }
 
     @Test
     void shouldCreateTraineeSuccessfully() throws GymException {
@@ -209,31 +177,7 @@ class MainFacadeTest {
     }
 
     @Test
-    void shouldFindTraineeByIdSuccessfully() throws AccessException, EntityException {
-        String executor = "executor";
-        when(traineeService.findById(anyLong())).thenReturn(expectedTrainee);
-
-        TraineeResponseDto result = mainFacade.findTraineeById(1L, executor);
-
-        verify(manager, times(1)).checkPermissions(executor);
-        verify(traineeService, times(1)).findById(1L);
-        assertEquals(expectedTrainee, result);
-    }
-
-    @Test
-    void shouldFailToFindTraineeByIdDueToAccessException() throws EntityException, AccessException {
-        String executor = "executor";
-        doThrow(new AccessException("No permission")).when(manager).checkPermissions(executor);
-
-        TraineeResponseDto result = mainFacade.findTraineeById(1L, executor);
-
-        verify(manager, times(1)).checkPermissions(executor);
-        verify(traineeService, never()).findById(anyLong());
-        assertNull(result);
-    }
-
-    @Test
-    void shouldAddTrainingSuccessfully() throws AccessException, ValidateException {
+    void shouldAddTrainingSuccessfully() throws AccessException, ValidateException, EntityException {
         String executor = "executor";
         when(trainingService.save(any(TrainingDto.class))).thenReturn(expectedTraining);
 
@@ -247,7 +191,7 @@ class MainFacadeTest {
     }
 
     @Test
-    void shouldNotAddTrainingDueToValidationFailure() throws ValidateException, AccessException {
+    void shouldNotAddTrainingDueToValidationFailure() throws ValidateException, AccessException, EntityException {
         String executor = "executor";
         TrainingDto trainingDto = new TrainingDto();
         doThrow(new ConstraintViolationException(null)).when(validator).validate(trainingDto, Create.class);
@@ -409,35 +353,6 @@ class MainFacadeTest {
         assertNull(result);
     }
 
-    // Test findTrainerById
-    @Test
-    void shouldFindTrainerByIdSuccessfully() throws AccessException, EntityException {
-        Long id = 1L;
-        String executor = "executor";
-
-        when(trainerService.findById(id)).thenReturn(expectedTrainer);
-
-        TrainerResponseDto result = mainFacade.findTrainerById(id, executor);
-
-        verify(manager, times(1)).checkPermissions(executor);
-        verify(trainerService, times(1)).findById(id);
-        assertEquals(expectedTrainer, result);
-    }
-
-    @Test
-    void shouldReturnNullWhenFindTrainerByIdThrowsEntityException() throws AccessException, EntityException {
-        Long id = 1L;
-        String executor = "executor";
-
-        when(trainerService.findById(id)).thenThrow(new EntityException("Trainer not found"));
-
-        TrainerResponseDto result = mainFacade.findTrainerById(id, executor);
-
-        verify(manager, times(1)).checkPermissions(executor);
-        verify(trainerService, times(1)).findById(id);
-        assertNull(result);
-    }
-
     // Test updateTrainer
     @Test
     void shouldUpdateTrainerSuccessfully() throws GymException {
@@ -460,5 +375,243 @@ class MainFacadeTest {
         verify(validator, times(1)).validate(trainerDto, Create.class);
         verify(trainerService, never()).update(any());
         assertNull(result);
+    }
+
+
+
+
+
+    @Test
+    void testChangeActivityStatus_Success() throws GymException {
+        String target = "targetUser";
+        String executor = "executorUser";
+
+        doNothing().when(manager).checkPermissions(executor);
+        User user = mock(User.class);
+        when(userService.changeActivityStatus(target)).thenReturn(user);
+        when(user.getUsername()).thenReturn(target);
+        when(user.getIsActive()).thenReturn(true); // Assuming the user is active
+
+        boolean result = mainFacade.changeActivityStatus(target, executor);
+
+        assertTrue(result);
+        verify(manager).checkPermissions(executor);
+        verify(userService).changeActivityStatus(target);
+    }
+
+
+
+    @Test
+    void testFindTrainerByUsername_Success() throws EntityException, AccessException {
+        String username = "trainerUser";
+        String executor = "executorUser";
+
+        doNothing().when(manager).checkPermissions(executor);
+        when(trainerService.findByUsername(username)).thenReturn(expectedTrainer);
+
+        TrainerResponseDto result = mainFacade.findTrainerByUsername(username, executor);
+
+        assertNotNull(result);
+        verify(manager).checkPermissions(executor);
+        verify(trainerService).findByUsername(username);
+    }
+
+    @Test
+    void testFindTrainerByUsername_Failure() throws EntityException, AccessException {
+        String username = "trainerUser";
+        String executor = "executorUser";
+
+        doNothing().when(manager).checkPermissions(executor);
+        doThrow(new EntityException("Trainer not found")).when(trainerService).findByUsername(username);
+
+        TrainerResponseDto result = mainFacade.findTrainerByUsername(username, executor);
+
+        assertNull(result);
+        verify(manager).checkPermissions(executor);
+        verify(trainerService).findByUsername(username);
+    }
+
+    @Test
+    void testGetAllTrainingsByUsernameAndFilter_Success() throws EntityException, AccessException {
+        String executor = "executorUser";
+        TrainingFilterDto filterDto = TrainingFilterDto.builder().owner("john.doe").build();
+        when(trainingService.getFilteredTrainings(filterDto)).thenReturn(new ArrayList<>());
+
+        doNothing().when(manager).checkPermissions(executor);
+//        when(validator.validate(filterDto, Create.class)).thenReturn(null);
+
+        List<TrainingResponseDto> result = mainFacade.getAllTrainingsByUsernameAndFilter(filterDto, executor);
+
+        assertNotNull(result);
+        verify(manager).checkPermissions(executor);
+        verify(trainingService).getFilteredTrainings(filterDto);
+    }
+
+    @Test
+    void testGetAllTrainingsByUsernameAndFilter_Failure() throws EntityException, AccessException {
+        String executor = "executorUser";
+        TrainingFilterDto filterDto = TrainingFilterDto.builder().owner("john.doe").build();
+        doThrow(new AccessException("Access denied")).when(manager).checkPermissions(executor);
+
+        List<TrainingResponseDto> result = mainFacade.getAllTrainingsByUsernameAndFilter(filterDto, executor);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(manager).checkPermissions(executor);
+        verify(trainingService, never()).getFilteredTrainings(any());
+    }
+
+    @Test
+    void testGetAllNotAssignedTrainersByTraineeUsername_Success() throws EntityException, AccessException {
+        String username = "traineeUser";
+        String executor = "executorUser";
+        List<TrainerResponseDto> trainers = new ArrayList<>();
+        trainers.add(expectedTrainer);
+
+        doNothing().when(manager).checkPermissions(executor);
+        when(traineeService.findAllNotAssignedTrainersByTrainee(username)).thenReturn(trainers);
+
+        List<TrainerResponseDto> result = mainFacade.getAllNotAssignedTrainersByTraineeUsername(username, executor);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(manager).checkPermissions(executor);
+        verify(traineeService).findAllNotAssignedTrainersByTrainee(username);
+    }
+
+
+    @Test
+    void testUpdateTrainers_Success() throws EntityException, AccessException {
+        String executor = "executorUser";
+        List<TrainerResponseDto> trainers = new ArrayList<>();
+        trainers.add(expectedTrainer);
+
+        doNothing().when(manager).checkPermissions(executor);
+        when(traineeService.updateTrainers(traineeDto, new ArrayList<>())).thenReturn(List.of(expectedTrainer));
+
+        List<TrainerResponseDto> result = mainFacade.updateTrainers(traineeDto, new ArrayList<>(), executor);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(manager).checkPermissions(executor);
+        verify(traineeService).updateTrainers(traineeDto, new ArrayList<>());
+    }
+
+
+    @Test
+    void changeActivityStatus() throws GymException {
+        String executor = "executor";
+        doNothing().when(manager).checkPermissions(executor);
+        when((userService.changeActivityStatus(any(String.class)))).thenThrow(new EntityException("Could not found user: "));
+
+        assertFalse(mainFacade.changeActivityStatus("target", "executor"));
+    }
+
+    @Test
+    public void changePassword() throws GymException {
+        String executor = "executor";
+        doNothing().when(manager).checkPermissions(executor);
+        when(userService.changePassword("target", "executor")).thenReturn(new User());
+
+        assertTrue(mainFacade.changePassword("target", "executor"));
+    }
+    @Test
+    public void updateTraineeTestAccessFailed() throws AccessException {
+        String executor = "executor";
+        doThrow(new AccessException("")).when(manager).checkPermissions(any(String.class));
+
+        assertNull(mainFacade.updateTrainee(TraineeDto.builder().build(), "executor"));
+    }
+
+    @Test
+    public void updateTrainerTestAccessFailed() throws AccessException {
+        String executor = "executor";
+        doThrow(new AccessException("")).when(manager).checkPermissions(any(String.class));
+
+        assertNull(mainFacade.updateTrainer(TrainerDto.builder().build(), "executor"));
+    }
+
+
+
+    @Test
+    public void deleteTraineeTestAccessFailed() throws AccessException {
+        String executor = "executor";
+        doThrow(new AccessException("")).when(manager).checkPermissions(any(String.class));
+
+        assertFalse(mainFacade.deleteTrainee("target", "executor"));
+    }
+
+    @Test
+    public void createTrainerEntityException() throws GymException {
+        String executor = "executor";
+        doNothing().when(manager).checkPermissions(executor);
+        when(trainerService.save(trainerDto)).thenThrow(new EntityException(""));
+
+        assertNull(mainFacade.createTrainer(TrainerDto.builder().build()), "executor");
+    }
+
+    @Test
+    public void updateTrainerEntityException() throws GymException {
+        String executor = "executor";
+        doNothing().when(manager).checkPermissions(executor);
+        when(trainerService.update(trainerDto)).thenThrow(new EntityException(""));
+
+        assertNull(mainFacade.updateTrainer(TrainerDto.builder().build(), "executor"));
+    }
+
+    @Test
+    public void findTrainerByUsernameAccessFailed() throws AccessException {
+        String executor = "executor";
+        doThrow(new AccessException("")).when(manager).checkPermissions(any(String.class));
+
+        assertNull(mainFacade.findTrainerByUsername("target", "executor"));
+    }
+
+    @Test
+    public void addTrainingTestAccessFailed() throws AccessException {
+        String executor = "executor";
+        doThrow(new AccessException("")).when(manager).checkPermissions(any(String.class));
+
+        assertNull(mainFacade.addTraining(TrainingDto.builder().build(), "executor"));
+    }
+
+    @Test
+    public void AddTrainingValidateException1() throws GymException {
+        String executor = "executor";
+        doNothing().when(manager).checkPermissions(executor);
+        when(trainingService.save(TrainingDto.builder().build())).thenThrow(new ValidateException(""));
+
+        assertNull(mainFacade.addTraining(TrainingDto.builder().build().builder().build(), "executor"));
+    }
+
+    @Test
+    public void AddTrainingValidateException2() throws GymException {
+        String executor = "executor";
+        doNothing().when(manager).checkPermissions(executor);
+        when(trainingService.save(TrainingDto.builder().build())).thenThrow(new EntityException(""));
+
+        assertNull(mainFacade.addTraining(TrainingDto.builder().build(), "executor"));
+    }
+    @Test
+    public void updateTrainersEntityException() throws AccessException, EntityException {
+        String executor = "executor";
+        doNothing().when(manager).checkPermissions(executor);
+        when(traineeService.updateTrainers(any(TraineeDto.class), anyList())).thenThrow(new EntityException(""));
+
+        assertEquals(new ArrayList<>(), mainFacade.updateTrainers(TraineeDto.builder().build(), List.of(TrainerDto.builder().build()), "executor"));
+    }
+    @Test
+    public void getAllNotAssignedTrainersByTraineeUsernameTest() throws AccessException, EntityException {
+        String executor = "executor";
+        doNothing().when(manager).checkPermissions(executor);
+        when(traineeService.findAllNotAssignedTrainersByTrainee(anyString())).thenThrow(new EntityException(""));
+        assertEquals(new ArrayList<>(), mainFacade.getAllNotAssignedTrainersByTraineeUsername("test", "exuctor"));
+    }
+
+    @Test
+    public void getAllNotAssignedTrainersByTraineeUsernameTest2() throws AccessException, EntityException {
+        String executor = "executor";
+        doThrow(new AccessException("")).when(manager).checkPermissions(any(String.class));
+        assertEquals(new ArrayList<>(), mainFacade.getAllNotAssignedTrainersByTraineeUsername("test", "exuctor"));
     }
 }

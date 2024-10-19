@@ -10,21 +10,15 @@ repositories {
 }
 
 dependencies {
-//    implementation 'org.springframework:spring-context:6.1.12'
     implementation 'org.springframework.data:spring-data-jpa:3.3.3'
     implementation 'org.hibernate.orm:hibernate-core:6.6.0.Final'
     implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final' // validator
-
+    annotationProcessor 'org.hibernate.orm:hibernate-jpamodelgen:6.6.0.Final' // for convenient using criteria API
 
     implementation 'com.zaxxer:HikariCP:6.0.0'// connection pool
 
-
-
-    implementation 'org.postgresql:postgresql:42.7.4'
+    implementation 'org.postgresql:postgresql:42.7.4' // database
     implementation 'org.liquibase:liquibase-core:4.29.2' // database migration
-
-    implementation 'org.aspectj:aspectjrt:1.9.19' //AOP
-    implementation 'org.aspectj:aspectjweaver:1.9.19' //AOP
 
     compileOnly 'org.projectlombok:lombok:1.18.28'
     annotationProcessor 'org.projectlombok:lombok:1.18.28'
@@ -36,6 +30,9 @@ dependencies {
 
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0' // work with JSON
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.0' // for working with LocalData and other
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 
     testImplementation 'org.mockito:mockito-core:5.2.0'
     testImplementation 'org.mockito:mockito-inline:5.2.0'

@@ -1,13 +1,11 @@
 package com.krasnopolskyi.repository.impl;
 
-import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.repository.TrainerRepository;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.NativeQuery;
-import org.hibernate.query.SelectionQuery;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

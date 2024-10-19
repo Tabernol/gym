@@ -1,6 +1,7 @@
 package com.krasnopolskyi.service.impl;
 
 import com.krasnopolskyi.dto.request.UserDto;
+import com.krasnopolskyi.entity.Role;
 import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.repository.impl.TrainerRepositoryImpl;
 import com.krasnopolskyi.dto.request.TrainerDto;
@@ -16,11 +17,9 @@ import com.krasnopolskyi.service.UserService;
 import com.krasnopolskyi.utils.mapper.TrainerMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 
 @Service
 @Slf4j
@@ -33,19 +32,18 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     @Transactional
-    public TrainerResponseDto save(TrainerDto trainerDto) throws GymException {
+    public TrainerResponseDto save(TrainerDto trainerDto) throws ValidateException, EntityException {
         validate(trainerDto); // validate specialization
         TrainingType specialization = trainingTypeService.findById(trainerDto.getSpecialization()); // receive specialization
 
         User newUser = userService
                 .create(new UserDto(trainerDto.getFirstName(),
-                        trainerDto.getLastName())); //return user with firstName, lastName, username, password, isActive
+                        trainerDto.getLastName(), Role.TRAINER)); //return user with firstName, lastName, username, password, isActive
         Trainer trainer = new Trainer();
         trainer.setUser(newUser);
         trainer.setSpecialization(specialization);
 
         Trainer saveTrainer = trainerRepository.save(trainer);// save entity
-        log.debug("trainer has been saved " + trainer.getId());
         return TrainerMapper.mapToDto(saveTrainer);
     }
 
@@ -89,7 +87,7 @@ public class TrainerServiceImpl implements TrainerService {
         try {
             trainingTypeService.findById(trainerDto.getSpecialization());
         } catch (EntityException e) {
-            log.debug("Attempt to save trainer with does not exist specialization " + trainerDto.getSpecialization());
+            log.warn("Attempt to save trainer with does not exist specialization " + trainerDto.getSpecialization());
             throw new ValidateException("Specialisation with id " + trainerDto.getSpecialization() + " does not exist");
         }
     }

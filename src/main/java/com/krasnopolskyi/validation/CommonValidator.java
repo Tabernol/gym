@@ -8,6 +8,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
+/**
+ * This class use Validator from configuration and collect to Set all constraint violation in DTO
+ * These annotations were used in DTOs classes
+ */
 @Component
 @RequiredArgsConstructor
 public class CommonValidator {

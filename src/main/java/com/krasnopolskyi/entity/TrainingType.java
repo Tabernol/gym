@@ -12,6 +12,7 @@ public class TrainingType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     @Column(name = "training_type_name")
     private String type;
 }

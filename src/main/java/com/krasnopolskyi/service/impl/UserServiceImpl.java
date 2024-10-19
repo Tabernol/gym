@@ -6,7 +6,6 @@ import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.repository.UserRepository;
 import com.krasnopolskyi.entity.User;
-import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.UserService;
 import com.krasnopolskyi.utils.PasswordGenerator;
 import com.krasnopolskyi.utils.UsernameGenerator;
@@ -23,7 +22,7 @@ public class UserServiceImpl implements UserService {
     private final UsernameGenerator usernameGenerator;
 
     @Override
-    public User create(UserDto userDto) throws ValidateException {
+    public User create(UserDto userDto) {
         String username = usernameGenerator.generateUsername(userDto.firstName(), userDto.lastName());
         String password = PasswordGenerator.generatePassword();
         User user = new User();
@@ -32,18 +31,16 @@ public class UserServiceImpl implements UserService {
         user.setUsername(username);
         user.setPassword(password);
         user.setIsActive(true);
-        log.debug("User has been created " + user);
+        user.setRole(userDto.role());
         return user;
     }
-
     @Override
     public User findById(Long id) throws EntityException {
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityException("Could not found user with id " + id));
     }
 
-    @Override
-    public User findByUsername(String username) throws EntityException {
+    private User findByUsername(String username) throws EntityException {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityException("Could not found user: " + username));
     }
@@ -62,7 +59,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User changePassword(String username, String password) throws GymException {
-        // authorization
         User user = findByUsername(username);
         user.setPassword(password);
         return userRepository.update(user);

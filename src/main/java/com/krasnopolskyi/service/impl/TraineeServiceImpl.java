@@ -6,11 +6,11 @@ import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.request.UserDto;
 import com.krasnopolskyi.dto.response.TraineeResponseDto;
 import com.krasnopolskyi.dto.response.TrainerResponseDto;
+import com.krasnopolskyi.entity.Role;
 import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.User;
 import com.krasnopolskyi.exception.EntityException;
-import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.repository.TraineeRepository;
 import com.krasnopolskyi.repository.TrainerRepository;
 import com.krasnopolskyi.service.TraineeService;
@@ -36,10 +36,10 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     @Transactional
-    public TraineeResponseDto save(TraineeDto traineeDto) throws ValidateException {
+    public TraineeResponseDto save(TraineeDto traineeDto) {
         User newUser = userService
                 .create(new UserDto(traineeDto.getFirstName(),
-                        traineeDto.getLastName())); //return user with firstName, lastName, username, password, isActive
+                        traineeDto.getLastName(), Role.TRAINEE)); //return user with firstName, lastName, username, password, isActive
 
         Trainee trainee = TraineeMapper.mapToEntity(traineeDto, newUser);
 
@@ -49,14 +49,14 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    @Transactional()
+    @Transactional(readOnly = true)
     public TraineeResponseDto findById(Long id) throws EntityException {
         return TraineeMapper.mapToDto(findTraineeById(id));
 
     }
 
     @Override
-    @Transactional()
+    @Transactional(readOnly = true) //generate test
     public TraineeResponseDto findByUsername(String username) throws EntityException {
         return traineeRepository.findByUsername(username)
                 .map(trainee -> TraineeMapper.mapToDto(trainee))
@@ -91,7 +91,7 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    @Transactional
+    @Transactional //generate test
     public List<TrainerResponseDto> updateTrainers(TraineeDto traineeDto, List<TrainerDto> trainerDtoList) throws EntityException {
         Trainee trainee = findTraineeById(traineeDto.getId());
         trainee.getTrainers().clear();
@@ -109,13 +109,13 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    @Transactional
+    @Transactional //generate test
     public List<TrainerResponseDto> findAllNotAssignedTrainersByTrainee(String username) throws EntityException {
         Trainee trainee = traineeRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityException("Can't find trainee with username " + username));
 
         List<Trainer> allTrainers = trainerRepository.findAll();
-        allTrainers.removeAll(trainee.getTrainers()); // todo check this
+        allTrainers.removeAll(trainee.getTrainers());
         return allTrainers.stream().map(TrainerMapper::mapToDto).toList();
     }
 

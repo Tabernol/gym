@@ -1,8 +1,6 @@
 package com.krasnopolskyi.repository;
 
-import com.krasnopolskyi.dto.request.TrainingFilterDto;
 import com.krasnopolskyi.entity.Trainer;
-import com.krasnopolskyi.entity.Training;
 
 import java.util.List;
 import java.util.Optional;

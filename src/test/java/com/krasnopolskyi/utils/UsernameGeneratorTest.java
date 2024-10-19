@@ -90,19 +90,4 @@ public class UsernameGeneratorTest {
         verify(userRepository).isUsernameExist("jane.smith3");
         verify(userRepository).isUsernameExist("jane.smith4");
     }
-
-    @Test
-    void testGenerateUsername_emptyNames() {
-        // Given
-        String firstName = "";
-        String lastName = "";
-
-        // When & Then
-        ValidateException thrown = assertThrows(ValidateException.class, () -> {
-            usernameGenerator.generateUsername(firstName, lastName);
-        });
-
-        // Assert the expected exception message
-        assertEquals("First name or Last name must consist of at least two letters", thrown.getMessage());
-    }
 }

@@ -17,13 +17,15 @@ public class Trainee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private LocalDate dateOfBirth;
+
     private String address;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
 
-    //    @ManyToMany(mappedBy = "trainees")
     @ManyToMany
     @JoinTable(
             name = "trainer_trainee",

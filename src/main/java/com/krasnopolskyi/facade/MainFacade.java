@@ -66,11 +66,10 @@ public class MainFacade {
             return trainee;
         } catch (ConstraintViolationException e) {
             log.warn("Validation failed: " + e.getMessage());
-            return null;
-        } catch (GymException e) {
-            log.warn("Registration failed " + e.getMessage());
-            return null;
+        } catch (ValidateException | EntityException e) {
+            log.warn(e.getMessage());
         }
+        return null;
     }
 
     public TraineeResponseDto findTraineeByUsername(String username, String executor) {
@@ -112,11 +111,10 @@ public class MainFacade {
             return isDeleted;
         } catch (EntityException e) {
             log.warn("Failed attempt to delete trainee " + e.getMessage());
-            return false;
         } catch (AccessException e) {
             log.warn(e.getMessage());
-            return false;
         }
+        return false;
     }
     ///////////////////////trainer///////////////////////////////////
 
@@ -128,8 +126,8 @@ public class MainFacade {
             return trainer;
         } catch (ConstraintViolationException e) {
             log.warn("Validation failed: " + e.getMessage());
-        } catch (GymException e) {
-            log.warn("Registration failed " + e.getMessage());
+        } catch (ValidateException | EntityException e) {
+            log.warn(e.getMessage());
         }
         return null;
     }
@@ -173,12 +171,13 @@ public class MainFacade {
             TrainingResponseDto training = trainingService.save(trainingDto);
             log.info("Trainining saved successfully");
             return training;
+        } catch (AccessException e) {
+            log.warn(e.getMessage());
         } catch (ConstraintViolationException e) {
             log.warn("Validation failed: " + e.getMessage());
-            return null;
         } catch (ValidateException e) {
             log.warn("adding training session failed " + e.getMessage());
-        } catch (AccessException e) {
+        }  catch (EntityException e) {
             log.warn(e.getMessage());
         }
         return null;
@@ -191,9 +190,9 @@ public class MainFacade {
             return trainingService.getFilteredTrainings(filterDto);
         } catch (ConstraintViolationException e) {
             log.warn("Validation failed: " + e.getMessage());
-        } catch (ValidateException e) {
-            log.warn("Something went wrong " + e.getMessage());
         } catch (AccessException e) {
+            log.warn(e.getMessage());
+        } catch (EntityException e) {
             log.warn(e.getMessage());
         }
         return new ArrayList<>();

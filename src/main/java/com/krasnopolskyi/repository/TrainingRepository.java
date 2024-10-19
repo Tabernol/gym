@@ -1,11 +1,7 @@
 package com.krasnopolskyi.repository;
 
-import com.krasnopolskyi.dto.request.TrainingDto;
 import com.krasnopolskyi.dto.request.TrainingFilterDto;
-import com.krasnopolskyi.dto.response.TrainingResponseDto;
-import com.krasnopolskyi.entity.Trainee;
 import com.krasnopolskyi.entity.Training;
-import com.krasnopolskyi.entity.User;
 
 import java.util.List;
 import java.util.Optional;

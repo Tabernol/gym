@@ -10,10 +10,7 @@ import org.springframework.stereotype.Component;
 public class UsernameGenerator {
     private final UserRepository userRepository;
 
-    public String generateUsername(String firstName, String lastName) throws ValidateException {
-        if(firstName.length() < 2 || lastName.length() < 2){
-            throw new ValidateException("First name or Last name must consist of at least two letters");
-        }
+    public String generateUsername(String firstName, String lastName) {
         int count = 1;
         String template = firstName.toLowerCase() + "." + lastName.toLowerCase();
         String username = template;

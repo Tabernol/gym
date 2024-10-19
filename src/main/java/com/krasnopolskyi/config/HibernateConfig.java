@@ -48,6 +48,7 @@ public class HibernateConfig {
         return new HikariDataSource(hikariConfig);
     }
 
+    // bean manages database migration
     @Bean
     public SpringLiquibase liquibase(DataSource dataSource) {
         SpringLiquibase liquibase = new SpringLiquibase();

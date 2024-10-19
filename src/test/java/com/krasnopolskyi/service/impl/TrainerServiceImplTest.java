@@ -2,6 +2,7 @@ package com.krasnopolskyi.service.impl;
 
 import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.request.UserDto;
+import com.krasnopolskyi.dto.response.TraineeResponseDto;
 import com.krasnopolskyi.dto.response.TrainerResponseDto;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.TrainingType;
@@ -156,5 +157,22 @@ class TrainerServiceImplTest {
 
         // Verify interactions
         verify(trainerRepository, times(1)).save(any(Trainer.class));
+    }
+
+    @Test
+    void findByUsernameThrowsException() {
+        String username = "testUser";
+        when(trainerRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
+        assertThrows(EntityException.class, ()-> trainerService.findByUsername("test"));
+    }
+
+    @Test
+    void testFindByUsernameSuccess() throws EntityException {
+        String username = "testUser";
+        when(trainerRepository.findByUsername(any(String.class))).thenReturn(Optional.of(trainer));
+
+        TrainerResponseDto result = trainerService.findByUsername(username);
+
+        assertNotNull(result);
     }
 }

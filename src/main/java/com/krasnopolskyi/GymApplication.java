@@ -81,25 +81,22 @@ public class GymApplication {
 
         log.info("===================== training ==============================");
 //        TrainingDto first = TrainingDto.builder()
-//                .traineeId(1L)
-//                .trainerId(2L)
-//                .trainingType(2)
-//                .date(LocalDate.of(2020, 6, 2))
+//                .traineeId(2L)
+//                .trainerId(1L)
+//                .trainingType(1)
+//                .date(LocalDate.of(2024, 6, 2))
 //                .trainingName("second")
-//                .duration(10)
+//                .duration(40)
 //                .build();
 //        TrainingResponseDto training = facade.addTraining(first, "usain.bolt");
         /////////////////////////////////////////////////////////
 //        TrainingFilterDto filterDto = TrainingFilterDto.builder()
 //                .owner("john.doe")
-////                .owner("usain.bolt")
-////                .startDate(LocalDate.of(2021,1,1))
-////                .endDate(LocalDate.of(2024,7,1))
-////                .trainingType("Cardio")
-////                .partner("john.doe")
+//                .startDate(LocalDate.of(2023,1,1))
+//                .endDate(LocalDate.of(2024,7,1))
+//                .trainingType("Cardio")
+//                .partner("usain.bolt")
 //                .build();
-//
-//        //todo for working with both
 //        List<TrainingResponseDto> trainings = facade
 //                .getAllTrainingsByUsernameAndFilter(filterDto, "usain.bolt");
 //        log.info("Size " + trainings.size());

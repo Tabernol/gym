@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Simple class for Authentication. Provide functional for log in, but does not for log out
+ */
 @Component
 @Slf4j
 public class AuthenticationManager {
@@ -40,6 +43,7 @@ public class AuthenticationManager {
 
     public void checkPermissions(String username) throws AccessException {
         if (!users.contains(username)) {
+            log.warn("Access was denied for user " + username);
             throw new AccessException("Please check your credentials and try again");
         }
     }

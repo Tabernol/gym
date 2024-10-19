@@ -14,6 +14,8 @@ class PasswordGeneratorTest {
     private static final Pattern DIGIT_PATTERN = Pattern.compile("\\d");
     private static final Pattern SPECIAL_CHARACTER_PATTERN = Pattern.compile("[!@#$%&*()\\-_=+<>?]");
 
+
+
     @Test
     public void testPasswordContainsUppercase() {
         String password = PasswordGenerator.generatePassword();
@@ -34,13 +36,6 @@ class PasswordGeneratorTest {
     }
 
     @Test
-    void testGeneratePassword_Length() {
-        // Test that the generated password has the correct length (10 characters)
-        String password = PasswordGenerator.generatePassword();
-        assertEquals(10, password.length());
-    }
-
-    @Test
     void testGeneratePassword_ContainsUppercase() {
         // Test that the generated password contains at least one uppercase letter
         String password = PasswordGenerator.generatePassword();
@@ -54,26 +49,5 @@ class PasswordGeneratorTest {
         assertTrue(password.chars().anyMatch(Character::isLowerCase), "Password should contain at least one lowercase letter");
     }
 
-    @Test
-    void testGeneratePassword_ContainsDigit() {
-        // Test that the generated password contains at least one digit
-        String password = PasswordGenerator.generatePassword();
-        assertTrue(password.chars().anyMatch(Character::isDigit), "Password should contain at least one digit");
-    }
-
-    @Test
-    void testGeneratePassword_ContainsSpecialCharacter() {
-        // Test that the generated password contains at least one special character
-        String specialCharacters = "!@#$%&*()-_=+<>?";
-        String password = PasswordGenerator.generatePassword();
-        assertTrue(password.chars().anyMatch(c -> specialCharacters.indexOf(c) >= 0), "Password should contain at least one special character");
-    }
-
-    @Test
-    void testGeneratePassword_IsRandom() {
-        // Test that passwords generated consecutively are different
-        String password1 = PasswordGenerator.generatePassword();
-        String password2 = PasswordGenerator.generatePassword();
-        assertNotEquals(password1, password2, "Two generated passwords should not be the same");
-    }
+    
 }

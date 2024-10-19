@@ -14,7 +14,7 @@ public class ValidatorConfig {
     public Validator validator(){
         ValidatorFactory factory = Validation.byDefaultProvider()
                 .configure()
-                .messageInterpolator(new ParameterMessageInterpolator()) // Avoid EL
+                .messageInterpolator(new ParameterMessageInterpolator())
                 .buildValidatorFactory();
         return factory.getValidator();
     }
