@@ -75,7 +75,7 @@ To set up the project locally, follow these steps:
 
    ```bash
    git clone https://github.com/Tabernol/gym
-   cd gym-crm-system
+   cd gym
    ```
 
 2. Install dependencies and configure the database using Liquibase.
