@@ -1,57 +1,71 @@
+
 # Gym CRM System
 
-This project is a Spring-based module designed to handle a gym CRM (Customer Relationship Management) system. It leverages core Spring features such as Inversion of Control (IoC), Dependency Injection (DI), Aspect-Oriented Programming (AOP), and more. This project serves as a practical learning experience for mastering these concepts.
+This project is a Hibernate-based module designed to manage profiles for trainees and trainers, as well as training sessions within a gym CRM system. The system uses Liquibase for database management and features manual transaction and validation configurations. This project focuses on mastering Hibernate ORM, transaction management, and unit testing.
 
 ## Table of Contents
 
 - [Project Overview](#project-overview)
-- [Storage Initialization](#storage-initialization)
 - [Features](#features)
 - [Technologies Used](#technologies-used)
+- [Database Management](#database-management)
 - [Setup Instructions](#setup-instructions)
 
 ## Project Overview
 
-The gym CRM system provides the ability to manage profiles for trainees and trainers, as well as training sessions. The project includes:
+The Gym CRM system allows for the management of trainee and trainer profiles, as well as training sessions. It ensures proper username and password matching, profile activation/deactivation, and management of training assignments.
 
-1. **Service Classes**:
-    - **TraineeService**: Handles creation, updating, deletion, and selection of trainee profiles.
-    - **TrainerService**: Manages creation, updating, and selection of trainer profiles.
-    - **TrainingService**: Responsible for creating and selecting training profiles.
+### Key Services
 
-2. **Data Access Objects (DAOs)**: Each domain model entity (Trainer, Trainee, Training) is handled by a separate DAO that interacts with an in-memory storage (Java Map).
+- **TrainerService**: Handles creating, updating, selecting, and managing trainer profiles.
+- **TraineeService**: Manages creation, update, selection, and deletion of trainee profiles.
+- **TrainingService**: Responsible for adding and retrieving training sessions based on criteria.
 
-3. **Dependency Injection**: The application utilizes various strategies for Dependency Injection (DI)
+All services ensure imitate authentication, except creating new profiles.
 
-## Storage Initialization
+### Main Concepts Implemented
 
-The system initializes storage with predefined data from files at startup using a combination of techniques:
-
-1. **Loading Data with @PostConstruct**: The application loads data from specific files located in the `data/save` directory of the project (e.g., `trainees.json`). This is accomplished using the `@PostConstruct` annotation, ensuring that the loading process is executed after the bean's construction and dependency injection are complete.
-
-2. **Data Loading via BeanPostProcessor**: In addition to the above, the application employs a BeanPostProcessor to load data from CSV and JSON files located in the resources folder. The system checks if the bean is an instance of a specific data loader and invokes the respective method to handle the data loading process automatically during the bean initialization phase.
-
-3. **Data Persistence**: The saving of data to files is managed using Aspect-Oriented Programming (AOP). After invoking any method related to saving or deleting a repository entry, the system automatically persists the relevant data back to the corresponding files in the `data/save` directory.
+- **One-to-One Relationship**: Users table has a parent-child relationship with both Trainee and Trainer tables.
+- **Many-to-Many Relationship**: Trainees and trainers can be linked to multiple profiles.
+- **Transactional Operations**: Important actions are executed in transactions to ensure data integrity.
+- **Cascade Deletion**: Deleting a trainee profile results in the deletion of associated training sessions.
 
 ## Features
 
-- **Profile Management**: Create, update, delete, and select trainee and trainer profiles.
-- **Training Management**: Create and select training profiles.
-- **Username and Password Generation**:
-    - Username is generated from the first and last names concatenated with a dot (e.g., `john.smith`).
-    - If a username already exists, a serial number is appended to ensure uniqueness.
-    - Passwords are randomly generated as 10-character strings.
-- **Aspect-Oriented Programming**: AOP is used for serialising maps to JSON files and save it for further using.
+1. **Profile Management**
+    - Create and update Trainer profiles, and delete Trainee profiles.
+    - Password change, profile activation, and deactivation.
+    - Hard delete operations with cascading deletion for associated trainings.
+
+2. **Authentication and Security**
+    - Username and password generation for both trainers and trainees.
+    - Trainee and Trainer authentication based on username and password matching.
+
+3. **Training Management**
+    - Add new training sessions and retrieve them by criteria (date range, trainee/trainer name, type).
+    - Manage trainees’ trainers list.
+
+4. **Training Types Management**
+    - Fixed list of training types (one-to-many relationship with trainings).
 
 ## Technologies Used
 
-- **Spring Framework**: For dependency injection and AOP.
-- **AspectJ**: For aspect-oriented programming.
-- **Lombok**: To reduce boilerplate code.
-- **SLF4J**: For logging purposes.
-- **JUnit & Mockito**: For unit testing.
+- **Spring Framework**: Core dependency injection and transaction management.
+- **Hibernate**: ORM for managing the database and entity relations.
+- **Liquibase**: Database migration and version control.
+- **PostgreSQL**: Database.
+- **JUnit & Mockito**: Unit testing.
 - **Jackson**: For JSON processing.
-- **Hutool**: For generating unique IDs.
+
+## Database Management
+
+- **Liquibase**: Used for managing database changes and applying migrations.
+- **Hibernate Configuration**: Hibernate is manually configured to work with the PostgreSQL and transaction in declarative style.
+
+### Validation and Integrity
+
+- Validation checks ensure that required fields are populated before creating or updating profiles. Also uses custom validation for date.
+- Authentication checks are required for most actions except for creating profiles.
 
 ## Setup Instructions
 
@@ -60,5 +74,17 @@ To set up the project locally, follow these steps:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/Tabernol/gym/tree/dev-spring-core
+   git clone https://github.com/Tabernol/gym
    cd gym-crm-system
+   ```
+
+2. Install dependencies and configure the database using Liquibase.
+
+3. Run the project using your preferred IDE.
+
+4. Execute unit tests:
+
+   ```bash
+   ./gradlew test
+   ```
+
