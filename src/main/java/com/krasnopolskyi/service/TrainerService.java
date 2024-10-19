@@ -2,14 +2,8 @@ package com.krasnopolskyi.service;
 
 import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.response.TrainerResponseDto;
-import com.krasnopolskyi.exception.EntityNotFoundException;
-import com.krasnopolskyi.exception.GymException;
+import com.krasnopolskyi.exception.EntityException;
 
-public interface TrainerService {
-
-    TrainerResponseDto save(TrainerDto trainerDto) throws GymException;
-
-    TrainerResponseDto findById(Long id) throws EntityNotFoundException;
-
-    TrainerResponseDto update(TrainerDto trainerDto) throws GymException;
+public interface TrainerService extends BaseCrudService<TrainerResponseDto, TrainerDto> {
+    TrainerResponseDto findByUsername(String username) throws EntityException;
 }

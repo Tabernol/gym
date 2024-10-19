@@ -1,63 +1,74 @@
 package com.krasnopolskyi.service.impl;
 
-import com.krasnopolskyi.database.dao.UserRepository;
+import com.krasnopolskyi.dto.request.UserCredentials;
 import com.krasnopolskyi.dto.request.UserDto;
+import com.krasnopolskyi.exception.EntityException;
+import com.krasnopolskyi.exception.GymException;
+import com.krasnopolskyi.repository.UserRepository;
 import com.krasnopolskyi.entity.User;
-import com.krasnopolskyi.exception.EntityNotFoundException;
-import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.UserService;
-import com.krasnopolskyi.utils.IdGenerator;
 import com.krasnopolskyi.utils.PasswordGenerator;
 import com.krasnopolskyi.utils.UsernameGenerator;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    // initialized via autowired because task condition 4
-    // I prefer initialized via constructor
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private UsernameGenerator usernameGenerator;
+    private final UserRepository userRepository;
+    private final UsernameGenerator usernameGenerator;
 
     @Override
-    public User save(UserDto userDto) throws ValidateException {
-        long id = IdGenerator.generateId();
-        // can throw ValidateException
-        String username = usernameGenerator
-                .generateUsername(userDto.getFirstName(), userDto.getLastName());
+    public User create(UserDto userDto) {
+        String username = usernameGenerator.generateUsername(userDto.firstName(), userDto.lastName());
         String password = PasswordGenerator.generatePassword();
-        User user = User.builder()
-                .id(id)
-                .firstName(userDto.getFirstName())
-                .lastName(userDto.getLastName())
-                .username(username)
-                .password(password)
-                .isActive(true)
-                .build();
-        User save = userRepository.save(user);
-        log.debug("User has been saved " + save.getId());
-        return save;
+        User user = new User();
+        user.setFirstName(userDto.firstName());
+        user.setLastName(userDto.lastName());
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setIsActive(true);
+        user.setRole(userDto.role());
+        return user;
     }
-
     @Override
-    public User findById(Long id) throws EntityNotFoundException {
+    public User findById(Long id) throws EntityException {
         return userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Could not found user with id " + id));
+                .orElseThrow(() -> new EntityException("Could not found user with id " + id));
+    }
+
+    private User findByUsername(String username) throws EntityException {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityException("Could not found user: " + username));
     }
 
     @Override
-    public User update(User user) {
-        return userRepository.save(user);
+    @Transactional
+    public boolean checkCredentials(UserCredentials credentials) throws EntityException {
+        User user = findByUsername(credentials.username());
+
+        if (user.getPassword().equals(credentials.password())) {
+            return true;
+        }
+        return false;
     }
 
     @Override
-    public boolean delete(User user) {
-        log.debug("attempt to delete user " + user.getId());
-        return userRepository.delete(user);
+    @Transactional
+    public User changePassword(String username, String password) throws GymException {
+        User user = findByUsername(username);
+        user.setPassword(password);
+        return userRepository.update(user);
+    }
+
+    @Override
+    @Transactional
+    public User changeActivityStatus(String target) throws GymException {
+        User user = findByUsername(target);
+        user.setIsActive(!user.getIsActive()); //status changes here
+        return userRepository.update(user);
     }
 }

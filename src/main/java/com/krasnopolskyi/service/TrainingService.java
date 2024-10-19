@@ -1,12 +1,17 @@
 package com.krasnopolskyi.service;
 
 import com.krasnopolskyi.dto.request.TrainingDto;
-import com.krasnopolskyi.entity.Training;
-import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.dto.request.TrainingFilterDto;
+import com.krasnopolskyi.dto.response.TrainingResponseDto;
+import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.ValidateException;
 
-public interface TrainingService {
-    Training save(TrainingDto trainingDto) throws ValidateException;
+import java.util.List;
 
-    Training findById(Long id) throws EntityNotFoundException;
+public interface TrainingService {
+    TrainingResponseDto save(TrainingDto trainingDto) throws ValidateException, EntityException;
+
+    TrainingResponseDto findById(Long id) throws EntityException;
+
+    List<TrainingResponseDto> getFilteredTrainings(TrainingFilterDto filter) throws EntityException;
 }

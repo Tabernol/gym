@@ -1,0 +1,64 @@
+databaseChangeLog:
+  - changeSet:
+      id: create_training_type_table
+      author: maks
+      changes:
+        - sqlFile:
+            path: db/changelog/tables/training_type.sql
+            relativeToChangelogFile: false
+  - changeSet:
+      id: create_users_table
+      author: maks
+      changes:
+        - sqlFile:
+            path: db/changelog/tables/users.sql
+            relativeToChangelogFile: false
+  - changeSet:
+      id: create_trainee_table
+      author: maks
+      changes:
+        - sqlFile:
+            path: db/changelog/tables/trainee.sql
+            relativeToChangelogFile: false
+  - changeSet:
+      id: create_trainer_table
+      author: maks
+      changes:
+        - sqlFile:
+            path: db/changelog/tables/trainer.sql
+            relativeToChangelogFile: false
+  - changeSet:
+      id: create_training_table
+      author: maks
+      changes:
+        - sqlFile:
+            path: db/changelog/tables/training.sql
+            relativeToChangelogFile: false
+  - changeSet:
+      id: create_trainer_trainee_table
+      author: maks
+      changes:
+        - sqlFile:
+            path: db/changelog/tables/trainer_trainee.sql
+            relativeToChangelogFile: false
+  - changeSet:
+      id: insert_training_type_default_data
+      author: maks
+      changes:
+        - sqlFile:
+            path: db/changelog/data/training_type_default_data.sql
+            relativeToChangelogFile: false
+  - changeSet:
+      id: insert_trainer_default_data
+      author: maks
+      changes:
+        - sqlFile:
+            path: db/changelog/data/trainer_default_data.sql
+            relativeToChangelogFile: false
+  - changeSet:
+      id: insert_trainee_default_data
+      author: maks
+      changes:
+        - sqlFile:
+            path: db/changelog/data/trainee_default_data.sql
+            relativeToChangelogFile: false

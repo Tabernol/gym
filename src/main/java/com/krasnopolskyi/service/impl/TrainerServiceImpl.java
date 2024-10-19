@@ -1,97 +1,94 @@
 package com.krasnopolskyi.service.impl;
 
-import com.krasnopolskyi.database.dao.TrainerRepository;
-import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.request.UserDto;
+import com.krasnopolskyi.entity.Role;
+import com.krasnopolskyi.exception.EntityException;
+import com.krasnopolskyi.repository.impl.TrainerRepositoryImpl;
+import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.response.TrainerResponseDto;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.TrainingType;
 import com.krasnopolskyi.entity.User;
-import com.krasnopolskyi.exception.EntityNotFoundException;
 import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TrainerService;
 import com.krasnopolskyi.service.TrainingTypeService;
 import com.krasnopolskyi.service.UserService;
-import com.krasnopolskyi.utils.IdGenerator;
+import com.krasnopolskyi.utils.mapper.TrainerMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class TrainerServiceImpl implements TrainerService {
-    // initialized via autowired because task condition 4
-    // I prefer initialized via constructor
-    @Autowired
-    private TrainerRepository trainerRepository;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private TrainingTypeService trainingTypeService;
+
+    private final TrainerRepositoryImpl trainerRepository;
+    private final UserService userService;
+    private final TrainingTypeService trainingTypeService;
 
     @Override
-    public TrainerResponseDto save(TrainerDto trainerDto) throws GymException {
+    @Transactional
+    public TrainerResponseDto save(TrainerDto trainerDto) throws ValidateException, EntityException {
         validate(trainerDto); // validate specialization
         TrainingType specialization = trainingTypeService.findById(trainerDto.getSpecialization()); // receive specialization
 
-        User savedUser = userService
-                .save(new UserDto(trainerDto.getFirstName(),
-                        trainerDto.getLastName())); //return user with id, username and password
-        long id = IdGenerator.generateId();
-        Trainer trainer = Trainer.builder()
-                .id(id)
-                .userId(savedUser.getId())
-                .specialization(specialization.getId())
-                .build();
-        trainerRepository.save(trainer);// save entity
-        log.debug("trainer has been saved " + trainer.getId());
-        return mapToDto(specialization, savedUser);
+        User newUser = userService
+                .create(new UserDto(trainerDto.getFirstName(),
+                        trainerDto.getLastName(), Role.TRAINER)); //return user with firstName, lastName, username, password, isActive
+        Trainer trainer = new Trainer();
+        trainer.setUser(newUser);
+        trainer.setSpecialization(specialization);
+
+        Trainer saveTrainer = trainerRepository.save(trainer);// save entity
+        return TrainerMapper.mapToDto(saveTrainer);
     }
 
     @Override
-    public TrainerResponseDto findById(Long id) throws EntityNotFoundException {
+    @Transactional(readOnly = true)
+    public TrainerResponseDto findById(Long id) throws EntityException {
         Trainer trainer = trainerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Could not found trainer with id " + id));
-        User user = userService.findById(trainer.getUserId()); // find user associated with trainer
-        TrainingType specialization = trainingTypeService.findById(trainer.getSpecialization()); // find specialization of trainee
-
-        return mapToDto(specialization, user);
+                .orElseThrow(() -> new EntityException("Could not found trainer with id " + id));
+        return TrainerMapper.mapToDto(trainer);
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public TrainerResponseDto findByUsername(String username) throws EntityException {
+        return trainerRepository.findByUsername(username)
+                .map(trainer -> TrainerMapper.mapToDto(trainer))
+                .orElseThrow(() -> new EntityException("Can't find trainer with username " + username));
+    }
+
+    @Override
+    @Transactional
     public TrainerResponseDto update(TrainerDto trainerDto) throws GymException {
-        validate(trainerDto); // validate specialization
         Trainer trainer = trainerRepository.findById(trainerDto.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Could not found trainer with id " + trainerDto.getId()));
+                .orElseThrow(() -> new EntityException("Could not found trainer with id " + trainerDto.getId()));
         //update user's fields
-        User user = userService.findById(trainer.getUserId()); // pass refreshed user to repository
-        user.setFirstName(trainerDto.getFirstName());
-        user.setLastName(trainerDto.getLastName());
-        userService.update(user);
+        User user = userService.findById(trainer.getUser().getId()); // get user from repository
+        user.setFirstName(trainerDto.getFirstName()); // here I change user's field and don't save them to trainer explicitly
+        user.setLastName(trainerDto.getLastName()); // but them also will be safe because this user exist in the same transaction
+
         //update trainer's fields
-        trainer.setSpecialization(trainer.getSpecialization());
-        Trainer saveDTrainer = trainerRepository.save(trainer); // pass refreshed trainer to repository
-        TrainingType newSpecialization = trainingTypeService.findById(saveDTrainer.getSpecialization()); // received specialization
-        log.debug("trainer has been updated " + trainer.getId());
-        return mapToDto(newSpecialization, user);
+        if(trainerDto.getSpecialization() != null){
+            TrainingType specialization = trainingTypeService.findById(trainerDto.getSpecialization());
+            trainer.setSpecialization(specialization);
+        }
+        Trainer savedTrainer = trainerRepository.save(trainer); // pass refreshed trainer to repository
+        return TrainerMapper.mapToDto(savedTrainer);
     }
 
 
     private void validate(TrainerDto trainerDto) throws ValidateException {
         try {
             trainingTypeService.findById(trainerDto.getSpecialization());
-        } catch (EntityNotFoundException e) {
-            log.debug("Attempt to save trainer with wrong specialization " + trainerDto.getSpecialization());
+        } catch (EntityException e) {
+            log.warn("Attempt to save trainer with does not exist specialization " + trainerDto.getSpecialization());
             throw new ValidateException("Specialisation with id " + trainerDto.getSpecialization() + " does not exist");
         }
-    }
-
-    private TrainerResponseDto mapToDto(TrainingType specialization, User user) {
-        return new TrainerResponseDto(
-                user.getFirstName(),
-                user.getLastName(),
-                user.getUsername(),
-                specialization.getType());
     }
 }

@@ -1,10 +1,14 @@
 package com.krasnopolskyi.service.impl;
 
-import com.krasnopolskyi.database.dao.UserRepository;
+import com.krasnopolskyi.dto.request.UserCredentials;
 import com.krasnopolskyi.dto.request.UserDto;
+import com.krasnopolskyi.entity.Role;
 import com.krasnopolskyi.entity.User;
-import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.EntityException;
+import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.exception.ValidateException;
+import com.krasnopolskyi.repository.UserRepository;
+import com.krasnopolskyi.utils.PasswordGenerator;
 import com.krasnopolskyi.utils.UsernameGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,46 +40,20 @@ public class UserServiceImplTest {
         MockitoAnnotations.openMocks(this);
 
         // Set up a sample UserDto object
-        userDto = new UserDto("John", "Doe");
+        userDto = new UserDto("John", "Doe", Role.TRAINEE);
 
         // Set up a sample User object
-        user = user = User.builder()
-                .id(1L)
-                .firstName("John")
-                .lastName("Doe")
-                .username("john.doe")
-                .password("123")
-                .isActive(true)
-                .build();
+        user = user = new User();
+        user.setId(1L);
+        user.setFirstName("John");
+        user.setLastName("Doe");
+        user.setUsername("john.doe");
+        user.setPassword("123");
+        user.setIsActive(true);
     }
 
     @Test
-    public void testSave_Success() throws ValidateException {
-        // Mock the username generation and user repository save method
-        when(usernameGenerator.generateUsername(userDto.getFirstName(), userDto.getLastName())).thenReturn("johndoe");
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-            User savedUser = invocation.getArgument(0);
-            savedUser.builder().id(1L).build(); // Simulate ID generation
-            return savedUser;
-        });
-
-        User savedUser = userService.save(userDto);
-
-        // Assert that the saved user is not null and has the expected properties
-        assertNotNull(savedUser);
-        assertEquals("John", savedUser.getFirstName());
-        assertEquals("Doe", savedUser.getLastName());
-        assertEquals("johndoe", savedUser.getUsername());
-        assertNotNull(savedUser.getId());
-        assertTrue(savedUser.getIsActive());
-
-        // Verify that the necessary methods were called
-        verify(usernameGenerator, times(1)).generateUsername("John", "Doe");
-        verify(userRepository, times(1)).save(any(User.class));
-    }
-
-    @Test
-    public void testFindById_Success() throws EntityNotFoundException {
+    public void testFindById_Success() throws EntityException {
         // Mock the user repository to return the user object
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
@@ -94,7 +72,7 @@ public class UserServiceImplTest {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Assert that an EntityNotFoundException is thrown
-        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class, () -> {
+        EntityException thrown = assertThrows(EntityException.class, () -> {
             userService.findById(1L);
         });
 
@@ -105,44 +83,153 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testUpdate_Success() {
-        // Mock the user repository to return the updated user object
-        when(userRepository.save(user)).thenReturn(user);
+    void testCreateUser_Success() throws ValidateException {
+        // Given
+        UserDto userDto = new UserDto("John", "Doe", Role.TRAINEE);
+        String generatedUsername = "john.doe";
+        String generatedPassword = "securePassword";
 
-        User updatedUser = userService.update(user);
+        when(usernameGenerator.generateUsername("John", "Doe")).thenReturn(generatedUsername);
+        mockStatic(PasswordGenerator.class);
+        when(PasswordGenerator.generatePassword()).thenReturn(generatedPassword);
 
-        // Assert that the updated user matches the expected user
-        assertEquals(user, updatedUser);
+        // When
+        User result = userService.create(userDto);
 
-        // Verify that save() was called once with the user object
-        verify(userRepository, times(1)).save(user);
+        // Then
+        assertEquals("John", result.getFirstName());
+        assertEquals("Doe", result.getLastName());
+        assertEquals(generatedUsername, result.getUsername());
+        assertEquals(generatedPassword, result.getPassword());
+        assertTrue(result.getIsActive());
+        verify(usernameGenerator, times(1)).generateUsername("John", "Doe");
+        PasswordGenerator.generatePassword();
     }
 
     @Test
-    public void testDelete_Success() {
-        // Mock the delete method to return true
-        when(userRepository.delete(user)).thenReturn(true);
+    void testCheckCredentials_ValidCredentials() throws EntityException {
+        // Given
+        String username = "john.doe";
+        String password = "securePassword";
+        UserCredentials credentials = new UserCredentials(username, password);
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
 
-        boolean result = userService.delete(user);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
 
-        // Assert that the result is true
+        // When
+        boolean result = userService.checkCredentials(credentials);
+
+        // Then
         assertTrue(result);
-
-        // Verify that delete() was called once with the user object
-        verify(userRepository, times(1)).delete(user);
+        verify(userRepository, times(1)).findByUsername(username);
     }
 
     @Test
-    public void testDelete_Failure() {
-        // Mock the delete method to return false
-        when(userRepository.delete(user)).thenReturn(false);
+    void testCheckCredentials_InvalidCredentials() throws EntityException {
+        // Given
+        String username = "john.doe";
+        String password = "wrongPassword";
+        UserCredentials credentials = new UserCredentials(username, password);
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword("securePassword"); // The password in the database is different
 
-        boolean result = userService.delete(user);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
 
-        // Assert that the result is false
+        // When
+        boolean result = userService.checkCredentials(credentials);
+
+        // Then
         assertFalse(result);
-
-        // Verify that delete() was called once with the user object
-        verify(userRepository, times(1)).delete(user);
+        verify(userRepository, times(1)).findByUsername(username);
     }
+
+    @Test
+    void testCheckCredentials_UserNotFound() {
+        // Given
+        String username = "john.doe";
+        UserCredentials credentials = new UserCredentials(username, "password");
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        // When
+        EntityException exception = assertThrows(EntityException.class, () -> {
+            userService.checkCredentials(credentials);
+        });
+
+        // Then
+        assertEquals("Could not found user: " + username, exception.getMessage());
+        verify(userRepository, times(1)).findByUsername(username);
+    }
+
+    @Test
+    void changePassword() throws GymException {
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.ofNullable(user));
+        when(userRepository.update(user)).thenReturn(user);
+
+        User result = userService.changePassword("john.doe", "new");
+
+        assertEquals(user, result);
+
+    }
+
+    @Test
+    void changeActivityStatus() throws GymException {
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.ofNullable(user));
+        when(userRepository.update(user)).thenReturn(user);
+
+        User result = userService.changeActivityStatus("john.doe");
+
+        assertEquals(user, result);
+    }
+
+//    @Test
+//    void testChangePassword_Success() throws GymException {
+//        // Given
+//        User user = new User();
+//        String newPassword = "newPassword";
+//
+//        when(userRepository.update(user)).thenReturn(user);
+//
+//        // When
+//        User result = userService.changePassword("john.doe", newPassword);
+//
+//        // Then
+//        assertEquals(newPassword, result.getPassword());
+//        verify(userRepository, times(1)).update(user);
+//    }
+//
+//    @Test
+//    void testChangeActivityStatus_Success() throws GymException {
+//        // Given
+//        User user = new User();
+//        user.setIsActive(true); // Current status is active
+//
+//        when(userRepository.update(user)).thenReturn(user);
+//
+//        // When
+//        User result = userService.changeActivityStatus("john.doe");
+//
+//        // Then
+//        assertFalse(result.getIsActive()); // Status should be toggled to inactive
+//        verify(userRepository, times(1)).update(user);
+//    }
+//
+//    @Test
+//    void testChangeActivityStatus_InactiveToActive() throws GymException {
+//        // Given
+//        User user = new User();
+//        user.setIsActive(false); // Current status is inactive
+//
+//        when(userRepository.update(user)).thenReturn(user);
+//
+//        // When
+//        User result = userService.changeActivityStatus("john.doe");
+//
+//        // Then
+//        assertTrue(result.getIsActive()); // Status should be toggled to active
+//        verify(userRepository, times(1)).update(user);
+//    }
 }

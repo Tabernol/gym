@@ -1,8 +1,8 @@
 package com.krasnopolskyi.service.impl;
 
-import com.krasnopolskyi.database.dao.TrainingTypeRepository;
 import com.krasnopolskyi.entity.TrainingType;
-import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.EntityException;
+import com.krasnopolskyi.repository.TrainingTypeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -31,7 +31,7 @@ class TrainingTypeServiceImplTest {
     }
 
     @Test
-    public void testFindById_Success() throws EntityNotFoundException {
+    public void testFindById_Success() throws EntityException {
         // Mock the repository to return the trainingType when findById is called
         when(trainingTypeRepo.findById(trainingType.getId())).thenReturn(Optional.of(trainingType));
 
@@ -51,7 +51,7 @@ class TrainingTypeServiceImplTest {
         when(trainingTypeRepo.findById(trainingType.getId())).thenReturn(Optional.empty());
 
         // Call the service method and expect an EntityNotFoundException
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+        EntityException exception = assertThrows(EntityException.class, () -> {
             trainingTypeService.findById(trainingType.getId());
         });
 

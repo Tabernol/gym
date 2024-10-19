@@ -1,23 +1,16 @@
 package com.krasnopolskyi.utils;
 
-import com.krasnopolskyi.database.dao.UserRepository;
+import com.krasnopolskyi.repository.UserRepository;
 import com.krasnopolskyi.exception.ValidateException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class UsernameGenerator {
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    public void setUserRepository(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
-    public String generateUsername(String firstName, String lastName) throws ValidateException {
-        if(firstName.length() < 2 || lastName.length() < 2){
-            throw new ValidateException("First name or Last name must consist of at least two letters");
-        }
+    public String generateUsername(String firstName, String lastName) {
         int count = 1;
         String template = firstName.toLowerCase() + "." + lastName.toLowerCase();
         String username = template;

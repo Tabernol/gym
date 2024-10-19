@@ -1,16 +1,20 @@
 package com.krasnopolskyi.service;
 
 import com.krasnopolskyi.dto.request.TraineeDto;
+import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.response.TraineeResponseDto;
-import com.krasnopolskyi.exception.EntityNotFoundException;
-import com.krasnopolskyi.exception.ValidateException;
+import com.krasnopolskyi.dto.response.TrainerResponseDto;
+import com.krasnopolskyi.exception.EntityException;
 
-public interface TraineeService {
-    TraineeResponseDto save(TraineeDto traineeDto) throws ValidateException;
+import java.util.List;
 
-    TraineeResponseDto findById(Long id) throws EntityNotFoundException;
+public interface TraineeService extends BaseCrudService<TraineeResponseDto, TraineeDto> {
+    TraineeResponseDto findByUsername(String username) throws EntityException;
 
-    TraineeResponseDto update(TraineeDto traineeDto) throws EntityNotFoundException;
+    boolean delete(String username) throws EntityException;
 
-    boolean delete(TraineeDto traineeDto) throws EntityNotFoundException;
+    List<TrainerResponseDto> updateTrainers(TraineeDto traineeDto, List<TrainerDto> trainerDtoList)
+            throws EntityException;
+
+    List<TrainerResponseDto> findAllNotAssignedTrainersByTrainee(String username) throws EntityException;
 }

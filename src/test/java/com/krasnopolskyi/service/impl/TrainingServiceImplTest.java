@@ -1,16 +1,17 @@
 package com.krasnopolskyi.service.impl;
 
-import com.krasnopolskyi.database.dao.TraineeRepository;
-import com.krasnopolskyi.database.dao.TrainerRepository;
-import com.krasnopolskyi.database.dao.TrainingRepository;
-import com.krasnopolskyi.database.dao.TrainingTypeRepository;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import com.krasnopolskyi.dto.request.TrainingDto;
-import com.krasnopolskyi.entity.Trainee;
-import com.krasnopolskyi.entity.Trainer;
-import com.krasnopolskyi.entity.Training;
-import com.krasnopolskyi.entity.TrainingType;
-import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.dto.request.TrainingFilterDto;
+import com.krasnopolskyi.dto.response.TrainingResponseDto;
+import com.krasnopolskyi.entity.*;
+import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.ValidateException;
+import com.krasnopolskyi.repository.*;
+import com.krasnopolskyi.utils.mapper.TrainingMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -18,213 +19,237 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-public class TrainingServiceImplTest {
-
-    @Mock
-    private TrainingRepository trainingRepository;
-
-    @Mock
-    private TraineeRepository traineeRepository;
-
-    @Mock
-    private TrainerRepository trainerRepository;
-
-    @Mock
-    private TrainingTypeRepository trainingTypeRepository;
-
+class TrainingServiceImplTest {
     @InjectMocks
     private TrainingServiceImpl trainingService;
+    @Mock
+    private TrainingRepository trainingRepository;
+    @Mock
+    private TraineeRepository traineeRepository;
+    @Mock
+    private TrainerRepository trainerRepository;
+    @Mock
+    private TrainingTypeRepository trainingTypeRepository;
+    @Mock
+    private UserRepository userRepository;
 
     private TrainingDto trainingDto;
+    private TrainingResponseDto trainingDtoExpected;
+    private Training training =  new Training();
     private Trainee trainee;
     private Trainer trainer;
+    private User user1 = new User();
+    private User user2 = new User();
     private TrainingType trainingType;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
-
-        // Set up a sample Training object
+        trainingType = new TrainingType(1, "Cardio");
         trainingDto = TrainingDto.builder()
-                .trainingName("Cardio")
-                .trainingType(1)
-                .date(LocalDate.of(2024, 9,3))
-                .duration(1000)
                 .traineeId(1L)
                 .trainerId(1L)
+                .trainingName("test")
+                .trainingType(1)
+                .date(LocalDate.of(2024,1,1))
+                .duration(60)
                 .build();
 
-        // Set up corresponding entities
-        trainee = Trainee.builder().id(1L).build();
+        user1.setId(1L);
+        user1.setUsername("john.doe");
+        user1.setFirstName("John");
+        user1.setLastName("Doe");
+        user1.setPassword("123");
 
-        trainer = Trainer.builder().id(1L).specialization(1).userId(101L).build();
+        user2.setId(1L);
+        user2.setUsername("usain.bolt");
+        user2.setFirstName("Usain");
+        user2.setLastName("Bolt");
+        user2.setPassword("123");
 
-        trainingType = new TrainingType(1, "Cardio");
+
+        trainingDtoExpected = new TrainingResponseDto(1l, "test", "Cardio", "Usain Bolt", "John Doe", LocalDate.of(2024,1,1), 60);
+
+        trainee = new Trainee(); // Assuming you have a default constructor
+        trainee.setId(1L);
+        trainee.setUser(user1);
+
+
+        trainer = new Trainer();
+        trainer.setId(1L);
+        trainer.setUser(user2);
+        trainer.setSpecialization(trainingType); // Set specialization to match training type
+
+
+        training.setId(1L);
+        training.setTrainingName("test");
+        training.setTrainer(trainer);
+        training.setTrainee(trainee);
+        training.setTrainingType(trainingType);
+        training.setDate(LocalDate.of(2024,1,1));
+        training.setDuration(60);
     }
 
     @Test
-    public void testSave_Success() throws ValidateException {
-        // Mock repositories to return the corresponding entities
-        when(traineeRepository.findById(1L)).thenReturn(Optional.of(trainee));
-        when(trainerRepository.findById(1L)).thenReturn(Optional.of(trainer));
-        when(trainingTypeRepository.findById(1)).thenReturn(Optional.of(trainingType));
-
-        // Mock trainingRepository to save the training and return it
-        when(trainingRepository.save(any(Training.class))).thenAnswer(invocation -> {
-            // Return the training object with the generated ID
-            Training savedTraining = invocation.getArgument(0);
-            savedTraining.builder().id(1L).build(); // Simulate ID generation
-            return savedTraining;
-        });
-
-        Training savedTraining = trainingService.save(trainingDto);
-
-        // Assert that the saved training object is not null and has an ID
-        assertNotNull(savedTraining);
-        assertNotNull(savedTraining.getId());
-        assertEquals(trainingDto.getDate(), savedTraining.getDate());
-        assertEquals(trainingDto.getDuration(), savedTraining.getDuration());
-        assertEquals(trainingDto.getTrainingName(), savedTraining.getTrainingName());
-
-        // Verify that the necessary repository methods were called
-        verify(traineeRepository, times(1)).findById(1L);
-        verify(trainerRepository, times(1)).findById(1L);
-        verify(trainingTypeRepository, times(1)).findById(1);
-        verify(trainingRepository, times(1)).save(any(Training.class));
-    }
-
-    @Test
-    public void testSave_TraineeNotFound() {
-        // Mock trainee repository to return empty
+    void testSaveTraineeNotFound() {
         when(traineeRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // Assert that an IllegalArgumentException is thrown
-        ValidateException thrown = assertThrows(ValidateException.class, () -> {
-            trainingService.save(trainingDto);
-        });
-
-        assertEquals("Could not find trainee with id 1", thrown.getMessage());
-
-        // Verify that the other repository methods were not called
-        verify(trainerRepository, never()).findById(1L);
-        verify(trainingTypeRepository, never()).findById(1);
-        verify(trainingRepository, never()).save(any(Training.class));
+        // Call the service method and expect exception
+        assertThrows(EntityException.class, () -> trainingService.save(trainingDto));
     }
 
     @Test
-    public void testSave_TrainerNotFound() {
-        // Mock trainee repository to return the trainee
+    void testSaveTrainingTypeNotFound() {
         when(traineeRepository.findById(1L)).thenReturn(Optional.of(trainee));
-        // Mock trainer repository to return empty
-        when(trainerRepository.findById(1L)).thenReturn(Optional.empty());
-
-        // Assert that an IllegalArgumentException is thrown
-        ValidateException thrown = assertThrows(ValidateException.class, () -> {
-            trainingService.save(trainingDto);
-        });
-
-        assertEquals("Could not find trainer with id 1", thrown.getMessage());
-
-        // Verify that the trainingTypeRepository and trainingRepository were not called
-        verify(trainingTypeRepository, never()).findById(1);
-        verify(trainingRepository, never()).save(any(Training.class));
-    }
-
-    @Test
-    public void testSave_TrainingTypeNotFound() {
-        // Mock trainee repository to return the trainee
-        when(traineeRepository.findById(1L)).thenReturn(Optional.of(trainee));
-        // Mock trainer repository to return the trainer
         when(trainerRepository.findById(1L)).thenReturn(Optional.of(trainer));
-
-        TrainingDto trainingAnotherDto = TrainingDto.builder()
-                .trainingName("Yoga")
-                .trainingType(2)
-                .date(LocalDate.of(2024, 9,3))
-                .duration(1000)
-                .traineeId(1L)
-                .trainerId(1L)
-                .build();
-
-        TrainingType trainingType2 = new TrainingType(2, "Yoga");
-
-        // Mock training type repository to return taining
-        when(trainingTypeRepository.findById(2)).thenReturn(Optional.of(trainingType2));
-
-        // Assert that an IllegalArgumentException is thrown
-        ValidateException thrown = assertThrows(ValidateException.class, () -> {
-            trainingService.save(trainingAnotherDto);
-        });
-
-        assertEquals("This trainer is not assigned to this training type", thrown.getMessage());
-
-        // Verify that the trainingRepository was not called
-        verify(trainingRepository, never()).save(any(Training.class));
-    }
-
-    @Test
-    public void testSave_TrainingTypeNotMatchWithTrainerType() {
-        // Mock trainee repository to return the trainee
-        when(traineeRepository.findById(1L)).thenReturn(Optional.of(trainee));
-        // Mock trainer repository to return the trainer
-        when(trainerRepository.findById(1L)).thenReturn(Optional.of(trainer));
-        // Mock training type repository to return empty
         when(trainingTypeRepository.findById(1)).thenReturn(Optional.empty());
 
-        // Assert that an IllegalArgumentException is thrown
-        ValidateException thrown = assertThrows(ValidateException.class, () -> {
-            trainingService.save(trainingDto);
-        });
-
-        assertEquals("Could not find training type with id 1", thrown.getMessage());
-
-        // Verify that the trainingRepository was not called
-        verify(trainingRepository, never()).save(any(Training.class));
+        // Call the service method and expect exception
+        assertThrows(EntityException.class, () -> trainingService.save(trainingDto));
     }
 
     @Test
-    public void testFindById_Success() throws EntityNotFoundException {
-        Training training = Training.builder()
-                .id(1L)
-                .trainingName("Cardio")
-                .trainingType(1)
-                .date(LocalDate.of(2024, 9,3))
-                .duration(1000)
-                .traineeId(1L)
-                .trainerId(1L)
-                .build();
-
-
-        // Mock the training repository to return the training object
-        when(trainingRepository.findById(1L)).thenReturn(Optional.of(training));
-
-        Training result = trainingService.findById(1L);
-
-        // Assert that the training object is retrieved correctly
-        assertEquals(training, result);
-
-        // Verify that findById() was called once with the correct ID
-        verify(trainingRepository, times(1)).findById(1L);
-    }
-
-    @Test
-    public void testFindById_NotFound() {
-        // Mock the training repository to return empty when the training is not found
+    void testFindByIdNotFound() {
         when(trainingRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // Assert that an EntityNotFoundException is thrown
-        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class, () -> {
-            trainingService.findById(1L);
-        });
+        assertThrows(EntityException.class, () -> trainingService.findById(1L));
+    }
 
-        assertEquals("Could not found training with id 1", thrown.getMessage());
+    @Test
+    void testSaveTraining_TraineeNotFound() {
+        // Given
+        TrainingDto trainingDto = new TrainingDto();
+        trainingDto.setTraineeId(1L);
+        trainingDto.setTrainerId(2L);
+        trainingDto.setTrainingName("Yoga Class");
+        trainingDto.setTrainingType(3);
+        trainingDto.setDate(LocalDate.of(2024, 10, 17));
+        trainingDto.setDuration(60);
 
-        // Verify that findById() was called once with the correct ID
-        verify(trainingRepository, times(1)).findById(1L);
+        when(traineeRepository.findById(trainingDto.getTraineeId())).thenReturn(Optional.empty());
+
+        // When & Then
+        EntityException thrown = assertThrows(EntityException.class, () -> trainingService.save(trainingDto));
+        assertEquals("Could not find trainee with id 1", thrown.getMessage());
+    }
+
+    @Test
+    void testSaveTraining_TrainerNotFound() {
+        // Given
+        TrainingDto trainingDto = new TrainingDto();
+        trainingDto.setTraineeId(1L);
+        trainingDto.setTrainerId(2L);
+        trainingDto.setTrainingName("Yoga Class");
+        trainingDto.setTrainingType(3);
+        trainingDto.setDate(LocalDate.of(2024, 10, 17));
+        trainingDto.setDuration(60);
+
+        Trainee trainee = mock(Trainee.class);
+        when(traineeRepository.findById(trainingDto.getTraineeId())).thenReturn(Optional.of(trainee));
+        when(trainerRepository.findById(trainingDto.getTrainerId())).thenReturn(Optional.empty());
+
+        // When & Then
+        EntityException thrown = assertThrows(EntityException.class, () -> trainingService.save(trainingDto));
+        assertEquals("Could not find trainer with id 2", thrown.getMessage());
+    }
+
+    @Test
+    void testSaveTraining_TrainingTypeNotFound() {
+        // Given
+        TrainingDto trainingDto = new TrainingDto();
+        trainingDto.setTraineeId(1L);
+        trainingDto.setTrainerId(2L);
+        trainingDto.setTrainingName("Yoga Class");
+        trainingDto.setTrainingType(3);
+        trainingDto.setDate(LocalDate.of(2024, 10, 17));
+        trainingDto.setDuration(60);
+
+        Trainee trainee = mock(Trainee.class);
+        Trainer trainer = mock(Trainer.class);
+
+        when(traineeRepository.findById(trainingDto.getTraineeId())).thenReturn(Optional.of(trainee));
+        when(trainerRepository.findById(trainingDto.getTrainerId())).thenReturn(Optional.of(trainer));
+        when(trainingTypeRepository.findById(trainingDto.getTrainingType())).thenReturn(Optional.empty());
+
+        // When & Then
+        EntityException thrown = assertThrows(EntityException.class, () -> trainingService.save(trainingDto));
+        assertEquals("Could not find training type with id 3", thrown.getMessage());
+    }
+
+    @Test
+    void testSaveTraining_InvalidTrainerSpecialization() {
+        // Given
+        TrainingDto trainingDto = new TrainingDto();
+        trainingDto.setTraineeId(1L);
+        trainingDto.setTrainerId(2L);
+        trainingDto.setTrainingName("Yoga Class");
+        trainingDto.setTrainingType(3);
+        trainingDto.setDate(LocalDate.of(2024, 10, 17));
+        trainingDto.setDuration(60);
+
+        Trainee trainee = mock(Trainee.class);
+        Trainer trainer = mock(Trainer.class);
+        TrainingType trainingType = mock(TrainingType.class);
+
+        when(traineeRepository.findById(trainingDto.getTraineeId())).thenReturn(Optional.of(trainee));
+        when(trainerRepository.findById(trainingDto.getTrainerId())).thenReturn(Optional.of(trainer));
+        when(trainingTypeRepository.findById(trainingDto.getTrainingType())).thenReturn(Optional.of(trainingType));
+
+        when(trainer.getSpecialization()).thenReturn(mock(TrainingType.class));
+        when(trainer.getSpecialization().getId()).thenReturn(4); // Not matching with the trainingType ID
+
+        // When & Then
+        ValidateException thrown = assertThrows(ValidateException.class, () -> trainingService.save(trainingDto));
+        assertEquals("This trainer is not assigned to this training type", thrown.getMessage());
+    }
+
+    @Test
+    void findById() throws EntityException {
+        when(trainingRepository.findById(anyLong())).thenReturn(Optional.ofNullable(training));
+
+        TrainingResponseDto result = trainingService.findById(1L);
+
+//        assertNotNull(result);
+        assertEquals(1L, result.id());
+    }
+
+    @Test
+    public void getFilteredTrainingsThrow() {
+
+        assertThrows(EntityException.class,() -> trainingService.getFilteredTrainings(TrainingFilterDto.builder().owner("test").build()));
+    }
+
+    @Test
+    public void getFilteredTrainingsSuccess() throws EntityException {
+        TrainingFilterDto test = TrainingFilterDto.builder().owner("test").build();
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.ofNullable(user1));
+        when(trainingRepository.getFilteredTrainings(any(TrainingFilterDto.class))).thenReturn(List.of(training));
+
+        List<TrainingResponseDto> result = trainingService.getFilteredTrainings(test);
+
+        assertEquals(List.of(trainingDtoExpected), result);
+    }
+
+    @Test
+    void saveTrainingTest() throws ValidateException, EntityException {
+
+        when(traineeRepository.findById(trainingDto.getTraineeId())).thenReturn(Optional.ofNullable(trainee));
+        when(trainerRepository.findById(trainingDto.getTrainerId())).thenReturn(Optional.ofNullable(trainer));
+        when(trainingTypeRepository.findById(trainingDto.getTrainingType())).thenReturn(Optional.ofNullable(trainingType));
+        when(trainingRepository.save(any(Training.class))).thenReturn(training);
+
+
+        TrainingResponseDto result = trainingService.save(trainingDto);
+
+        assertEquals(trainingDtoExpected.trainingName(), result.trainingName());
+        assertEquals(trainingDtoExpected.trainingType(), result.trainingType());
+        assertEquals(trainingDtoExpected.traineeFullName(), result.traineeFullName());
+        assertEquals(trainingDtoExpected.trainerFullName(), result.trainerFullName());
+        assertTrue(trainee.getTrainers().contains(trainer));
+        assertTrue(trainer.getTrainees().contains(trainee));
     }
 }

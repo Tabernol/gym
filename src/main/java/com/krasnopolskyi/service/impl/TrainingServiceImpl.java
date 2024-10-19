@@ -1,70 +1,83 @@
 package com.krasnopolskyi.service.impl;
 
-import com.krasnopolskyi.database.dao.TraineeRepository;
-import com.krasnopolskyi.database.dao.TrainerRepository;
-import com.krasnopolskyi.database.dao.TrainingRepository;
-import com.krasnopolskyi.database.dao.TrainingTypeRepository;
+import com.krasnopolskyi.dto.request.TrainingFilterDto;
+import com.krasnopolskyi.dto.response.TrainingResponseDto;
+import com.krasnopolskyi.entity.*;
+import com.krasnopolskyi.repository.*;
 import com.krasnopolskyi.dto.request.TrainingDto;
-import com.krasnopolskyi.entity.Trainee;
-import com.krasnopolskyi.entity.Trainer;
-import com.krasnopolskyi.entity.Training;
-import com.krasnopolskyi.entity.TrainingType;
-import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.service.TrainingService;
-import com.krasnopolskyi.utils.IdGenerator;
+import com.krasnopolskyi.utils.mapper.TrainingMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class TrainingServiceImpl implements TrainingService {
+    private final TrainingRepository trainingRepository;
+    private final TraineeRepository traineeRepository;
+    private final TrainerRepository trainerRepository;
+    private final TrainingTypeRepository trainingTypeRepository;
 
-    // initialized via autowired because task condition 4
-    // I prefer initialized via constructor
-    @Autowired
-    private TrainingRepository trainingRepository;
-    @Autowired
-    private TraineeRepository traineeRepository;
-    @Autowired
-    private TrainerRepository trainerRepository;
-    @Autowired
-    private TrainingTypeRepository trainingTypeRepository;
+    private final UserRepository userRepository;
 
     @Override
-    public Training save(TrainingDto trainingDto) throws ValidateException {
+    @Transactional
+    public TrainingResponseDto save(TrainingDto trainingDto) throws ValidateException, EntityException {
         Trainee trainee = traineeRepository.findById(trainingDto.getTraineeId())
-                .orElseThrow(() -> new ValidateException("Could not find trainee with id " + trainingDto.getTraineeId()));
+                .orElseThrow(() -> new EntityException("Could not find trainee with id " + trainingDto.getTraineeId()));
 
         Trainer trainer = trainerRepository.findById(trainingDto.getTrainerId())
-                .orElseThrow(() -> new ValidateException("Could not find trainer with id " + trainingDto.getTrainerId()));
+                .orElseThrow(() -> new EntityException("Could not find trainer with id " + trainingDto.getTrainerId()));
 
         TrainingType trainingType = trainingTypeRepository.findById(trainingDto.getTrainingType())
-                .orElseThrow(() -> new ValidateException("Could not find training type with id " + trainingDto.getTrainingType()));
+                .orElseThrow(() -> new EntityException("Could not find training type with id " + trainingDto.getTrainingType()));
 
-        if(trainer.getSpecialization() != trainingType.getId()){
+        if (trainer.getSpecialization().getId() != trainingType.getId()) {
             log.debug("Attempt to save training session with wrong specialization for trainer");
             throw new ValidateException("This trainer is not assigned to this training type");
         }
+        trainer.getTrainees().add(trainee); // save into set and table trainer_trainee
 
-        long id = IdGenerator.generateId();
-        Training training = Training.builder()
-                .id(id)
-                .traineeId(trainee.getId())
-                .trainerId(trainer.getId())
-                .trainingName(trainingType.getType())
-                .date(trainingDto.getDate())
-                .duration(trainingDto.getDuration())
-                .build();
-        Training save = trainingRepository.save(training);
-        log.debug("training has been saved " + save);
-        return save;
+        Training training = new Training();
+        training.setTrainee(trainee);
+        training.setTrainer(trainer);
+        training.setTrainingType(trainingType);
+        training.setDate(trainingDto.getDate());
+        training.setDuration(trainingDto.getDuration());
+        training.setTrainingName(trainingDto.getTrainingName());
+
+        trainee.getTrainers().add(trainer);
+        trainer.getTrainees().add(trainee);
+
+        trainingRepository.save(training);
+
+        return TrainingMapper.mapToDto(training);
     }
 
     @Override
-    public Training findById(Long id) throws EntityNotFoundException {
-        return trainingRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Could not found training with id " + id));
+    @Transactional(readOnly = true)
+    public TrainingResponseDto findById(Long id) throws EntityException {
+        Training training = trainingRepository.findById(id)
+                .orElseThrow(() -> new EntityException("Could not found training with id " + id));
+        return TrainingMapper.mapToDto(training);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TrainingResponseDto> getFilteredTrainings(TrainingFilterDto filter) throws EntityException {
+        userRepository.findByUsername(filter.getOwner())
+                .orElseThrow(() -> new EntityException("Could not found user: " + filter.getOwner()));
+
+        List<Training> trainings = trainingRepository.getFilteredTrainings(filter);
+
+        return trainings.stream().map(TrainingMapper::mapToDto).collect(Collectors.toList());
     }
 }

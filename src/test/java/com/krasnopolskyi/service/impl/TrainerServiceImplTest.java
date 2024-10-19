@@ -1,15 +1,16 @@
 package com.krasnopolskyi.service.impl;
 
-import com.krasnopolskyi.database.dao.TrainerRepository;
 import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.request.UserDto;
+import com.krasnopolskyi.dto.response.TraineeResponseDto;
 import com.krasnopolskyi.dto.response.TrainerResponseDto;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.TrainingType;
 import com.krasnopolskyi.entity.User;
-import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.exception.ValidateException;
+import com.krasnopolskyi.repository.impl.TrainerRepositoryImpl;
 import com.krasnopolskyi.service.TrainingTypeService;
 import com.krasnopolskyi.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +27,7 @@ import static org.mockito.Mockito.*;
 class TrainerServiceImplTest {
 
     @Mock
-    private TrainerRepository trainerRepository;
+    private TrainerRepositoryImpl trainerRepository;
 
     @Mock
     private UserService userService;
@@ -39,30 +40,27 @@ class TrainerServiceImplTest {
 
     private TrainerDto trainerDto;
     private Trainer trainer;
-    private User user;
+    private User user = new User();
     private TrainingType trainingType;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        trainerDto = TrainerDto.builder().firstName("Jane").lastName("Doe").specialization(1).build();
+        trainerDto = TrainerDto.builder().firstName("John").lastName("Doe").specialization(1).build();
 
-        user = User.builder()
-                .id(1L)
-                .username("jane.doe")
-                .firstName("Jane")
-                .lastName("Doe")
-                .password("123")
-                .build();
+        user.setId(1L);
+        user.setUsername("john.doe");
+        user.setFirstName("John");
+        user.setLastName("Doe");
+        user.setPassword("123");
 
         trainingType = new TrainingType(1, "Cardio");
 
-        trainer = Trainer.builder()
-                .id(1L)
-                .userId(user.getId())
-                .specialization(trainingType.getId())
-                .build();
+        trainer = new Trainer();
+        trainer.setId(1L);
+        trainer.setUser(user);
+        trainer.setSpecialization(trainingType);
     }
 
     @Test
@@ -70,7 +68,7 @@ class TrainerServiceImplTest {
         // Mock trainingTypeService to return the training type
         when(trainingTypeService.findById(1)).thenReturn(trainingType);
         // Mock userService to return the user
-        when(userService.save(any(UserDto.class))).thenReturn(user);
+        when(userService.create(any(UserDto.class))).thenReturn(user);
         // Mock trainerRepository to save and return the trainer
         when(trainerRepository.save(any(Trainer.class))).thenReturn(trainer);
 
@@ -83,14 +81,14 @@ class TrainerServiceImplTest {
         assertEquals(trainingType.getType(), result.specialization());
 
         // Verify interactions
-        verify(userService, times(1)).save(any(UserDto.class));
+        verify(userService, times(1)).create(any(UserDto.class));
         verify(trainerRepository, times(1)).save(any(Trainer.class));
     }
 
     @Test
-    public void testSave_TrainingTypeNotFound() throws EntityNotFoundException, ValidateException {
+    public void testSave_TrainingTypeNotFound() throws EntityException, ValidateException {
         // Mock trainingTypeService to throw EntityNotFoundException
-        when(trainingTypeService.findById(1)).thenThrow(new EntityNotFoundException("Not found"));
+        when(trainingTypeService.findById(1)).thenThrow(new EntityException("Not found"));
 
         // Assert that ValidateException is thrown when trying to save
         ValidateException thrown = assertThrows(ValidateException.class, () -> {
@@ -100,16 +98,16 @@ class TrainerServiceImplTest {
         assertEquals("Specialisation with id 1 does not exist", thrown.getMessage());
 
         // Verify that userService.save() and trainerRepository.save() were not called
-        verify(userService, never()).save(any(UserDto.class));
+        verify(userService, never()).create(any(UserDto.class));
         verify(trainerRepository, never()).save(any(Trainer.class));
     }
 
     @Test
-    public void testFindById_Success() throws EntityNotFoundException {
+    public void testFindById_Success() throws EntityException {
         // Mock the trainer repository to return the trainer when queried by ID
         when(trainerRepository.findById(1L)).thenReturn(Optional.of(trainer));
-        when(userService.findById(trainer.getUserId())).thenReturn(user);
-        when(trainingTypeService.findById(trainer.getSpecialization())).thenReturn(trainingType);
+        when(userService.findById(trainer.getUser().getId())).thenReturn(user);
+        when(trainingTypeService.findById(trainer.getSpecialization().getId())).thenReturn(trainingType);
 
         TrainerResponseDto result = trainerService.findById(1L);
 
@@ -129,7 +127,7 @@ class TrainerServiceImplTest {
         when(trainerRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Assert that an EntityNotFoundException is thrown
-        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class, () -> {
+        EntityException thrown = assertThrows(EntityException.class, () -> {
             trainerService.findById(1L);
         });
 
@@ -143,8 +141,8 @@ class TrainerServiceImplTest {
     public void testUpdate_Success() throws GymException {
         // Mock the trainer repository to return the existing trainer
         when(trainerRepository.findById(trainerDto.getId())).thenReturn(Optional.of(trainer));
-        when(userService.findById(trainer.getUserId())).thenReturn(user);
-        when(trainingTypeService.findById(trainer.getSpecialization())).thenReturn(trainingType);
+        when(userService.findById(trainer.getUser().getId())).thenReturn(user);
+        when(trainingTypeService.findById(trainer.getSpecialization().getId())).thenReturn(trainingType);
 
         // Mock the repository to return the updated trainer
         when(trainerRepository.save(any(Trainer.class))).thenReturn(trainer);
@@ -159,5 +157,22 @@ class TrainerServiceImplTest {
 
         // Verify interactions
         verify(trainerRepository, times(1)).save(any(Trainer.class));
+    }
+
+    @Test
+    void findByUsernameThrowsException() {
+        String username = "testUser";
+        when(trainerRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
+        assertThrows(EntityException.class, ()-> trainerService.findByUsername("test"));
+    }
+
+    @Test
+    void testFindByUsernameSuccess() throws EntityException {
+        String username = "testUser";
+        when(trainerRepository.findByUsername(any(String.class))).thenReturn(Optional.of(trainer));
+
+        TrainerResponseDto result = trainerService.findByUsername(username);
+
+        assertNotNull(result);
     }
 }
