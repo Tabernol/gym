@@ -1,4 +1,4 @@
-package com.krasnopolskyi.service.impl;
+package com.krasnopolskyi.service;
 
 import com.krasnopolskyi.entity.TrainingType;
 import com.krasnopolskyi.exception.EntityException;

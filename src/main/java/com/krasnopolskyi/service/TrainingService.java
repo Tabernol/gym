@@ -1,4 +1,4 @@
-package com.krasnopolskyi.service.impl;
+package com.krasnopolskyi.service;
 
 import com.krasnopolskyi.dto.request.TrainingFilterDto;
 import com.krasnopolskyi.dto.response.TrainingResponseDto;

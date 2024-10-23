@@ -3,7 +3,7 @@ package com.krasnopolskyi.security;
 import com.krasnopolskyi.dto.request.UserCredentials;
 import com.krasnopolskyi.exception.AccessException;
 import com.krasnopolskyi.exception.EntityException;
-import com.krasnopolskyi.service.impl.UserService;
+import com.krasnopolskyi.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

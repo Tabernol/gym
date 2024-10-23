@@ -1,4 +1,4 @@
-package com.krasnopolskyi.service.impl;
+package com.krasnopolskyi.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
