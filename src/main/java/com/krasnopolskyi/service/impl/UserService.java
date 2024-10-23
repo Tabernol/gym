@@ -6,7 +6,6 @@ import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.repository.UserRepository;
 import com.krasnopolskyi.entity.User;
-import com.krasnopolskyi.service.UserService;
 import com.krasnopolskyi.utils.PasswordGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class UserService {
     private final UserRepository userRepository;
 
-    @Override
     public User create(UserDto userDto) {
         String username = generateUsername(userDto.firstName(), userDto.lastName());
         String password = PasswordGenerator.generatePassword();
@@ -32,7 +30,7 @@ public class UserServiceImpl implements UserService {
         user.setRole(userDto.role());
         return user;
     }
-    @Override
+
     public User findById(Long id) throws EntityException {
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityException("Could not found user with id " + id));
@@ -43,7 +41,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new EntityException("Could not found user: " + username));
     }
 
-    @Override
+
     @Transactional
     public boolean checkCredentials(UserCredentials credentials) throws EntityException {
         User user = findByUsername(credentials.username());
@@ -54,7 +52,7 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
-    @Override
+
     @Transactional
     public User changePassword(String username, String password) throws GymException {
         User user = findByUsername(username);
@@ -62,7 +60,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.update(user);
     }
 
-    @Override
+
     @Transactional
     public User changeActivityStatus(String target) throws GymException {
         User user = findByUsername(target);
@@ -70,7 +68,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.update(user);
     }
 
-    public String generateUsername(String firstName, String lastName) {
+    private String generateUsername(String firstName, String lastName) {
         int count = 1;
         String template = firstName.toLowerCase() + "." + lastName.toLowerCase();
         String username = template;

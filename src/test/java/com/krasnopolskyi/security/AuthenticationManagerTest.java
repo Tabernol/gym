@@ -6,7 +6,7 @@ import static org.mockito.Mockito.*;
 import com.krasnopolskyi.dto.request.UserCredentials;
 import com.krasnopolskyi.exception.AccessException;
 import com.krasnopolskyi.exception.EntityException;
-import com.krasnopolskyi.service.UserService;
+import com.krasnopolskyi.service.impl.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

@@ -13,9 +13,6 @@ import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.repository.impl.TraineeRepositoryImpl;
 import com.krasnopolskyi.repository.impl.TrainerRepositoryImpl;
-import com.krasnopolskyi.service.UserService;
-import com.krasnopolskyi.utils.mapper.TraineeMapper;
-import com.krasnopolskyi.utils.mapper.TrainerMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -28,7 +25,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class TraineeServiceImplTest {
+class TraineeServiceTest {
 
     @Mock
     private TraineeRepositoryImpl traineeRepository;
@@ -40,7 +37,7 @@ class TraineeServiceImplTest {
     private TrainingType trainingType;
 
     @InjectMocks
-    private TraineeServiceImpl traineeService;
+    private TraineeService traineeService;
 
     private TraineeDto traineeDto;
     private Trainee trainee = new Trainee();

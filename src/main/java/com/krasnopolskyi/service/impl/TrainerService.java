@@ -11,9 +11,6 @@ import com.krasnopolskyi.entity.TrainingType;
 import com.krasnopolskyi.entity.User;
 import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.exception.ValidateException;
-import com.krasnopolskyi.service.TrainerService;
-import com.krasnopolskyi.service.TrainingTypeService;
-import com.krasnopolskyi.service.UserService;
 import com.krasnopolskyi.utils.mapper.TrainerMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,13 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class TrainerServiceImpl implements TrainerService {
+public class TrainerService {
 
     private final TrainerRepositoryImpl trainerRepository;
     private final UserService userService;
     private final TrainingTypeService trainingTypeService;
 
-    @Override
     @Transactional
     public TrainerResponseDto save(TrainerDto trainerDto) throws ValidateException, EntityException {
         validate(trainerDto); // validate specialization
@@ -47,7 +43,7 @@ public class TrainerServiceImpl implements TrainerService {
         return TrainerMapper.mapToDto(saveTrainer);
     }
 
-    @Override
+
     @Transactional(readOnly = true)
     public TrainerResponseDto findById(Long id) throws EntityException {
         Trainer trainer = trainerRepository.findById(id)
@@ -55,7 +51,6 @@ public class TrainerServiceImpl implements TrainerService {
         return TrainerMapper.mapToDto(trainer);
     }
 
-    @Override
     @Transactional(readOnly = true)
     public TrainerResponseDto findByUsername(String username) throws EntityException {
         return trainerRepository.findByUsername(username)
@@ -63,7 +58,7 @@ public class TrainerServiceImpl implements TrainerService {
                 .orElseThrow(() -> new EntityException("Can't find trainer with username " + username));
     }
 
-    @Override
+
     @Transactional
     public TrainerResponseDto update(TrainerDto trainerDto) throws GymException {
         Trainer trainer = trainerRepository.findById(trainerDto.getId())

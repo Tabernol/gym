@@ -10,10 +10,10 @@ import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.security.AuthenticationManager;
-import com.krasnopolskyi.service.TraineeService;
-import com.krasnopolskyi.service.TrainerService;
-import com.krasnopolskyi.service.TrainingService;
-import com.krasnopolskyi.service.UserService;
+import com.krasnopolskyi.service.impl.TraineeService;
+import com.krasnopolskyi.service.impl.TrainerService;
+import com.krasnopolskyi.service.impl.TrainingService;
+import com.krasnopolskyi.service.impl.UserService;
 import com.krasnopolskyi.validation.CommonValidator;
 import com.krasnopolskyi.validation.group.Create;
 import jakarta.validation.ConstraintViolationException;
@@ -66,8 +66,6 @@ public class MainFacade {
             return trainee;
         } catch (ConstraintViolationException e) {
             log.warn("Validation failed: " + e.getMessage());
-        } catch (ValidateException | EntityException e) {
-            log.warn(e.getMessage());
         }
         return null;
     }

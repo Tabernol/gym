@@ -14,13 +14,13 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class TrainingTypeServiceImplTest {
+class TrainingTypeServiceTest {
 
     @Mock
     private TrainingTypeRepository trainingTypeRepo;
 
     @InjectMocks
-    private TrainingTypeServiceImpl trainingTypeService;
+    private TrainingTypeService trainingTypeService;
 
     private TrainingType trainingType;
 

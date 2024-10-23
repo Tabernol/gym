@@ -7,7 +7,6 @@ import com.krasnopolskyi.repository.*;
 import com.krasnopolskyi.dto.request.TrainingDto;
 import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.ValidateException;
-import com.krasnopolskyi.service.TrainingService;
 import com.krasnopolskyi.utils.mapper.TrainingMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +19,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class TrainingServiceImpl implements TrainingService {
+public class TrainingService {
     private final TrainingRepository trainingRepository;
     private final TraineeRepository traineeRepository;
     private final TrainerRepository trainerRepository;
@@ -28,7 +27,6 @@ public class TrainingServiceImpl implements TrainingService {
 
     private final UserRepository userRepository;
 
-    @Override
     @Transactional
     public TrainingResponseDto save(TrainingDto trainingDto) throws ValidateException, EntityException {
         Trainee trainee = traineeRepository.findById(trainingDto.getTraineeId())
@@ -62,7 +60,6 @@ public class TrainingServiceImpl implements TrainingService {
         return TrainingMapper.mapToDto(training);
     }
 
-    @Override
     @Transactional(readOnly = true)
     public TrainingResponseDto findById(Long id) throws EntityException {
         Training training = trainingRepository.findById(id)
@@ -70,7 +67,6 @@ public class TrainingServiceImpl implements TrainingService {
         return TrainingMapper.mapToDto(training);
     }
 
-    @Override
     @Transactional(readOnly = true)
     public List<TrainingResponseDto> getFilteredTrainings(TrainingFilterDto filter) throws EntityException {
         userRepository.findByUsername(filter.getOwner())

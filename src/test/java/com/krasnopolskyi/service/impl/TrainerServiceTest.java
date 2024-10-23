@@ -2,7 +2,6 @@ package com.krasnopolskyi.service.impl;
 
 import com.krasnopolskyi.dto.request.TrainerDto;
 import com.krasnopolskyi.dto.request.UserDto;
-import com.krasnopolskyi.dto.response.TraineeResponseDto;
 import com.krasnopolskyi.dto.response.TrainerResponseDto;
 import com.krasnopolskyi.entity.Trainer;
 import com.krasnopolskyi.entity.TrainingType;
@@ -11,8 +10,6 @@ import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.repository.impl.TrainerRepositoryImpl;
-import com.krasnopolskyi.service.TrainingTypeService;
-import com.krasnopolskyi.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -24,7 +21,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class TrainerServiceImplTest {
+class TrainerServiceTest {
 
     @Mock
     private TrainerRepositoryImpl trainerRepository;
@@ -36,7 +33,7 @@ class TrainerServiceImplTest {
     private TrainingTypeService trainingTypeService;
 
     @InjectMocks
-    private TrainerServiceImpl trainerService;
+    private TrainerService trainerService;
 
     private TrainerDto trainerDto;
     private Trainer trainer;

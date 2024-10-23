@@ -13,8 +13,6 @@ import com.krasnopolskyi.entity.User;
 import com.krasnopolskyi.exception.EntityException;
 import com.krasnopolskyi.repository.TraineeRepository;
 import com.krasnopolskyi.repository.TrainerRepository;
-import com.krasnopolskyi.service.TraineeService;
-import com.krasnopolskyi.service.UserService;
 import com.krasnopolskyi.utils.mapper.TraineeMapper;
 import com.krasnopolskyi.utils.mapper.TrainerMapper;
 import lombok.RequiredArgsConstructor;
@@ -29,12 +27,11 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class TraineeServiceImpl implements TraineeService {
+public class TraineeService {
     private final TraineeRepository traineeRepository;
     private final TrainerRepository trainerRepository;
     private final UserService userService;
 
-    @Override
     @Transactional
     public TraineeResponseDto save(TraineeDto traineeDto) {
         User newUser = userService
@@ -48,14 +45,12 @@ public class TraineeServiceImpl implements TraineeService {
         return TraineeMapper.mapToDto(savedTrainee);
     }
 
-    @Override
     @Transactional(readOnly = true)
     public TraineeResponseDto findById(Long id) throws EntityException {
         return TraineeMapper.mapToDto(findTraineeById(id));
 
     }
 
-    @Override
     @Transactional(readOnly = true) //generate test
     public TraineeResponseDto findByUsername(String username) throws EntityException {
         return traineeRepository.findByUsername(username)
@@ -63,7 +58,6 @@ public class TraineeServiceImpl implements TraineeService {
                 .orElseThrow(() -> new EntityException("Can't find trainee with username " + username));
     }
 
-    @Override
     @Transactional
     public TraineeResponseDto update(TraineeDto traineeDto) throws EntityException {
         // find trainee entity
@@ -82,7 +76,6 @@ public class TraineeServiceImpl implements TraineeService {
         return TraineeMapper.mapToDto(savedTrainee);
     }
 
-    @Override
     @Transactional
     public boolean delete(String username) throws EntityException {
         Trainee trainee = traineeRepository.findByUsername(username)
@@ -90,7 +83,6 @@ public class TraineeServiceImpl implements TraineeService {
         return traineeRepository.delete(trainee);
     }
 
-    @Override
     @Transactional //generate test
     public List<TrainerResponseDto> updateTrainers(TraineeDto traineeDto, List<TrainerDto> trainerDtoList) throws EntityException {
         Trainee trainee = findTraineeById(traineeDto.getId());
@@ -108,8 +100,8 @@ public class TraineeServiceImpl implements TraineeService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    @Transactional //generate test
+
+    @Transactional(readOnly = true)
     public List<TrainerResponseDto> findAllNotAssignedTrainersByTrainee(String username) throws EntityException {
         Trainee trainee = traineeRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityException("Can't find trainee with username " + username));
