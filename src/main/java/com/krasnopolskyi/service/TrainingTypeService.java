@@ -1,9 +1,20 @@
 package com.krasnopolskyi.service;
 
 import com.krasnopolskyi.entity.TrainingType;
-import com.krasnopolskyi.exception.EntityNotFoundException;
+import com.krasnopolskyi.exception.EntityException;
+import com.krasnopolskyi.repository.TrainingTypeRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
-public interface TrainingTypeService {
-    TrainingType findById(Integer id) throws EntityNotFoundException;
+@Service
+@RequiredArgsConstructor
+public class TrainingTypeService {
+
+    private final TrainingTypeRepository trainingTypeRepo;
+
+    public TrainingType findById(Integer id) throws EntityException {
+        return trainingTypeRepo.findById(id)
+                .orElseThrow(() -> new EntityException("Could not find training type with id " + id));
+    }
 
 }

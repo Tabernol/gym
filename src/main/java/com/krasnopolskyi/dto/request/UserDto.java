@@ -1,11 +1,6 @@
 package com.krasnopolskyi.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import com.krasnopolskyi.entity.Role;
 
-@AllArgsConstructor
-@Getter
-public class UserDto {
-    private String firstName;
-    private String lastName;
+public record UserDto(String firstName, String lastName, Role role) {
 }
