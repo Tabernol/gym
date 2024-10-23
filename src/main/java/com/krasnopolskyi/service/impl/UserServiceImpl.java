@@ -8,7 +8,6 @@ import com.krasnopolskyi.repository.UserRepository;
 import com.krasnopolskyi.entity.User;
 import com.krasnopolskyi.service.UserService;
 import com.krasnopolskyi.utils.PasswordGenerator;
-import com.krasnopolskyi.utils.UsernameGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,11 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final UsernameGenerator usernameGenerator;
 
     @Override
     public User create(UserDto userDto) {
-        String username = usernameGenerator.generateUsername(userDto.firstName(), userDto.lastName());
+        String username = generateUsername(userDto.firstName(), userDto.lastName());
         String password = PasswordGenerator.generatePassword();
         User user = new User();
         user.setFirstName(userDto.firstName());
@@ -70,5 +68,20 @@ public class UserServiceImpl implements UserService {
         User user = findByUsername(target);
         user.setIsActive(!user.getIsActive()); //status changes here
         return userRepository.update(user);
+    }
+
+    public String generateUsername(String firstName, String lastName) {
+        int count = 1;
+        String template = firstName.toLowerCase() + "." + lastName.toLowerCase();
+        String username = template;
+        while (isUsernameExist(username)){
+            username = template + count;
+            count++;
+        }
+        return username;
+    }
+
+    private boolean isUsernameExist(String username){
+        return userRepository.isUsernameExist(username);
     }
 }

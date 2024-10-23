@@ -9,7 +9,6 @@ import com.krasnopolskyi.exception.GymException;
 import com.krasnopolskyi.exception.ValidateException;
 import com.krasnopolskyi.repository.UserRepository;
 import com.krasnopolskyi.utils.PasswordGenerator;
-import com.krasnopolskyi.utils.UsernameGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -25,9 +24,6 @@ public class UserServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private UsernameGenerator usernameGenerator;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -89,7 +85,6 @@ public class UserServiceImplTest {
         String generatedUsername = "john.doe";
         String generatedPassword = "securePassword";
 
-        when(usernameGenerator.generateUsername("John", "Doe")).thenReturn(generatedUsername);
         mockStatic(PasswordGenerator.class);
         when(PasswordGenerator.generatePassword()).thenReturn(generatedPassword);
 
@@ -102,7 +97,6 @@ public class UserServiceImplTest {
         assertEquals(generatedUsername, result.getUsername());
         assertEquals(generatedPassword, result.getPassword());
         assertTrue(result.getIsActive());
-        verify(usernameGenerator, times(1)).generateUsername("John", "Doe");
         PasswordGenerator.generatePassword();
     }
 
